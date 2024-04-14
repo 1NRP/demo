@@ -18,11 +18,82 @@
 <script>
     // Get the textarea element
     const textBox = document.getElementById('textBox');
-
-    // Add event listener for clicks on the textarea
+    const placeholder = document.getElementById('vid');
     let clickCount = 0;
-    let lastClickTime = 0;
-    textBox.addEventListener('click', function(event) {
+    let clickTimer;
+    let isCopying = false;
+
+    // Set initial mode to "paste"
+    document.getElementById('pasteCopyButton').innerText = '🗒';
+
+    // Function to paste text from placeholder to textbox
+    function pasteText() {
+        textBox.value += (textBox.value.length > 0 ? '\n\n' : '') + placeholder.value;
+    }
+
+    // Function to copy text from textbox to clipboard
+    function copyTextBoxToClipboard() {
+        textBox.select();
+        document.execCommand('copy');
+    }
+
+    // Handle button click
+    function handleButtonClick() {
+        clickCount++;
+        clearTimeout(clickTimer);
+        clickTimer = setTimeout(() => {
+            if (clickCount >= 3) {
+                toggleMode();
+            } else {
+                if (isCopying) {
+                    copyTextBoxToClipboard(); 
+                } else {
+                    pasteText();
+                }
+            }
+            clickCount = 0;
+        }, 800);  // 3 clicks in 0.8 seconds or 800 milliseconds.
+    }
+
+    // Function to toggle between paste and copy modes
+    function toggleMode() {
+        isCopying = !isCopying;
+        document.getElementById('pasteCopyButton').innerText = isCopying ? '✂️' : '🗒';
+        if (!isCopying) {
+            makeLinesClickable();
+        } else {
+            removeLinesClickable();
+        }
+    }
+
+    // Function to make lines clickable for copying
+    function makeLinesClickable() {
+        textBox.removeEventListener('click', handleTextBoxClick);
+        textBox.addEventListener('click', handleLineClick);
+    }
+
+    // Function to remove clickability of lines
+    function removeLinesClickable() {
+        textBox.removeEventListener('click', handleLineClick);
+        textBox.addEventListener('click', handleTextBoxClick);
+    }
+
+    // Function to handle click on specific lines
+    function handleLineClick(event) {
+        const line = event.target.textContent.trim();
+        if (line) {
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            const range = document.createRange();
+            range.selectNodeContents(event.target);
+            selection.addRange(range);
+            document.execCommand('copy');
+            selection.removeAllRanges();
+        }
+    }
+
+    // Function to handle click on the textbox
+    function handleTextBoxClick(event) {
         const currentTime = new Date().getTime();
         if (currentTime - lastClickTime < 800) {
             clickCount++;
@@ -34,34 +105,34 @@
             clickCount = 1;
         }
         lastClickTime = currentTime;
-    });
+    }
 
-    // Add event listener for clicks outside the textarea
-    document.addEventListener('click', function(event) {
-        const target = event.target;
-        if (target !== textBox) {
-            clickCount = 0;
-            textBox.readOnly = true;
-            textBox.style.backgroundColor = '#f2f2f2';
+    // Function to store and retrieve Terabox links using browser Cache method.
+    function updateCachedContent() {
+        const textBoxContent = textBox.value;
+        const cachedItem = {
+            content: textBoxContent
+        };
+
+        localStorage.setItem('cachedTextBoxContent', JSON.stringify(cachedItem));
+    }
+
+    function loadFromCache() {
+        const cachedItem = JSON.parse(localStorage.getItem('cachedTextBoxContent'));
+        if (cachedItem) {
+            textBox.value = cachedItem.content;
         }
+    }
+
+    // Load cached content on page load
+    loadFromCache();
+
+    // Cache is updated every time the Copy/Paste button is clicked, with a delay of 1 second
+    // Cache can be manually cleared using Tamper-monkey or through the browser
+    document.getElementById('pasteCopyButton').addEventListener('click', () => {
+        setTimeout(updateCachedContent, 1000);  // 1 second delay because link is pasted after 0.8 seconds of clicking the button.
     });
 
-    // Add event listener for clicks on specific lines
-    textBox.addEventListener('click', function(event) {
-        const target = event.target;
-        if (target.tagName === 'TEXTAREA') return;
-
-        const selection = window.getSelection();
-        selection.removeAllRanges();
-
-        const range = document.createRange();
-        range.selectNodeContents(target);
-        selection.addRange(range);
-
-        document.execCommand('copy');
-
-        selection.removeAllRanges();
-    });
 </script>
 
 </body>
