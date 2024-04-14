@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Textarea Example</title>
+<style>
+    #textBox {
+        width: 300px;
+        height: 200px;
+    }
+</style>
+</head>
+<body>
+
+<textarea id="textBox"></textarea>
+
+<script>
+    // Get the textarea element
+    const textBox = document.getElementById('textBox');
+
+    // Add event listener for clicks on the textarea
+    let clickCount = 0;
+    let lastClickTime = 0;
+    textBox.addEventListener('click', function(event) {
+        const currentTime = new Date().getTime();
+        if (currentTime - lastClickTime < 800) {
+            clickCount++;
+            if (clickCount >= 3) {
+                textBox.readOnly = false;
+                textBox.style.backgroundColor = 'white';
+            }
+        } else {
+            clickCount = 1;
+        }
+        lastClickTime = currentTime;
+    });
+
+    // Add event listener for clicks outside the textarea
+    document.addEventListener('click', function(event) {
+        const target = event.target;
+        if (target !== textBox) {
+            clickCount = 0;
+            textBox.readOnly = true;
+            textBox.style.backgroundColor = '#f2f2f2';
+        }
+    });
+
+    // Add event listener for clicks on specific lines
+    textBox.addEventListener('click', function(event) {
+        const target = event.target;
+        if (target.tagName === 'TEXTAREA') return;
+
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+
+        const range = document.createRange();
+        range.selectNodeContents(target);
+        selection.addRange(range);
+
+        document.execCommand('copy');
+
+        selection.removeAllRanges();
+    });
+</script>
+
+</body>
+</html>
