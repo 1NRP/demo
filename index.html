@@ -60,7 +60,6 @@
 </div>
 
 <script>
-
     let textContent = "";
 let lastViewedPage = 1; // Variable to store the last viewed page number
 
@@ -134,6 +133,17 @@ window.onbeforeunload = function() {
   // Cache the text file and last viewed page number
   localStorage.setItem('cachedText', textContent);
   localStorage.setItem('lastViewedPage', lastViewedPage);
+}
+window.onload = function() {
+  // Check if there's a cached file and load it
+  const cachedText = localStorage.getItem('cachedText');
+  const cachedPage = localStorage.getItem('lastViewedPage');
+  if (cachedText) {
+    textContent = cachedText;
+    lastViewedPage = cachedPage ? parseInt(cachedPage) : 1;
+    displayTextPages(); // Display text pages first
+    scrollToPage(lastViewedPage); // Then scroll to the last viewed page
+  }
 }
 
 </script>
