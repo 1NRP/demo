@@ -3,7 +3,7 @@ import { withBlob } from "@vercel/blob";
 export default withBlob(async function handler(req, res) {
   try {
     // Access the blob storage using Vercel Blob SDK
-    await req.blobStorage.put("your_blob_name", req.body);
+    await req.blobStorage.put("TB_links", req.body);
 
     // Return success response
     res.status(200).json({ message: "Blob updated successfully!" });
