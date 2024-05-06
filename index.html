@@ -4,131 +4,73 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nihar's Notes</title>
+<title>vercel blob</title>
 <style>
-  body {
-    background-color: #000;  
-    color: #888;
-  #textArea {
-    width: 96%;
-    height: 80vh;
-    padding: 6px;
-    font-family: sans-serif;
-    font-size: 15px;
-    overflow: auto;
-    background-color: #1d2530;
-    border: none;
-    color: #b4b4b4;
-    border-radius: 6px;
+  #textBox {
+    width: 95%;
+    height: 200px;
   }
-  #header-box {
-    display: flex;
-    flex-direction: row;
-  }
-  ::placeholder {
-    color: #b4b4b4;
-    opacity: 2;
-  }
-  #saveBtn {
-    background-color: #000;
-    color: #b4b4b4;
-    border: 2px solid #;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-bottom: 10px;
-    margin-left: 50vw;
-  }
-  h2 {
-    margin: 2px;
-    color: #85ade6;
-    font-weight: 800;
-    font-family: cursive, sans-serif;
-  }
-  .alert {
-    position: absolute;
-    top: 4vh;
-    left: 50vw;
-    transform: translate(-50%, -50%);
-    background-color: #283555;
-    color: #b4b4b4;
-    padding: 5px 5px;
-    border: 2px solid #888;
-    border-radius: 5px;
-  }
-  #brightModeBtn {
-    position: absolute;
-    top: 98vh;
-    left: 5vw;
-    cursor: pointer;
-    border: none;
-    background-color: #444;
-    color: #9999;
-    Border-radius: 50%;
-    text-align: center;
-    padding: 6px;
-    margin-left: 0px; 
-  }
-   /* Code for Bright-Mode toggle. */
-  .brightMode {
-    body {
-        color: #fff;
-        background-color: #000;
-    }
-    
-    #brightModeBtn {
-        color: #fff;
-    }
-}
-
-
 </style>
 </head>
 <body>
 <div id="header-box">
   <h2> My Notes <h2>
-  <button id="saveBtn" onclick="saveNote(); showAlert()"><h2>SAVE<h2></button>
-</div>
-  <textarea id="textArea"></textarea>
-</div>
-
-  <button id="brightModeBtn" onclick="brightModeFunction()">☀️</button>
+<textarea id="textBox"></textarea>
+<button id="pasteCopyButton">Update Blob</button>
 
 <script>
-  // Show "Note Saved" alert when"SAVE" button is clicked
-   function showAlert() {
-   const alertBox = document.createElement('div');
-   alertBox.className = 'alert';
-   alertBox.textContent = 'Note Saved';
-   document.body.appendChild(alertBox);
-   setTimeout(() => {
-   alertBox.remove();
-   }, 1000);
- }
-  
-  // Caching of Notes in browser
-  let textContent = "";
+// Accessing elements
+const textBox = document.getElementById("textBox");
+const pasteCopyButton = document.getElementById("pasteCopyButton");
 
-  function saveNote() {
-    // Get the text content from the textarea
-    textContent = document.getElementById('textArea').value;
-    // Cache the text note in LocalStorage
-    localStorage.setItem('cachedNote', textContent);
-  }
+// Function to update blob with a delay
+const updateBlobWithDelay = (text) => {
+  setTimeout(() => {
+    // Access Vercel Blob token from environment variable
+    const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
 
-  window.onload = function() {
-    // Check if there's a cached note and load it
-    const cachedNote = localStorage.getItem('cachedNote');
-    if (cachedNote) {
-      // Set the cached note in the textarea
-      document.getElementById('textArea').value = cachedNote;
-    }
-  }
+    // Create a new Blob with the text content
+    const blob = new Blob([text], { type: "text/plain" });
 
-  // Bright-Mode toggle function.
-    function brightModeFunction() {
-    let element = document.body;
-    element.classList.toggle("brightMode");
-  }
+    // Update the blob storage using Vercel Blob SDK
+    fetch("/api/update-blob", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${blobToken}`,
+      },
+      body: blob,
+    })
+      .then((response) => {
+        if (response.ok) {
+          console.log("Blob updated successfully!");
+        } else {
+          console.error("Error updating blob:", response.statusText);
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }, 1000); // Delay of 1 second
+};
+
+// Fetch initial text from blob storage on page load
+fetch("/api/get-blob")
+  .then((response) => response.text())
+  .then((text) => {
+    textBox.value = text;
+  })
+  .catch((error) => {
+    console.error("Error fetching blob content:", error);
+  });
+
+// Event listeners for textbox changes and button click
+textBox.addEventListener("input", () => {
+  updateBlobWithDelay(textBox.value);
+});
+
+pasteCopyButton.addEventListener("click", () => {
+  updateBlobWithDelay(textBox.value);
+});
 
 </script>
 </body>
