@@ -3,7 +3,7 @@ import { withBlob } from "@vercel/blob";
 export default withBlob(async function handler(req, res) {
   try {
     // Access the blob storage using Vercel Blob SDK
-    const blob = await req.blobStorage.get("your_blob_name");
+    const blob = await req.blobStorage.get("TB_links");
 
     // Convert the blob to text
     const text = await blob.text();
