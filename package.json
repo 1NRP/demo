@@ -1,11 +1,11 @@
 {
-  "name": "your-project-name", 
+  "name": "Blob-Storage", 
   "version": "1.0.0", 
   "scripts": {
     "build": "npm run build:client", 
     "start": "node server.js" 
   },
   "dependencies": {
-    "@vercel/blob": "^latest" 
+    "@vercel/blob": "^0.21.0" 
   },
 }
