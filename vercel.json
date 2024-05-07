@@ -1,6 +1,6 @@
-
 {
   "routes": [
     { "src": "/api/get-blob", "dest": "/api/get-blob.js" },
     { "src": "/api/update-blob", "dest": "/api/update-blob.js" }
   ]
+}
