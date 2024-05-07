@@ -1,12 +1,11 @@
 {
-  "name": "your-project-name", // Replace with your project name
-  "version": "1.0.0", // Replace with your project version
+  "name": "your-project-name", 
+  "version": "1.0.0", 
   "scripts": {
-    "build": "npm run build:client", // Your build script (adjust if needed)
-    "build:client": "your-build-command", // Replace with your actual build command
-    "start": "node server.js" // Your server start script (adjust if needed)
+    "build": "npm run build:client", 
+    "start": "node server.js" 
   },
   "dependencies": {
-    "@vercel/blob": "^latest" // Include the @vercel/blob dependency
+    "@vercel/blob": "^latest" 
   },
 }
