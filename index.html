@@ -3,59 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vercel Blob Storage Textbox Example</title>
+    <title>JSONify TextBox</title>
 </head>
 <body>
-    <h1>Textbox Storage with Vercel Blob</h1>
-    <p>Enter text in textbox 1 and click the button to copy it to textbox 2 and update Blob storage.</p>
-    <textarea id="textbox1" rows="5" placeholder="Enter Text Here"></textarea>
-    <br>
-    <textarea id="textbox2" rows="5" placeholder="Stored Text (Read-Only)"></textarea>
-    <br>
-    <button id="copyButton">Copy and Update Storage</button>
+    <textarea id="inputBox" rows="14" cols="50"></textarea><br>
+    <button onclick="submitData()">Submit</button>
 
     <script>
-      const textbox1 = document.getElementById('textbox1');
-const textbox2 = document.getElementById('textbox2');
-const copyButton = document.getElementById('copyButton');
+        function submitData() {
+            // Get the value from the textbox
+            const textBoxValue = document.getElementById('inputBox').value;
 
-// Replace with your actual Vercel Blob storage connection details
-const blobName = 'TB_links.txt';
-let blobStorageToken = "vercel_blob_rw_sRbo3Gia676hprQY_V5XabxgITRXrJIucwoTkxzvRM87k8x"; // From Vercel environment variables
+            // Split the value into an array of lines
+            const lines = textBoxValue.split('\n');
 
-async function updateBlobStorage(text) {
-  const response = await fetch(`/api/update-blob`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${blobStorageToken}`,
-      'Content-Type': 'text/plain'
-    },
-    body: text
-  });
+            // Create a JSON object from the lines
+            const jsonObject = {};
+            lines.forEach(line => {
+                const [key, value] = line.split(':').map(item => item.trim());
+                if (key && value) {
+                    jsonObject[key] = value;
+                }
+            });
 
-  if (!response.ok) {
-    console.error('Error updating blob storage:', response.statusText);
-  }
-}
-
-copyButton.addEventListener('click', async () => {
-  textbox2.value = textbox1.value;
-  await updateBlobStorage(textbox2.value);
-});
-
-// Fetch initial content from Blob storage on page load
-async function fetchBlobContent() {
-  const response = await fetch(`/api/get-blob`);
-  if (!response.ok) {
-    console.error('Error fetching blob content:', response.statusText);
-    return;
-  }
-  const text = await response.text();
-  textbox2.value = text;
-}
-
-fetchBlobContent();
-  
+            // Send the JSON object in a POST request
+            fetch(`https://infinite-marten-44102.upstash.io`, {
+                headers: {
+                    Authorization: `Bearer AaxGAAIncDFlMjY0YWNiYWJiYzU0OWE1ODc0NzQ4YTE3MTNhOTMwYXAxNDQxMDI`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(jsonObject),
+                method: 'POST',
+            })
+            .then(response => response.json())
+            .then(data => alert(data))
+            .catch(error => console.error('Error:', error));
+        }
     </script>
 </body>
 </html>
