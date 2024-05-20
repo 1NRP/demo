@@ -17,11 +17,24 @@
     </div>
 
     <script>
-        const correctPIN = '1234'; // Replace with your actual PIN
+        // Example of a simple hash function (not for production use)
+        function simpleHash(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash |= 0; // Convert to 32bit integer
+            }
+            return hash;
+        }
+
+        // Store the hashed PIN (this should be done securely on the server)
+        const correctHashedPIN = simpleHash('1234'); // Replace '1234' with your actual PIN
 
         function login() {
             const enteredPIN = document.getElementById('pinInput').value;
-            if (enteredPIN === correctPIN) {
+            const enteredHashedPIN = simpleHash(enteredPIN);
+            if (enteredHashedPIN === correctHashedPIN) {
                 document.getElementById('loginDiv').style.display = 'none';
                 document.getElementById('contentDiv').style.display = 'block';
             } else {
