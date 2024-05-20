@@ -3,31 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JSONify TextBox</title>
+    <title>JSONify TextBox with PIN Login</title>
 </head>
 <body>
-    <textarea id="inputBox" rows="14" cols="50"></textarea><br>
-    <button onclick="fetch()">Submit</button>
+    <div id="loginDiv">
+        <input type="password" id="pinInput" placeholder="Enter PIN" /><br>
+        <button onclick="login()">Login</button>
+    </div>
+    
+    <div id="contentDiv" style="display:none;">
+        <textarea id="inputBox" rows="4" cols="50"></textarea><br>
+        <button onclick="submitData()">Submit</button>
+    </div>
 
     <script>
+        const correctPIN = '1234'; // Replace with your actual PIN
 
+        function login() {
+            const enteredPIN = document.getElementById('pinInput').value;
+            if (enteredPIN === correctPIN) {
+                document.getElementById('loginDiv').style.display = 'none';
+                document.getElementById('contentDiv').style.display = 'block';
+            } else {
+                alert('Incorrect PIN. Please try again.');
+            }
+        }
 
-            // Send the JSON object in a POST request
-            fetch(`https://infinite-marten-44102.upstash.io/`, {
-  headers: {
-    Authorization: `Bearer AaxGAAIncDFlMjY0YWNiYWJiYzU0OWE1ODc0NzQ4YTE3MTNhOTMwYXAxNDQxMDI`,
-  },
-  body: '["HSET", "TeraBox-Links", "hnjhnj", "77y8yhhiohijh"]',
-  method: 'POST',
-})
-  .then((response) => response.json())
-  .then((data) => console.log(data));
-            fetch(`https://infinite-marten-44102.upstash.io`, {
+        function submitData() {
+            const textBoxValue = document.getElementById('inputBox').value;
+            const lines = textBoxValue.split('\n');
+
+            const jsonObject = {};
+            lines.forEach(line => {
+                const [key, value] = line.split(':').map(item => item.trim());
+                if (key && value) {
+                    jsonObject[key] = value;
+                }
+            });
+
+            fetch(`https://example.com/api/set/userfashion`, {
                 headers: {
-                    Authorization: `Bearer AaxGAAIncDFlMjY0YWNiYWJiYzU0OWE1ODc0NzQ4YTE3MTNhOTMwYXAxNDQxMDI`,
+                    Authorization: `Bearer koiejnjdk387637jrjddnnjid3883u`,
                     'Content-Type': 'application/json'
                 },
-      
+                body: JSON.stringify(jsonObject),
+                method: 'POST',
+            })
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error('Error:', error));
+        }
     </script>
 </body>
 </html>
