@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8">
+  <title> Nihar's KV New </title>
+</head>
+<body>
+  <textarea id="texts" style="height: 200px"></textarea>
+  <button onclick="fetchLinks()">SEND</button>
+  <script>
+    function fetchLinks() {
+      const textarea = document.getElementById('texts');
+      const textValue = textarea.value.trim();
+      const lines = textValue.split(/\n|@@/);
+      const lastSentence = lines[lines.length - 1].trim();
+
+      fetch('https://infinite-marten-44102.upstash.io/rpush/Cloud_Message', {
+        headers: {
+          Authorization: 'Bearer AaxGAAIncDFlMjY0YWNiYWJiYzU0OWE1ODc0NzQ4YTE3MTNhOTMwYXAxNDQxMDI',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify([lastSentence]),
+        method: 'POST',
+      })
+      .then(response => response.json())
+      .then(data => console.log(data))
+      .catch(error => console.error('Error:', error));
+    }
+</script>
+</body>
+</html>
