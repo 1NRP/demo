@@ -3,20 +3,95 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="utf-8">
-
-  <title> Nihar's KV </title>
+  <meta name="theme-color" content="#444">
+  <title>Nihar's Notes</title>
 </head>
-<button onclick="fetchNotes()" style='background-color: dodgerblue'>GET LINKS</button>
-<textarea id="data-container" rows="10" cols="50"></textarea>
-
+<style>
+body {
+    color: #fff;
+    background-color: #000;
+}
+#header-box {
+    display: flex;
+    flex-direction: row;
+    margin: -25px 0px;
+}
+#textox {
+    width: 96%;
+    height: 30vh;
+    padding: 6px;
+    font-family: sans-serif;
+    font-size: 15px;
+    overflow: auto;
+    background-color: #111136;
+    border: none;
+    color: #fff;
+    border-radius: 6px;
+}
+#textBox {
+    width: 46%;
+    height: 40vh;
+    padding: 6px;
+    font-family: sans-serif;
+    font-size: 15px;
+    overflow: auto;
+    background-color: #222;
+    border: none;
+    color: #fff;
+    border-radius: 6px;
+}
+#getNotes {
+    background-color: #61691b;
+    color: #b4b4b4;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 800;
+    padding: 4px 8px;
+    margin: 2px 2px 10px 10vw;
+}
+.alert {
+    position: absolute;
+    top: 4vh;
+    left: 50vw;
+    transform: translate(-50%, -50%);
+    background-color: #61691b;
+    color: #000;
+    font-weight: 900;
+    padding: 5px 5px;
+    border: 2px solid #888;
+    border-radius: 5px;
+}
+h2 {
+    font-family: cursive, sans-serif;
+    font-weight: 900;
+}
+#getNotes:hover {
+    background-color: #444;  
+}
+</style>
+<body>
+<!--
+<h4>
+Keyboard Shortcut: Fetch Notes: "ArrowLeft + ArrowDown"
+</h4>
+-->
+    <div id="header-box">
+    <h2> Nihar's&nbspCloud&nbspNotes <h2>
+    <button id="getNotes" onclick="fetchNotes()">SHOW&nbspNOTES</button>
+    </div>
+    <textarea id="textox" readonly></textarea>
+    <textarea id="textBox"></textarea>
 <script>
 
+// Retrive the texts
 function fetchNotes () {
     fetch(`https://infinite-marten-44102.upstash.io/`, {
   headers: {
     Authorization: `Bearer AqxGAAIgcDERzC1gQ7mirZ5rFhmB56tN7R-uu2PRqgo3nIJ11kO5vQ`,
   },
-  body: '["LRANGE", "Cloud_Message", "0", "-1"]',
+  body: '["lrange", "Cloud_Message", "0", "-1"]',
   method: 'POST',
 })
     .then(response => response.json())
@@ -30,14 +105,44 @@ function fetchNotes () {
                 }
             }
         });
-        const result = lines.join('\n\n');
-        const container = document.getElementById('data-container');
-        container.value = result;
+        const result = lines.join('\n\n
+');
+        const textbox = document.getElementById('textBox');
+        textbox.value = result;
     })
     .catch(error => {
         console.error('Error fetching or parsing data:', error);
     });
 }
+// fetchNotes();
+
+
+
+function pasteLineText(event) {
+    var textBox = document.getElementById('textBox');
+    var text = textBox.value;
+    var cursorPosition = textBox.selectionStart; // Get cursor position
+    var startOfLine = text.lastIndexOf('\n\n', cursorPosition - 1); // Find the start of the line
+    var endOfLine = text.indexOf('\n\n', cursorPosition); // Find the end of the line
+
+    // If no line break is found before the cursor position, start of the text
+    if (startOfLine === -1) {
+        startOfLine = 0;
+    } else {
+        startOfLine += 2; // Move past the line break
+    }
+
+    // If no line break is found after the cursor position, end of the text
+    if (endOfLine === -1) {
+        endOfLine = text.length;
+    }
+
+    var lineText = text.substring(startOfLine, endOfLine);
+
+    // Paste the selected line text to the input field
+       document.getElementById('textox').value = lineText;
+   // play(); // Trigger the play function after pasting the link
+}
 </script>
 </body>
-</html>
+</html> 
