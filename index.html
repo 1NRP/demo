@@ -1,24 +1,20 @@
+
 <!DOCTYPE html>
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="utf-8">
   <meta name="theme-color" content="#444">
-  <title>Nihar's Notes</title>
+  <title>Nihar's Cloud Notes</title>
 </head>
 <style>
 body {
     color: #fff;
     background-color: #000;
 }
-#header-box {
-    display: flex;
-    flex-direction: row;
-    margin: -25px 0px;
-}
-#textox {
+#textBox {
     width: 96%;
-    height: 30vh;
+    height: 80vh;
     padding: 6px;
     font-family: sans-serif;
     font-size: 15px;
@@ -28,96 +24,216 @@ body {
     color: #fff;
     border-radius: 6px;
 }
-#textBox {
-    width: 46%;
-    height: 40vh;
+#deletebox {
+  display: flex;
+  flex-direction: row;
+  margin: -25px 0px -15px 0px;
+}
+
+#deleteBox {
+  width: 100%;
+  color: #fff;
+  height: auto; /* Initial height */
+  min-height: 50px; /* Minimum height */
+  resize: none; /* Disable resizing by the user */
+  overflow: hidden; /* Hide scrollbar */
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+
+#deleteBo {
+    width: 60%;
+    height: 10%;
     padding: 6px;
-    font-family: sans-serif;
-    font-size: 15px;
-    overflow: auto;
-    background-color: #222;
-    border: none;
+    overflow: scroll;
+    background-color: #361923;
+    border: 2px solid #888;
     color: #fff;
     border-radius: 6px;
 }
+#deleteBtn {
+    background-color: #802;
+    color: #b4b4b4;
+    border: none;
+    font-size: 15px;
+    border-radius: 50px;
+    cursor: pointer;
+    padding: 6px 8px;
+    font-weight: 900;
+    margin: 2px 2px 0px 15vw;
+}
+#saveButton {
+    position: absolute;
+    top: 1vw;
+    left: 50vw;
+    background-color: #205c89;
+    color: #b4b4b4;
+    border: none;
+    font-size: 15px;
+    border-radius: 50px;
+    cursor: pointer;
+    padding: 6px 8px;
+    font-weight: 900;
+    margin: 2px 2px 0px 15vw;   
+}
 #getNotes {
+    position: absolute;
+    top: 1vw;
+    left: 80vw;
     background-color: #61691b;
     color: #b4b4b4;
     border: none;
     border-radius: 50px;
     cursor: pointer;
-    font-size: 18px;
-    font-weight: 800;
-    padding: 4px 8px;
-    margin: 2px 2px 10px 10vw;
+    font-size: 15px;
+    font-weight: 900;
+    padding: 6px 8px;
+    margin: 2px 2px 0px 8px;
+}
+#getNotes:hover,
+#saveButton:hover {
+    background-color: #444;
 }
 .alert {
     position: absolute;
     top: 4vh;
-    left: 50vw;
+    left: 25vw;
     transform: translate(-50%, -50%);
-    background-color: #61691b;
+    background-color: #205c89;
     color: #000;
     font-weight: 900;
     padding: 5px 5px;
-    border: 2px solid #888;
+    border: 2px solid #999;
     border-radius: 5px;
 }
 h2 {
     font-family: cursive, sans-serif;
+    font-size: 25px;
     font-weight: 900;
-}
-#getNotes:hover {
-    background-color: #444;  
+    margin: 8px 0px -10px 0px;
 }
 </style>
 <body>
 <!--
 <h4>
-Keyboard Shortcut: Fetch Notes: "ArrowLeft + ArrowDown"
-</h4>
+Type @@ to consider texts after it as "Last Note" and save the texts.
+Keyboard Shortcuts: Fetch Notes: "ArrowRight + ArrowDown", Save Notes: "ArrowRight + ArrowUp"</h4>
 -->
-    <div id="header-box">
     <h2> Nihar's&nbspCloud&nbspNotes <h2>
-    <button id="getNotes" onclick="fetchNotes()">SHOW&nbspNOTES</button>
-    </div>
-    <textarea id="textox" readonly></textarea>
+    <button id="saveButton" onclick="saveNotes()">SAVE</button>
+    <button id="getNotes" onclick="fetchNotes()">VIEW</button>
     <textarea id="textBox"></textarea>
+    <div id="deletebox">
+      <textarea id="deleteBox"></textarea>
+      <button id="deleteBtn" onclick="deleteNote()">DELETE</button>
+    </div>
+   <!-- <textarea id="deleteBox"></textarea>-->
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+  const textarea = document.getElementById('deleteBox');
+  
+  textarea.addEventListener('input', function() {
+    this.style.height = 'auto'; // Reset the height
+    this.style.height = this.scrollHeight + 'px'; // Set the height to the scroll height
+  });
+  
+  // Trigger input event to adjust height if there's initial content
+  textarea.dispatchEvent(new Event('input'));
+});
 
-// Retrive the texts
-function fetchNotes () {
-    fetch(`https://infinite-marten-44102.upstash.io/`, {
-  headers: {
-    Authorization: `Bearer AqxGAAIgcDERzC1gQ7mirZ5rFhmB56tN7R-uu2PRqgo3nIJ11kO5vQ`,
-  },
-  body: '["lrange", "Cloud_Message", "0", "-1"]',
-  method: 'POST',
-})
-    .then(response => response.json())
-    .then(data => {
-        let lines = [];
-        data.result.forEach(jsonString => {
-            let parsedObject = JSON.parse(jsonString);
-            for (const key in parsedObject) {
-                if (parsedObject.hasOwnProperty(key)) {
-                    lines.push(`${parsedObject[key]}`);
+// Show "Last Note Saved" alert when "OK" response (200) is received from the server.
+function showAlert() {
+   const alertBox = document.createElement('div');
+   alertBox.className = 'alert';
+   alertBox.textContent = '☑️ Last Note Saved';
+   document.body.appendChild(alertBox);
+   setTimeout(() => {
+   alertBox.remove();
+   }, 1000);
+}
+
+// Save the Last Line (LL) in "Cloud_Message" storage.
+    async function saveNotes() {
+      const textarea = document.getElementById('textBox');
+      const textValue = textarea.value.trim();
+      const lines = textValue.split('@@');
+      const lastSentence = lines[lines.length - 1].trim();
+        if (lastSentence) {
+            try {
+                const response = await fetch('/api/saveNote', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify([lastSentence]),
+                });
+
+                if (response.ok) {
+                    console.log('Note sent to Vercel KV.');
+                    showAlert();
+                } else {
+                    const errorData = await response.json();
+                    console.error('Error from server:', errorData.error);
                 }
+            } catch (error) {
+                console.error('Error sending note to Vercel KV:', error);
             }
+        }
+    }
+
+// Retrive the texts on page load
+function fetchNotes() {
+    fetch(`https://infinite-marten-44102.upstash.io/`, {
+            headers: {
+                Authorization: `Bearer AqxGAAIgcDERzC1gQ7mirZ5rFhmB56tN7R-uu2PRqgo3nIJ11kO5vQ`,
+            },
+            body: '["LRANGE", "Cloud_Message", "0", "-1"]',
+            method: 'POST',
+        })
+        .then(response => response.json())
+        .then(data => {
+            let lines = [];
+            data.result.forEach((jsonString, index) => { // Add index parameter here
+                let parsedObject = JSON.parse(jsonString);
+                for (const key in parsedObject) {
+                    if (parsedObject.hasOwnProperty(key)) {
+                        lines.push(`${index}: ${parsedObject[key]}`);
+                    }
+                }
+            });
+            const result = lines.join('\n\n');
+            const textbox = document.getElementById('textBox');
+            textbox.value = result;
+        })
+        .catch(error => {
+            console.error('Error fetching or parsing data:', error);
         });
-        const result = lines.join('\n\n
-');
-        const textbox = document.getElementById('textBox');
-        textbox.value = result;
-    })
-    .catch(error => {
-        console.error('Error fetching or parsing data:', error);
-    });
 }
 // fetchNotes();
 
+// Keyboard Shortcuts for different Functions
+let arrowRightPressed = false;
+document.addEventListener("keydown", function(event) {
+    if (event.key === "ArrowRight") {
+        arrowRightPressed = true;
+    }
+    
+    if (arrowRightPressed) {
+        if (event.key === "ArrowUp") {
+            saveNotes();
+        } else if (event.key === "ArrowDown") {
+            fetchNotes();
+        }
+    }
+});
 
+document.addEventListener("keyup", function(event) {
+    if (event.key === "ArrowRight") {
+        arrowRightPressed = false;
+    }
+});
 
+// Function to paste specific note into deleteBox 
 function pasteLineText(event) {
     var textBox = document.getElementById('textBox');
     var text = textBox.value;
@@ -140,9 +256,11 @@ function pasteLineText(event) {
     var lineText = text.substring(startOfLine, endOfLine);
 
     // Paste the selected line text to the input field
-       document.getElementById('textox').value = lineText;
-   // play(); // Trigger the play function after pasting the link
+       document.getElementById('deleteBox').value = lineText;
+     // Trigger the play function after pasting the link
 }
+document.getElementById('textBox').onclick = pasteLineText;
+  
 </script>
 </body>
-</html> 
+</html>
