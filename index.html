@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -18,6 +17,7 @@ body {
     padding: 6px;
     font-family: sans-serif;
     font-size: 15px;
+    resize: none;
     overflow: auto;
     background-color: #111136;
     border: none;
@@ -29,7 +29,7 @@ body {
     height: auto;
     min-height: 10%;
     resize: none;
-    overflow: hidden;
+    overflow: auto;
     box-sizing: border-box;
     width: 100%;
     overflow: scroll;
@@ -71,12 +71,26 @@ body {
     margin: 2px 2px 0px 12px;
 }
 #getNotes:hover,
+#deleteBtn:hover,
 #saveButton:hover {
     background-color: #444;
 }
-.alert {
-    posit
-    background-color: #205c89;
+.saveAlert {
+    position: fixed;
+    top: 5dvh;
+    left: 30dvw;
+    background-color: #167d29;
+    color: #000;
+    font-weight: 900;
+    padding: 5px 5px;
+    border: 2px solid #999;
+    border-radius: 5px;
+}
+.deleteAlert {
+    position: fixed;
+    top: 5dvh;
+    left: 30dvw;
+    background-color: #d12148;
     color: #000;
     font-weight: 900;
     padding: 5px 5px;
@@ -101,19 +115,19 @@ Keyboard Shortcuts: Fetch Notes: "ArrowRight + ArrowDown", Save Notes: "ArrowRig
     <textarea id="textBox"></textarea> 
     <button id="deleteBtn" onclick="deleteNote()">DELETE</button>
     <button id="saveButton" onclick="saveNotes()">SAVE</button>
-    <button id="getNotes" onclick="fetchNotes()">VIEW</button>
+    <button id="getNotes" onclick="getNote()">VIEW</button>
     <textarea id="deleteBox"></textarea>
 
 <script>
-// Auto expand deleteBox if texts overflow to properly see what will be deleted.
-document.addEventListener('DOMContentLoaded', function() {
-  const textarea = document.getElementById('deleteBox');
+// Auto expand deleteBox if texts overflow, to properly see what will be deleted.
+
   
+  document.addEventListener('DOMContentLoaded', function() {
+  const textarea = document.getElementById('deleteBox');
   textarea.addEventListener('input', function() {
     this.style.height = 'auto'; // Reset the height
     this.style.height = this.scrollHeight + 'px'; // Set the height to the scroll height
   });
-  
   // Trigger input event to adjust height if there's initial content
   textarea.dispatchEvent(new Event('input'));
 });
@@ -121,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Show "Last Note Saved" alert when "OK" response (200) is received from the server.
 function showAlert() {
    const alertBox = document.createElement('div');
-   alertBox.className = 'alert';
+   alertBox.className = 'saveAlert';
    alertBox.textContent = '☑️ Last Note Saved';
    document.body.appendChild(alertBox);
    setTimeout(() => {
@@ -129,7 +143,18 @@ function showAlert() {
    }, 1000);
 }
 
-// Save the Last Line (LL) in "Cloud_Message" storage.
+// Show "Note Deleted" alert
+function showDeleteAlert() {
+   const alertBox = document.createElement('div');
+   alertBox.className = 'deleteAlert';
+   alertBox.textContent = '✖ Note Deleted';
+   document.body.appendChild(alertBox);
+   setTimeout(() => {
+   alertBox.remove();
+   }, 1000);
+}
+  
+// Save the Last Line (LL) in KV Cloud storage.
     async function saveNotes() {
       const textarea = document.getElementById('textBox');
       const textValue = textarea.value.trim();
@@ -158,23 +183,46 @@ function showAlert() {
         }
     }
 
-// Retrive the texts on page load
-function fetchNotes() {
-    fetch(`https://infinite-marten-44102.upstash.io/`, {
-            headers: {
-                Authorization: `Bearer AqxGAAIgcDERzC1gQ7mirZ5rFhmB56tN7R-uu2PRqgo3nIJ11kO5vQ`,
-            },
-            body: '["LRANGE", "Cloud_Message", "0", "-1"]',
-            method: 'POST',
+// Delete the specific Note in KV Cloud storage.
+    async function deleteNote() {
+      const deletearea = document.getElementById('deleteBox');
+      const deleteValue = deletearea.value.trim();
+        if (deleteValue) {
+            try {
+                const response = await fetch('/api/deleteNote', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify([deleteValue]),
+                });
+
+                if (response.ok) {
+                    console.log('Note deleted in Vercel KV.');
+                    showDeleteAlert();
+                } else {
+                    const errorData = await response.json();
+                    console.error('Error from server:', errorData.error);
+                }
+            } catch (error) {
+                console.error('Error deleting note in Vercel KV:', error);
+            }
+        }
+    }
+  
+// Retrive the texts from KV Cloud storage.
+  async function getNote() {
+      const response = await fetch('/api/getNote', {
+          method: 'GET',
         })
         .then(response => response.json())
         .then(data => {
             let lines = [];
-            data.result.forEach((jsonString, index) => { // Add index parameter here
+            data.result.forEach((jsonString) => { // Add index parameter here
                 let parsedObject = JSON.parse(jsonString);
                 for (const key in parsedObject) {
                     if (parsedObject.hasOwnProperty(key)) {
-                        lines.push(`${index}: ${parsedObject[key]}`);
+                        lines.push(`${parsedObject[key]}`);
                     }
                 }
             });
@@ -187,7 +235,7 @@ function fetchNotes() {
         });
 }
 // fetchNotes();
-
+  
 // Keyboard Shortcuts for different Functions
 let arrowRightPressed = false;
 document.addEventListener("keydown", function(event) {
@@ -199,7 +247,9 @@ document.addEventListener("keydown", function(event) {
         if (event.key === "ArrowUp") {
             saveNotes();
         } else if (event.key === "ArrowDown") {
-            fetchNotes();
+            getNote();
+        } else if (event.key === "End") {
+            deleteNote();
         }
     }
 });
@@ -210,6 +260,13 @@ document.addEventListener("keyup", function(event) {
     }
 });
 
+function triggerInputEvent(element) {
+    const event = new Event('input', {
+      bubbles: true,
+      cancelable: true
+    });
+    element.dispatchEvent(event);
+  }
 // Function to paste specific note into deleteBox 
 function pasteLineText(event) {
     var textBox = document.getElementById('textBox');
@@ -229,14 +286,15 @@ function pasteLineText(event) {
     if (endOfLine === -1) {
         endOfLine = text.length;
     }
-
     var lineText = text.substring(startOfLine, endOfLine);
-
-    // Paste the selected line text to the input field
        document.getElementById('deleteBox').value = lineText;
-     // Trigger the play function after pasting the link
 }
-document.getElementById('textBox').onclick = pasteLineText;
+// getElementById('textBox').onclick = pasteLineText;
+document.getElementById('textBox').onclick = function() {
+  pasteLineText();
+  textarea.dispatchEvent(new Event('input'));
+};
+
   
 </script>
 </body>
