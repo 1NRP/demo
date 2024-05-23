@@ -14,7 +14,7 @@ body {
 }
 #textBox {
     width: 96%;
-    height: 80vh;
+    height: 85dvh;
     padding: 6px;
     font-family: sans-serif;
     font-size: 15px;
@@ -24,31 +24,17 @@ body {
     color: #fff;
     border-radius: 6px;
 }
-#deletebox {
-  display: flex;
-  flex-direction: row;
-  margin: -25px 0px -15px 0px;
-}
-
 #deleteBox {
-  width: 100%;
-  color: #fff;
-  height: auto; /* Initial height */
-  min-height: 50px; /* Minimum height */
-  resize: none; /* Disable resizing by the user */
-  overflow: hidden; /* Hide scrollbar */
-  box-sizing: border-box; /* Include padding and border in the element's total width and height */
-}
-
-
-#deleteBo {
-    width: 60%;
-    height: 10%;
-    padding: 6px;
+    color: #fff;
+    height: auto;
+    min-height: 10%;
+    resize: none;
+    overflow: hidden;
+    box-sizing: border-box;
+    width: 100%;
     overflow: scroll;
     background-color: #361923;
-    border: 2px solid #888;
-    color: #fff;
+    border: 2px solid #444;
     border-radius: 6px;
 }
 #deleteBtn {
@@ -60,12 +46,9 @@ body {
     cursor: pointer;
     padding: 6px 8px;
     font-weight: 900;
-    margin: 2px 2px 0px 15vw;
+    margin: 0px 2px 4px 0px;
 }
 #saveButton {
-    position: absolute;
-    top: 1vw;
-    left: 50vw;
     background-color: #205c89;
     color: #b4b4b4;
     border: none;
@@ -74,12 +57,9 @@ body {
     cursor: pointer;
     padding: 6px 8px;
     font-weight: 900;
-    margin: 2px 2px 0px 15vw;   
+    margin: 2px 2px 0px 40%;   
 }
 #getNotes {
-    position: absolute;
-    top: 1vw;
-    left: 80vw;
     background-color: #61691b;
     color: #b4b4b4;
     border: none;
@@ -88,17 +68,14 @@ body {
     font-size: 15px;
     font-weight: 900;
     padding: 6px 8px;
-    margin: 2px 2px 0px 8px;
+    margin: 2px 2px 0px 12px;
 }
 #getNotes:hover,
 #saveButton:hover {
     background-color: #444;
 }
 .alert {
-    position: absolute;
-    top: 4vh;
-    left: 25vw;
-    transform: translate(-50%, -50%);
+    posit
     background-color: #205c89;
     color: #000;
     font-weight: 900;
@@ -110,25 +87,25 @@ h2 {
     font-family: cursive, sans-serif;
     font-size: 25px;
     font-weight: 900;
-    margin: 8px 0px -10px 0px;
+    margin: 8px 0px -5px 0px;
 }
 </style>
 <body>
 <!--
 <h4>
 Type @@ to consider texts after it as "Last Note" and save the texts.
+In case of long texts containing \n\n , copy the text and paste in the deleteBox.
 Keyboard Shortcuts: Fetch Notes: "ArrowRight + ArrowDown", Save Notes: "ArrowRight + ArrowUp"</h4>
 -->
     <h2> Nihar's&nbspCloud&nbspNotes <h2>
+    <textarea id="textBox"></textarea> 
+    <button id="deleteBtn" onclick="deleteNote()">DELETE</button>
     <button id="saveButton" onclick="saveNotes()">SAVE</button>
     <button id="getNotes" onclick="fetchNotes()">VIEW</button>
-    <textarea id="textBox"></textarea>
-    <div id="deletebox">
-      <textarea id="deleteBox"></textarea>
-      <button id="deleteBtn" onclick="deleteNote()">DELETE</button>
-    </div>
-   <!-- <textarea id="deleteBox"></textarea>-->
+    <textarea id="deleteBox"></textarea>
+
 <script>
+// Auto expand deleteBox if texts overflow to properly see what will be deleted.
 document.addEventListener('DOMContentLoaded', function() {
   const textarea = document.getElementById('deleteBox');
   
