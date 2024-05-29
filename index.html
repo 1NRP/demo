@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -668,7 +667,7 @@ function fetchPosts() {
     .then(response => response.json())
     .then(data => {
         data.items.forEach(item => {
-            const shareid = item.shareid;
+            const share_id = item.shareid;
             const key = item.key;
             //const poster = item.poster;
             const link = item.link;
@@ -696,7 +695,7 @@ function fetchPosts() {
 // fetchPosts();    // Remove "//" at beginning to load photos at page loading.
 
 function handlePosterOrLinkButtonClick(key, link) {
-    document.getElementById('vid').value = `https://www.terabox1024.com/share/extstreaming.m3u8?uk=4398158423925&shareid=1&type=M3U8_AUTO_360&fid=${key}&sign=${link}&timestamp=1&clienttype=1&channel=1`;
+    document.getElementById('vid').value = `https://www.terabox1024.com/share/extstreaming.m3u8?uk=4398158423925&shareid=${share_id}&type=M3U8_AUTO_360&fid=${key}&sign=1&timestamp=1&clienttype=1&channel=1`;
     play(); // Trigger the play function after pasting the link
 }
 
