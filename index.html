@@ -305,7 +305,7 @@
 <div class="box-container" id="boxContainer"></div>
 <div class="input-container">
   <label for="channelName"></label>
-  <button id="nightModeBtn" onclick="nightModeFunction()" ondblclick="getLink()">☀️</button>
+  <button id="nightModeBtn" onclick="nightModeFunction()" ondblclick="fetch(serverUrl)">☀️</button>
   <select id="channelName">
     <option value="tburls">Saved</option>
     <option value="desi_bhabhi_shila_terabox">1st</option>
@@ -441,6 +441,61 @@ function notFoundAlert() {
 }
 // getLink();
 
+// Fetch m3u8 link file
+const linkArea = document.getElementById('vid');
+const linkValue = linkArea.value.trim();
+// Construct the URL for the server request
+const serverUrl = 'https://2demo.vercel.app/api/m3u8Link?url=' + encodeURIComponent(linkValue);
+
+// Send a GET request to the server with the URL as a query parameter
+fetch(serverUrl)
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Failed to fetch .m3u8 file');
+    }
+    return response.text();
+  })
+  .then(data => {
+    console.log('Response from server:', data);
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+
+/*
+async function m3u8Link() {
+    const linkArea = document.getElementById('vid');
+    const linkValue = linkArea.value.trim();
+    
+    if (linkValue) {
+        try {
+            const response = await fetch('https://2demo.vercel.app/api/m3u8Link', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify("url:"[linkValue]),
+            });
+
+            if (response.ok) {
+                const data = await response.json(); // Wait for the JSON response
+                if (data.result !== 0) {
+                    console.log('M3U8 File created.');
+                   
+                } else {
+                    console.log('M3U8 File could not be created.');
+                }
+            } else {
+                const errorData = await response.json(); // Wait for the JSON error response
+                console.error('Error from server:', errorData.error);
+            }
+        } catch (error) {
+            console.error('Error deleting Link in Vercel KV:', error);
+        }
+    }
+}
+*/
+  
 // Night-Mode toggle function.
 function nightModeFunction() {
     let element = document.body;
