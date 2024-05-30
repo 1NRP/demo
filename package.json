@@ -1,0 +1,13 @@
+{
+  "name": "m3u8-file",
+  "version": "1.0.0",
+  "description": "A Node.js application to download and store .m3u8 files for TB Links",
+  "main": "m3u8Link.js",
+  "scripts": {
+    "start": "node m3u8Link.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "node-fetch": "^3.1.0"
+  }
+}
