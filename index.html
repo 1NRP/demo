@@ -441,14 +441,23 @@ function notFoundAlert() {
 }
 // getLink();
 
-// Fetch m3u8 link file
+// Get the URL from user input
 const linkArea = document.getElementById('vid');
 const linkValue = linkArea.value.trim();
-// Construct the URL for the server request
-const serverUrl = 'https://2demo.vercel.app/api/m3u8Link?url=' + encodeURIComponent(linkValue);
+// Construct the request body
+const requestBody = {
+  url: linkValue
+};
 
-// Send a GET request to the server with the URL as a query parameter
-fetch(serverUrl)
+// Send a POST request to the server with the URL in JSON format
+async function m3u8Link() {
+  fetch('/api/m3u8Link', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(requestBody)
+  })
   .then(response => {
     if (!response.ok) {
       throw new Error('Failed to fetch .m3u8 file');
@@ -461,6 +470,7 @@ fetch(serverUrl)
   .catch(error => {
     console.error('Error:', error);
   });
+}
 
 /*
 async function m3u8Link() {
