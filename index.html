@@ -657,8 +657,6 @@ document.getElementById('textBox').onclick = pasteLineText;
 
 // Function to handle clicking on the link button
 
-
-// Function to load posts from the server
 // Function to load posts from the server
 function fetchPosts() {
     const postsContainer = document.getElementById('posts-container');
@@ -677,11 +675,11 @@ function fetchPosts() {
             postElement.classList.add('post');
             postElement.innerHTML = `
                 <div>
-                    <img src="https://ik.imagekit.io/media91/image/${key}.jpg" alt="Poster" class="poster-image" onclick="handlePosterOrLinkButtonClick('${key}', '${share_id}')">
+                    <img src="https://ik.imagekit.io/media91/image/${key}.jpg" alt="Poster" class="poster-image" onclick="handlePosterClick('${key}', '${share_id}')">
                     <div class="post-details">
                         <p class="duration">${durationInMinutes}<span style="color: #666;">&nbspMin</span></p>          
                         <p class="size">${sizeInMB}<span style="color: #666;">&nbspMB</span></p>
-                        <!-- <p><button id="copyLink" onclick="handlePosterOrLinkButtonClick('${link}')">🌐</button></p> -->
+                        <p><button id="copyLink" onclick="handleLinkButtonClick('${link}')">🌐</button></p>
                     </div>
                 </div>
             `;
@@ -694,11 +692,14 @@ function fetchPosts() {
 }
 // fetchPosts();    // Uncomment this line to load photos at page loading.
 
-function handlePosterOrLinkButtonClick(key, share_id) {
+function handlePosterClick(key, share_id) {
     document.getElementById('vid').value = `https://www.terabox1024.com/share/extstreaming.m3u8?uk=4398158423925&shareid=${share_id}&type=M3U8_AUTO_360&fid=${key}&sign=1&timestamp=1&clienttype=1&channel=1`;
     play(); // Trigger the play function after pasting the link
 }
-
+function handleLinkButtonClick(key, share_id) {
+    document.getElementById('vid').value = `${link}`;
+    play();
+}
 </script>
 </body>
 </html>
