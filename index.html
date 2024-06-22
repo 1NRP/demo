@@ -18,12 +18,12 @@
 <button onclick="fetchData()">GET</button>
     <script>
         async function fetchData() {
-            const shortUrl = "/your-short-url"; // Replace with your actual short URL
+            const shortUrl = "1h6jTmHyVqO5g54jRDiCARw"; // Replace with your actual short URL
           //  const root = "rootValue"; // Replace with your actual root value
           //  const dir = "dirValue"; // Replace with your actual directory value
             const cookie = "234333"; // Assign "234333" to the value of "cookie"
 
-            const queryString = new URLSearchParams({ app_id: "250528", shorturl: shortUrl.slice(1), root, dir }).toString();
+            const queryString = new URLSearchParams({ app_id: "250528", shorturl: shortUrl.slice(1)}).toString();
 
             try {
                 const response = await fetch("https://www.terabox.com/share/list?" + queryString, {
