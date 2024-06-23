@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch Data Example</title>
+
+    <style>
+        body {
+            color: #fff;
+            background-color: #222;
+        }
+    </style>
+</head>
+<body>
+    
+    <h1>Fetch Data Example</h1>
+    <button onclick="fetchData()">GET</button>
+
+    <script>
+        async function fetchData() {
+            try {
+                const response = await fetch("https://terabox.hnn.workers.dev/api/get-info?shorturl=1Henfivw3ot0j86b7-7i8-Q&pwd=");
+
+                if (!response.ok) {
+                    throw new Error("Failed to fetch data");
+                }
+
+                const data = await response.json();
+                console.log("Response data:", data);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        }
+    </script>
+</body>
+</html>
