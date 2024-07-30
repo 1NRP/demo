@@ -1,9 +1,18 @@
 {
-  "name": "m3u8-file",
+  "name": "express-basic-auth",
   "version": "1.0.0",
-  "description": "A Node.js application to download and store .m3u8 files for TB Links",
+  "description": "An Express.js application with Basic Authentication for Vercel deployment",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
   "dependencies": {
-    "express": "^4.17.1",
-    "node-fetch": "^3.1.0"
-  }
+    "express": "^4.18.2",
+    "express-basic-auth": "^1.2.0"
+  },
+  "engines": {
+    "node": "20x"
+  },
+  "author": "Your Name",
+  "license": "MIT"
 }
