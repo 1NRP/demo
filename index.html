@@ -1,3 +1,4 @@
+<!--
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -51,5 +52,50 @@
         // Call the fetchData function when the page loads
         fetchData();
     </script>
+</body>
+</html>
+-->
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8">
+  <title>Nihar's Video Player</title>
+<style>
+    body {
+      background-color: #000;  
+      color: #fff;
+    }
+    #player {
+      max-width: 100dvw;
+      max-height: 100dvh;
+      margin: 4px 0px 0px 0px;
+    }
+        #brightnessSlider[type="range"] {
+            width: 90%;
+            background-color: #fff;
+            margin: 10px;
+            border: 2px solid #000;
+        }
+
+</style>
+</head>
+<body>
+        <input type="range" min="0"
+               max="400" value="100"
+               class="slider"
+               id="brightnessSlider">
+        <video controls="controls" id="player" tabindex="0" poster="https://1nrp.github.io/vid/images/my_name_logo_1.2.1.jpg" loop="loop" src="" width="100%" muted></video>
+<script>
+        const bSlider = document.getElementById('brightnessSlider');
+        const player = document.getElementById('player');
+        bSlider.addEventListener('input', function () {
+            const bVal = this.value;
+            player.style.filter = `brightness(${bVal}%)`;
+        });
+</script>
 </body>
 </html>
