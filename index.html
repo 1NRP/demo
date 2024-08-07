@@ -70,22 +70,70 @@ document.getElementById('textBox').onclick = pasteLineText;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Remove controlsList Attribute</title>
+    <title>Toggle controlsList Attribute</title>
+    <style>
+        /* Custom fullscreen button */
+        #fullscreenButton {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            z-index: 1;
+            display: none; /* Initially hidden */
+        }
+
+        #video-container {
+            position: relative;
+            width: 80%;
+            margin: auto;
+        }
+    </style>
 </head>
 <body>
 
-<video id="myVideo" controls controlsList="nofullscreen" src="//storage.googleapis.com/media-session/caminandes/short.mp4#t=82"></video>
-<button id="removeControlsListButton">Remove Controls List Attribute</button>
+<div id="video-container">
+    <video id="myVideo" controls controlsList="nofullscreen" src="//storage.googleapis.com/media-session/caminandes/short.mp4#t=82"></video>
+    <button id="fullscreenButton">Fullscreen</button>
+</div>
+<button id="toggleControlsButton">Toggle Fullscreen Controls</button>
 
 <script>
-    // Function to remove the controlsList attribute
-    function removeControlsList() {
+    // Function to toggle the controlsList attribute and fullscreen button
+    function toggleControlsList() {
         const video = document.getElementById('myVideo');
-        video.removeAttribute('controlsList');
+        const fullscreenButton = document.getElementById('fullscreenButton');
+
+        if (video.hasAttribute('controlsList')) {
+            // Remove controlsList attribute and show fullscreen button
+            video.removeAttribute('controlsList');
+            fullscreenButton.style.display = 'block';
+        } else {
+            // Add controlsList attribute and hide fullscreen button
+            video.setAttribute('controlsList', 'nofullscreen');
+            fullscreenButton.style.display = 'none';
+        }
     }
 
-    // Add event listener to the button to remove the controlsList attribute
-    document.getElementById('removeControlsListButton').addEventListener('click', removeControlsList);
+    // Add event listener to the toggle button
+    document.getElementById('toggleControlsButton').addEventListener('click', toggleControlsList);
+
+    // Add event listener to the custom fullscreen button
+    document.getElementById('fullscreenButton').addEventListener('click', () => {
+        const video = document.getElementById('myVideo');
+        if (video.requestFullscreen) {
+            video.requestFullscreen();
+        } else if (video.mozRequestFullScreen) { // Firefox
+            video.mozRequestFullScreen();
+        } else if (video.webkitRequestFullscreen) { // Chrome, Safari, and Opera
+            video.webkitRequestFullscreen();
+        } else if (video.msRequestFullscreen) { // IE/Edge
+            video.msRequestFullscreen();
+        }
+    });
 </script>
 
 </body>
