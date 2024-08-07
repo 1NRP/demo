@@ -55,334 +55,38 @@
     </script>
 </body>
 </html>
--->
-
-
-
-<!DOCTYPE html>
-<html>
-<head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta charset="utf-8">
-  <meta name="theme-color" content="#444">
-  <title>Nihar's Cloud Notes</title>
-</head>
-<style>
-body {
-    color: #fff;
-    background-color: #000;
-}
-#textBox {
-    width: 96%;
-    height: 85vh;
-    padding: 6px;
-    font-family: sans-serif;
-    font-size: 15px;
-    resize: none;
-    overflow: auto;
-    background-color: #111136;
-    border: none;
-    color: #fff;
-    border-radius: 6px;
-}
-#deleteBox {
-    color: #fff;
-    height: auto;
-    min-height: 10%;
-    resize: none;
-    overflow: auto;
-    box-sizing: border-box;
-    width: 100%;
-    overflow: scroll;
-    background-color: #361923;
-    border: 2px solid #444;
-    border-radius: 6px;
-}
-#deleteBtn {
-    background-color: #802;
-    color: #b4b4b4;
-    border: none;
-    font-size: 15px;
-    border-radius: 50px;
-    cursor: pointer;
-    padding: 6px 8px;
-    font-weight: 900;
-    margin: 0px 2px 4px 0px;
-}
-#saveButton {
-    background-color: #205c89;
-    color: #b4b4b4;
-    border: none;
-    font-size: 15px;
-    border-radius: 50px;
-    cursor: pointer;
-    padding: 6px 8px;
-    font-weight: 900;
-    margin: 2px 2px 0px 15%;
-}
-#getNotes {
-    background-Color: #61691b;
-    color: #b4b4b4;
-    border: none;
-    border-radius: 50px;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: 900;
-    padding: 6px 8px;
-    margin: 2px 2px 0px 15px;
-}
-#clearBtn {
-    border: none;
-    color: #b4b4b4;
-    border-radius: 50px;
-    background-color: #833;
-    padding: 2px 7px 5px 7px;
-    margin: 0px 0px 0px 15%;
-}
-#clearBtn:hover,
-#getNotes:hover,
-#deleteBtn:hover,
-#saveButton:hover {
-    background-color: #444;
-}
-.saveAlert {
-    position: fixed;
-    top: 5dvh;
-    left: 30dvw;
-    background-color: #1bd13d;
-    color: #000;
-    font-weight: 900;
-    padding: 5px 5px;
-    border: 2px solid #999;
-    border-radius: 5px;
-}
-.deleteAlert {
-    position: fixed;
-    top: 5dvh;
-    left: 30dvw;
-    background-color: #f2074e;
-    color: #000;
-    font-weight: 900;
-    padding: 5px 5px;
-    border: 2px solid #999;
-    border-radius: 5px;
-}
-.notFoundAlert {
-    position: fixed;
-    top: 5dvh;
-    left: 25dvw;
-    background-color: #e8af05;
-    color: #000;
-    font-weight: 900;
-    padding: 5px 5px;
-    border: 2px solid #999;
-    border-radius: 5px;
-}
-h2 {
-    font-family: cursive, sans-serif;
-    font-size: 25px;
-    font-weight: 900;
-    margin: 8px 0px -5px 0px;
-}
-</style>
-<body>
-<!--
-<h4>
-* Press "Enter" thrice (\n\n\n) to consider texts after it as "Last Note" and save the texts. For long texts containing "\n\n", clear the textBox for ease of pasting.
-* While clicking on a sentence/line for deletion purpose, if it is a long text containing \n\n , copy the text and paste in the deleteBox, because clicking on the line may not paste full text into deleteBox.
-* Keyboard Shortcuts: Fetch Notes: "ArrowRight + ArrowDown", Save Notes: "ArrowRight + ArrowUp"</h4>
--->
-    <h2> Nihar's&nbspCloud&nbspNotes <h2>
-    <textarea id="textBox"></textarea> 
-    <button id="deleteBtn" onclick="deleteNote()">DELETE</button>
-    <button id="clearBtn" onclick="document.getElementById('textBox').value=''">✖</button>
-    <button id="saveButton" onclick="saveNotes()">SAVE</button>
-    <button id="getNotes" onclick="getNote()">VIEW</button>
-    <textarea id="deleteBox"></textarea>
-
-<script>
-// Auto expand deleteBox if texts overflow, to properly see what will be deleted.
-document.addEventListener('DOMContentLoaded', function() {
-  const textarea = document.getElementById('deleteBox');
-  textarea.addEventListener('input', function() {
-    this.style.height = 'auto'; // Reset the height
-    this.style.height = this.scrollHeight + 'px'; // Set the height to the scroll height
-  });
-  // Trigger input event to adjust height if there's initial content
-  textarea.dispatchEvent(new Event('input'));
-});
-
-// Show "Last Note Saved" alert when "OK" response (200) is received from the server.
-function showAlert() {
-   const alertBox = document.createElement('div');
-   alertBox.className = 'saveAlert';
-   alertBox.textContent = '✔ Last Note Saved';
-   document.body.appendChild(alertBox);
-   setTimeout(() => {
-   alertBox.remove();
-   }, 1000);
-}
-
-// Show "Note Deleted" alert if response result is positive {result: (list_count)}.
-function showDeleteAlert() {
-   const alertBox = document.createElement('div');
-   alertBox.className = 'deleteAlert';
-   alertBox.textContent = '✖ Note Deleted';
-   document.body.appendChild(alertBox);
-   setTimeout(() => {
-   alertBox.remove();
-   }, 1000);
-}
-
-// Show "Note Doesn't Exist" alert if response result is zero {result: 0}.
-function notFoundAlert() {
-   const alertBox = document.createElement('div');
-   alertBox.className = 'notFoundAlert';
-   alertBox.textContent = "⚠ Note Doesn't Exist";
-   document.body.appendChild(alertBox);
-   setTimeout(() => {
-   alertBox.remove();
-   }, 1000);
-}
-  
-// Save the Last Line (LL) in KV Cloud storage.
-    async function saveNotes() {
-      const textarea = document.getElementById('textBox');
-      const textValue = textarea.value.trim();
-      const lines = textValue.split('\n\n\n');
-      const lastSentence = lines[lines.length - 1].trim();
-        if (lastSentence) {
-            try {
-                const response = await fetch('https://1msg.vercel.app/api/Note/saveNote', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify([lastSentence]),
-                });
-
-                if (response.ok) {
-                    console.log('Note sent to Vercel KV.');
-                    showAlert();
-                } else {
-                    const errorData = await response.json();
-                    console.error('Error from server:', errorData.error);
-                }
-            } catch (error) {
-                console.error('Error sending note to Vercel KV:', error);
-            }
-        }
-    }
-
-// Delete the specific Note in KV Cloud storage.
-  async function deleteNote() {
-    const deletearea = document.getElementById('deleteBox');
-    const deleteValue = deletearea.value.trim();
-    
-    if (deleteValue) {
-        try {
-            const response = await fetch('https://1msg.vercel.app/api/Note/deleteNote', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify([deleteValue]),
-            });
-
-            if (response.ok) {
-                const data = await response.json(); // Wait for the JSON response
-                if (data.result !== 0) {
-                    console.log('Note deleted in Vercel KV.');
-                    showDeleteAlert();
-                } else {
-                    console.log('This Note does not exist in Vercel KV.');
-                    notFoundAlert();
-                }
-            } else {
-                const errorData = await response.json(); // Wait for the JSON error response
-                console.error('Error from server:', errorData.error);
-            }
-        } catch (error) {
-            console.error('Error deleting note in Vercel KV:', error);
-        }
-    }
-}
-
-// Retrive the texts from KV Cloud storage.
-  async function getNote() {
-      const response = await fetch('https://1msg.vercel.app/api/Note/getNote', {
-          method: 'GET',
-        })
-        .then(response => response.json())
-        .then(data => {
-            let lines = [];
-            data.result.forEach((jsonString) => { // Add index parameter here
-                let parsedObject = JSON.parse(jsonString);
-                for (const key in parsedObject) {
-                    if (parsedObject.hasOwnProperty(key)) {
-                        lines.push(`${parsedObject[key]}`);
-                    }
-                }
-            });
-            const result = lines.join('\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n');
-            const textbox = document.getElementById('textBox');
-            textbox.value = result;
-        })
-        .catch(error => {
-            console.error('Error fetching or parsing data:', error);
-        });
-}
-// fetchNotes();
-  
-// Keyboard Shortcuts for different Functions
-let arrowRightPressed = false;
-document.addEventListener("keydown", function(event) {
-    if (event.key === "ArrowRight") {
-        arrowRightPressed = true;
-    }
-    
-    if (arrowRightPressed) {
-        if (event.key === "ArrowUp") {
-            saveNotes();
-        } else if (event.key === "ArrowDown") {
-            getNote();
-        } else if (event.key === "End") {
-            deleteNote();
-        }
-    }
-});
-
-document.addEventListener("keyup", function(event) {
-    if (event.key === "ArrowRight") {
-        arrowRightPressed = false;
-    }
-});
-
-// Function to paste specific note into deleteBox 
-function pasteLineText(event) {
-    var textBox = document.getElementById('textBox');
-    var text = textBox.value;
-    var cursorPosition = textBox.selectionStart; // Get cursor position
-    // Find the nearest start line before the cursor position
-    var startLine = text.lastIndexOf('\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n', cursorPosition);
-    // Find the nearest end line after the cursor position
-    var endLine = text.indexOf('\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n', cursorPosition);
-    // Adjust start and end positions to get the text between them
-    var startOfLine = startLine + '\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n'.length;
-    var endOfLine = endLine;
-    // If no start line is found before the cursor position, start from the beginning
-    if (startLine === -1 || cursorPosition < startLine) {
-        startOfLine = 0;
-    }
-    // If no end line is found after the cursor position, select till the end of text
-    if (endLine === -1 || cursorPosition > endLine) {
-        endOfLine = text.length;
-    }
     var lineText = text.substring(startOfLine, endOfLine);
     document.getElementById('deleteBox').value = lineText;
 }
 document.getElementById('textBox').onclick = pasteLineText;
   
 </script>
+</body>
+</html>
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remove controlsList Attribute</title>
+</head>
+<body>
+
+<video id="myVideo" controls controlsList="nofullscreen" src="//storage.googleapis.com/media-session/caminandes/short.mp4#t=82"></video>
+<button id="removeControlsListButton">Remove Controls List Attribute</button>
+
+<script>
+    // Function to remove the controlsList attribute
+    function removeControlsList() {
+        const video = document.getElementById('myVideo');
+        video.removeAttribute('controlsList');
+    }
+
+    // Add event listener to the button to remove the controlsList attribute
+    document.getElementById('removeControlsListButton').addEventListener('click', removeControlsList);
+</script>
+
 </body>
 </html>
