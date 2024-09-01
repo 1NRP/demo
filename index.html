@@ -3,43 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Address Bar Interaction</title>
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
-        button {
-            padding: 10px 20px;
-            margin: 10px;
-            font-size: 16px;
-        }
-    </style>
+    <title>Bypass CORS with Service Worker</title>
 </head>
 <body>
-
-    <button id="focusButton">Focus Address Bar</button>
-    <button id="enterButton">Press Enter</button>
+    <h1>Fetch API Data</h1>
+    <button id="fetch-button">Fetch Data</button>
+    <div id="result"></div>
 
     <script>
-        document.getElementById('focusButton').addEventListener('click', function() {
-            // Simulates focusing and selecting the address bar text
-            window.location.href = window.location.href; // Refreshes the URL
-        });
-
-        document.getElementById('enterButton').addEventListener('click', function() {
-            // Simulates pressing the enter key by reloading the page
-            window.location.reload(); // Reloads the current page
+        // Register the service worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+                console.log('Service Worker registered. Scope:', registration.scope);
+            }).catch(function(error) {
+                console.error('Service Worker registration failed:', error);
+            });
+        }
+        // Fetch data on button click
+        document.getElementById('fetch-button').addEventListener('click', function() {
+            fetch('https://www.terabox.com/api/shorturlinfo?app_id=250528&web=1&channel=dubox&clienttype=0&jsToken=1&dp-logid=1&shorturl=1wNygaimaEEky7K_dbNQE_g&root=1')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+                })
+                .catch(error => {
+                    document.getElementById('result').textContent = 'Error: ' + error;
+                });
         });
     </script>
-
 </body>
 </html>
+
 
 
 
