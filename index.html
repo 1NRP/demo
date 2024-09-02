@@ -1,51 +1,68 @@
 <!DOCTYPE html>
-<html>
-<video id="video" controls>
-    Your browser does not support the video tag.
-</video>
-<button onclick="playM3U8Video">0000</button>
-<script>
-async function playM3U8Video() {
-  try {
-    alert("Fetching the M3U8 content...");
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Play M3U8 Video</title>
+</head>
+<body>
+    <h1>M3U8 Video Player</h1>
     
-    // Fetch the M3U8 content
-    const response = await fetch('https://www.terabox1024.com/share/extstreaming.m3u8?uk=4398158423925&shareid=272840091&type=M3U8_AUTO_360&fid=362943580826053&sign=1&timestamp=1&clienttype=1&channel=1');
+    <!-- Video element -->
+    <video id="video" controls width="640" height="360">
+        Your browser does not support the video tag.
+    </video>
     
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+    <!-- Button to invoke the function -->
+    <br>
+    <button id="playButton">Play Video</button>
     
-    alert("Response received, reading text...");
-    
-    // Get the text content of the M3U8 file
-    const data = await response.text();
-    
-    console.log("M3U8 content fetched:", data.slice(0, 100), "..."); // Log first 100 chars
-    
-    // Create a Blob from the M3U8 text content
-    const blob = new Blob([data], { type: 'application/vnd.apple.mpegurl' });
-    
-    // Generate a URL for the Blob
-    const blobUrl = URL.createObjectURL(blob);
-    
-    console.log("Blob URL generated:", blobUrl);
-    
-    // Set the Blob URL as the video source
-    const video = document.getElementById('video');
-    const source = document.createElement('source');
-    source.src = blobUrl;
-    source.type = 'application/vnd.apple.mpegurl';
-    
-    video.appendChild(source);
-    video.load();
-    
-    console.log("Starting video playback...");
-    video.play();
-    
-  } catch (error) {
-    console.error('Error fetching the M3U8 file:', error);
-  }
-}
-</script>
+    <script>
+        async function playM3U8Video() {
+            try {
+                console.log("Fetching the M3U8 content...");
+                
+                // Fetch the M3U8 content
+                const response = await fetch('https://www.terabox1024.com/share/extstreaming.m3u8?uk=4398158423925&shareid=272840091&type=M3U8_AUTO_360&fid=362943580826053&sign=1&timestamp=1&clienttype=1&channel=1');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                console.log("Response received, reading text...");
+                
+                // Get the text content of the M3U8 file
+                const data = await response.text();
+                
+                console.log("M3U8 content fetched:", data.slice(0, 100), "..."); // Log first 100 chars
+                
+                // Create a Blob from the M3U8 text content
+                const blob = new Blob([data], { type: 'application/vnd.apple.mpegurl' });
+                
+                // Generate a URL for the Blob
+                const blobUrl = URL.createObjectURL(blob);
+                
+                console.log("Blob URL generated:", blobUrl);
+                
+                // Set the Blob URL as the video source
+                const video = document.getElementById('video');
+                const source = document.createElement('source');
+                source.src = blobUrl;
+                source.type = 'application/vnd.apple.mpegurl';
+                
+                video.appendChild(source);
+                video.load();
+                
+                console.log("Starting video playback...");
+                video.play();
+                
+            } catch (error) {
+                console.error('Error fetching the M3U8 file:', error);
+            }
+        }
+
+        // Add event listener to the button
+        document.getElementById('playButton').addEventListener('click', playM3U8Video);
+    </script>
+</body>
 </html>
