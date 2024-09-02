@@ -48,15 +48,24 @@
                 
                 // Set the Blob URL as the video source
                 const video = document.getElementById('video');
+                
+                // Remove any existing sources
+                video.innerHTML = '';
+                
                 const source = document.createElement('source');
                 source.src = blobUrl;
                 source.type = 'application/vnd.apple.mpegurl';
                 
                 video.appendChild(source);
+                
+                // Ensure the video element is ready before calling play
                 video.load();
                 
-                console.log("Starting video playback...");
-                video.play();
+                // Use setTimeout to delay playback slightly
+                setTimeout(() => {
+                    console.log("Starting video playback...");
+                    video.play().catch(error => console.error('Error during playback:', error));
+                }, 1000); // Adjust timeout as needed
                 
             } catch (error) {
                 console.error('Error fetching the M3U8 file:', error);
