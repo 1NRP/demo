@@ -1,5 +1,36 @@
 <video id="video" referrerpolicy="no-referrer" controls>
-    <source src="https://www.terabox1024.com/share/extstreaming.m3u8?uk=4398158423925&shareid=272840091&type=M3U8_AUTO_360&fid=362943580826053&sign=1&timestamp=1&clienttype=1&channel=1" type="application/vnd.apple.mpegurl">
     Your browser does not support the video tag.
 </video>
- 
+<button onclick="playM3U8Video">0000</button>
+<script>
+async function playM3U8Video() {
+  try {
+    // Fetch the M3U8 content
+    const response = await fetch('https://www.terabox1024.com/share/extstreaming.m3u8?uk=4398158423925&shareid=272840091&type=M3U8_AUTO_360&fid=362943580826053&sign=1&timestamp=1&clienttype=1&channel=1');
+    
+    // Get the text content of the M3U8 file
+    const data = await response.text();
+    
+    // Create a Blob from the M3U8 text content
+    const blob = new Blob([data], { type: 'application/vnd.apple.mpegurl' });
+    
+    // Generate a URL for the Blob
+    const blobUrl = URL.createObjectURL(blob);
+    
+    // Set the Blob URL as the video source
+    const video = document.getElementById('video');
+    const source = document.createElement('source');
+    source.src = blobUrl;
+    source.type = 'application/vnd.apple.mpegurl';
+    
+    video.appendChild(source);
+    video.load();
+    video.play();
+    
+  } catch (error) {
+    console.error('Error fetching the M3U8 file:', error);
+  }
+}
+
+// Call the async function
+playM3U8Video();
