@@ -95,22 +95,25 @@
         Your browser does not support the video tag.
     </video>
 
-    <script>
-    document.getElementById('fetchButton').addEventListener('click', async () => {
+<script>
+        document.getElementById('fetchButton').addEventListener('click', async () => {
     const url = document.getElementById('urlInput').value;
 
     try {
-        // Fetch M3U8 content
-        const response = await fetch(url, {referrerPolicy: 'no-referrer'});
+        const response = await fetch(url, { referrerPolicy: 'no-referrer' });
         if (!response.ok) throw new Error('Network response was not ok');
 
-        const m3u8Text = await response.text();
+        let m3u8Text = await response.text();
 
-        // Create a Blob from the M3U8 text
+        // Assuming the M3U8 file contains relative URLs, convert them to absolute URLs
+        const baseURL = url.substring(0, url.lastIndexOf("/") + 1);
+        m3u8Text = m3u8Text.replace(/(.*\.ts)/g, baseURL + '$1');
+
+        // Create a Blob from the modified M3U8 text
         const blob = new Blob([m3u8Text], { type: 'application/vnd.apple.mpegurl' });
         const blobUrl = URL.createObjectURL(blob);
 
-        // Set up the video player with HLS.js if the browser does not natively support HLS
+        // Use HLS.js to play the M3U8
         const videoPlayer = document.getElementById('videoPlayer');
 
         if (Hls.isSupported()) {
@@ -119,7 +122,7 @@
             hls.attachMedia(videoPlayer);
             videoPlayer.play();
         } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-            // Fallback for browsers with native HLS support (e.g., Safari)
+            // Fallback for browsers with native HLS support
             videoPlayer.src = blobUrl;
             videoPlayer.play();
         } else {
