@@ -5324,7 +5324,7 @@ const Ou = (e, t) => {
             },
             forceDownload() {
                 if (this.mediaFileList.length) {
-                    let e = `m3u8.dev-${this.formatTime(this.beginTime, "YYYY_MM_DD hh_mm_ss")}`;
+                    let e = `NRP${this.formatTime(this.beginTime, "YYYY_MM_DD")}`;
                     this.downloadFile(this.mediaFileList, e);
                 } else alert("There are currently no downloaded clips");
             },
@@ -5349,26 +5349,7 @@ const Ou = (e, t) => {
         { xmlns: "http://www.w3.org/2000/svg", width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "stroke-width": "1.5", "stroke-linecap": "round", "stroke-linejoin": "round", class: "w-4 h-4" },
         [S("polyline", { points: "4 17 10 11 4 5" }), S("line", { x1: "12", x2: "20", y1: "19", y2: "19" })],
         -1,
-    ),
-    zu = S("div", { class: "text-base" }, " Download Video/Audio from YouTube, Twitter/X, Tiktok, Instagram, Loom, Reddit, Twitch and more. ", -1),
-    Hu = S("div", { class: "space-y-1" }, [S("div", null, [S("a", { href: "https://download.m3u8.dev/", target: "_blank", class: "underline" }, "Video Download")])], -1),
-    Gu = { class: "my-6 w-[96%] lg:w-[1160px] bg-background dark:border dark:border-border shadow-lg rounded-l mx-auto box-border p-5 py-6" },
-    Wu = S(
-        "svg",
-        { xmlns: "http://www.w3.org/2000/svg", width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "stroke-width": "1.5", "stroke-linecap": "round", "stroke-linejoin": "round", class: "w-4 h-4" },
-        [S("polyline", { points: "4 17 10 11 4 5" }), S("line", { x1: "12", x2: "20", y1: "19", y2: "19" })],
-        -1,
-    ),
-    Ku = S("div", { class: "text-base" }, " If the download fails, you can use the following methods to download the video: ", -1),
-    qu = S(
-        "div",
-        { class: "space-y-1" },
-        [
-            S("div", null, [G("Use the "), S("a", { href: "https://chromewebstore.google.com/detail/m3u8-downloader-pro-hls-d/agiifopjckffghgiggmfnpbdamhpejfi", target: "_blank", class: "underline" }, '"M3U8 Downloader Pro - HLS Downloader"'), G(" to download the video.")]),
-            S("div", null, [G(" Use the "), S("a", { href: "https://record.m3u8.dev/", target: "_blank", class: "underline" }, '"Free Online Screen Recorder"'), G(" to record the video. ")]),
-        ],
-        -1,
-    ),
+    )
     Yu = S("br", null, null, -1),
     Xu = { class: "flex flex-col" },
     Ju = { key: 0, class: "flex gap-4 mt-5 items-center justify-center" },
@@ -5395,14 +5376,6 @@ const Ou = (e, t) => {
     vd = S("div", { class: "text-gray-500 text-lg" }, "No data", -1),
     _d = [vd],
     yd = { class: "mt-4 w-[96%] lg:w-[1160px] bg-background dark:border dark:border-border shadow-lg rounded-l mx-auto box-border p-5 py-6" },
-    wd = S("div", null, "You can get M3U8 URL using the Chrome Extension.", -1),
-    xd = S("div", null, [S("a", { href: "https://chromewebstore.google.com/detail/m3u8-downloader-pro-hls-d/agiifopjckffghgiggmfnpbdamhpejfi", target: "_blank" }, "M3U8 Downloader Pro - HLS Downloader")], -1),
-    Cd = S("div", null, [S("a", { href: "https://chromewebstore.google.com/detail/hls-downloader/mmcakcdpkfnjncggccdoegkjganfkbjo ", target: "_blank" }, "HLS Downloader")], -1),
-    Sd = S("div", null, "You can download videos using the Chrome Extension.", -1),
-    Td = S("div", null, [S("a", { href: "https://chromewebstore.google.com/detail/m3u8-downloader-pro-hls-d/agiifopjckffghgiggmfnpbdamhpejfi", target: "_blank" }, "M3U8 Downloader Pro - HLS Downloader")], -1),
-    Ad = S("div", null, [S("a", { href: "https://chromewebstore.google.com/detail/hls-downloader/mmcakcdpkfnjncggccdoegkjganfkbjo ", target: "_blank" }, "HLS Downloader")], -1),
-    kd = S("br", null, null, -1),
-    Id = S("a", { href: "https://record.m3u8.dev/", target: "_blank" }, "https://record.m3u8.dev/ ", -1),
     Ed = { class: "fixed top-0 left-0 w-full h-full bg-black/60 z-[9999999999]", ref: "dialog" },
     Md = { class: "absolute left-1/2 top-[200px] transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all w-[480px] max-md:w-[90%] translate-x-[-50%] dark:bg-background dark:border" },
     Rd = { class: "text-center" },
@@ -5481,7 +5454,7 @@ function zd(e, t, n, r, s, o) {
                         { class: "my-6 w-[96%] lg:w-[1160px] mx-auto overflow-hidden" },
                         {
                             default: I(() => [
-                                C(L, null, { default: I(() => [C(m, null, { default: I(() => [G("Download M3U8 Video")]), _: 1 }), C(v, null, { default: I(() => [G(" Transport Stream Download (Recommended)"), Yu]), _: 1 })]), _: 1 }),
+                                C(L, null, { default: I(() => [C(m, null, { default: I(() => [G("Download M3U8 Video")]), _: 1 }), C(v, null, { default: I(() => [G(" Transport Stream (TS) Download (Recommended)"), Yu]), _: 1 })]), _: 1 }),
                                 C(j, null, {
                                     default: I(() => [
                                         S("div", Xu, [
@@ -5492,94 +5465,13 @@ function zd(e, t, n, r, s, o) {
                                                   H("div", Zu, [
                                                       C(O, { class: "max-md:w-[100%]", onClick: t[2] || (t[2] = async () => await o.downloadVideo("ts")) }, { default: I(() => [G(" TS Download ")]), _: 1 }),
                                                       C(O, { class: "max-md:w-[100%]", onClick: t[3] || (t[3] = async () => await o.downloadVideo("mp4")) }, { default: I(() => [G(" MP4 Download ")]), _: 1 }),
-                                                      C(O, { class: "max-md:w-[100%]", onClick: o.checkOrPlay }, { default: I(() => [G(" Check M3U8 ")]), _: 1 }, 8, ["onClick"]),
-                                                      C(
-                                                          O,
-                                                          {
-                                                              class: "max-md:w-[100%]",
-                                                              onClick:
-                                                                  t[4] ||
-                                                                  (t[4] = async () => {
-                                                                      await o.parseM3U8(!0);
-                                                                  }),
-                                                          },
-                                                          { default: I(() => [G(" Parse M3U8 ")]), _: 1 },
-                                                      ),
-                                                  ])),
-                                        ]),
-                                    ]),
-                                    _: 1,
-                                }),
-                            ]),
-                            _: 1,
-                        },
-                    ),
-                    s.streamRenditions.length
-                        ? (R(),
-                          xe(
-                              z,
-                              { key: 0, class: "my-6 w-[96%] lg:w-[1160px] mx-auto overflow-hidden" },
-                              {
-                                  default: I(() => [
-                                      C(L, null, {
-                                          default: I(() => [
-                                              C(m, null, { default: I(() => [G("Parse M3U8 Data")]), _: 1 }),
-                                              C(v, null, { default: I(() => [G(" Parse the M3U8 data and display the video information. "), Qu, G(' Select the video, then click the "TS Download" button or "MP4 Download" button to download the video. ')]), _: 1 }),
-                                          ]),
-                                          _: 1,
-                                      }),
-                                      C(j, null, {
-                                          default: I(() => [
-                                              s.streamRenditions.length
-                                                  ? (R(),
-                                                    H("div", ed, [
-                                                        (R(!0),
-                                                        H(
-                                                            fe,
-                                                            null,
-                                                            Hn(
-                                                                s.streamRenditions,
-                                                                (ce, ee) => (
-                                                                    R(),
-                                                                    H("div", { key: ee, class: "py-3 flex items-center" }, [
-                                                                        C(M, { class: "w-6 h-6 dark:text-foreground/60", "stroke-width": "1.5" }),
-                                                                        S("div", td, Be(ce), 1),
-                                                                        S("div", nd, [
-                                                                            C(
-                                                                                O,
-                                                                                {
-                                                                                    variant: "outline",
-                                                                                    size: "xs",
-                                                                                    onClick: () => {
-                                                                                        s.url = ce;
-                                                                                    },
-                                                                                },
-                                                                                { default: I(() => [G("Select")]), _: 2 },
-                                                                                1032,
-                                                                                ["onClick"],
-                                                                            ),
-                                                                        ]),
-                                                                    ])
-                                                                ),
-                                                            ),
-                                                            128,
-                                                        )),
-                                                    ]))
-                                                  : (R(), H("div", rd, od)),
-                                          ]),
-                                          _: 1,
-                                      }),
-                                  ]),
-                                  _: 1,
-                              },
-                          ))
-                        : St("", !0),
+                                     
                     C(
                         z,
                         { class: "my-6 w-[96%] lg:w-[1160px] mx-auto overflow-hidden" },
                         {
                             default: I(() => [
-                                C(L, null, { default: I(() => [C(m, null, { default: I(() => [G("Download Info")]), _: 1 }), C(v, null, { default: I(() => [G(" Show the download information. "), id]), _: 1 })]), _: 1 }),
+                                C(L, null, { default: I(() => [C(m, null, { default: I(() => [G("Download Information")]), _: 1 }), C(v, null, { default: I(() => [G(" Show the download information. "), id]), _: 1 })]), _: 1 }),
                                 C(j, null, {
                                     default: I(() => [
                                         s.finishList.length
@@ -5699,14 +5591,6 @@ function zd(e, t, n, r, s, o) {
                         C(
                             Ke,
                             { type: "single", collapsible: "" },
-                            {
-                                default: I(() => [
-                                    C(q, { value: "item-1" }, { default: I(() => [C(Se, null, { default: I(() => [G("How to get M3U8 URL")]), _: 1 }), C(Ee, { class: "space-y-3" }, { default: I(() => [wd, xd, Cd]), _: 1 })]), _: 1 }),
-                                    C(q, { value: "item-2" }, { default: I(() => [C(Se, null, { default: I(() => [G("How to download M3U8 Video")]), _: 1 }), C(Ee, { class: "space-y-3" }, { default: I(() => [Sd, Td, Ad]), _: 1 })]), _: 1 }),
-                                    C(q, { value: "item-3" }, { default: I(() => [C(Se, { class: "text-left" }, { default: I(() => [G(" Still can't download the video even after using a Chrome extension ")]), _: 1 }), C(Ee, { class: "space-y-3" }, { default: I(() => [G(" Free Online Screen Recorder "), kd, Id]), _: 1 })]), _: 1 }),
-                                ]),
-                                _: 1,
-                            },
                         ),
                     ]),
                 ]),
@@ -5725,11 +5609,5 @@ function zd(e, t, n, r, s, o) {
                     ),
                     [[Zl, s.open]],
                 ),
-                S("div", jd, [S("footer", null, [S("div", $d, [Vd, S("div", Ud, [S("p", Fd, [G(" © " + Be(o.year) + " ", 1), Bd, G(", Inc. All rights reserved. ")])])])])]),
-            ],
-            64,
-        )
-    );
-}
 const Hd = Ou(Pu, [["render", zd]]);
 ya(Hd).mount("#app");
