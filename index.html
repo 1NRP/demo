@@ -76,7 +76,7 @@
     </script>
 </body>
 </html>
--->
+
 
 <iframe src="data:text/html;charset=utf-8,
 <!DOCTYPE html>
@@ -92,6 +92,57 @@
 </body>
 </html>"
 width="340" height="240"></iframe>
-<!--
+
 <iframe src="data:text/html;charset=utf-8,%3C!DOCTYPE%20html%3E%0A%3Chtml%3E%0A%3Chead%3E%0A%20%20%3Ctitle%3EVideo%3C/title%3E%0A%3C/head%3E%0A%3Cbody%3E%0A%20%20%3Cvideo%20width%3D'340'%20height%3D'240'%20controls%3E%0A%20%20%20%20%3Csource%20src%3D'https%3A%2F%2Finteractive-examples.mdn.mozilla.net%2Fmedia%2Fcc0-videos%2Fflower.webm'%20type%3D'video%2Fwebm'%3E%0A%20%20%20%20Your%20browser%20does%20not%20support%20the%20video%20tag.%0A%20%20%3C/video%3E%0A%3C/body%3E%0A%3C/html%3E" width="340" height="240"></iframe>
 -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Play M3U8</title>
+</head>
+<body>
+    <h1 style="color:#fff" onclick="ni()">000</h1>
+    <video id="video" controls></video>
+    <script>
+        // Fetch and save M3U8 file
+        async function fetchAndStoreM3U8(url) {
+            try {
+                const response = await fetch(url, { referrerPolicy: 'no-referrer' });
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.text();
+                localStorage.setItem('m3u8Content', data); // Save to localStorage
+            } catch (error) {
+                console.error('Failed to fetch M3U8:', error);
+            }
+        }
+
+        // Play the M3U8 file
+        function playM3U8() {
+            const m3u8Content = localStorage.getItem('m3u8Content');
+            if (!m3u8Content) {
+                console.error('No M3U8 content found in localStorage');
+                return;
+            }
+            const blob = new Blob([m3u8Content], { type: 'application/x-mpegURL' });
+            const url = URL.createObjectURL(blob);
+
+            const video = document.getElementById('video');
+            const source = document.createElement('source');
+            source.src = url;
+            source.type = 'application/x-mpegURL';
+            video.appendChild(source);
+            video.load();
+            video.play();
+
+            // Clean up the Blob URL after use
+            video.onended = () => URL.revokeObjectURL(url);
+        }
+
+        function ni() {  
+            fetchAndStoreM3U8('https://www.terabox1024.com/share/extstreaming.m3u8?uk=4400373015037&shareid=15102581453&type=M3U8_AUTO_360&fid=126574056574939&sign=1&timestamp=1&clienttype=1&channel=1')
+            .then(playM3U8);
+        }
+    </script>
+</body>
+</html>
