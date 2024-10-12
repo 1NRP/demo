@@ -118,26 +118,39 @@ width="340" height="240"></iframe>
         }
 
         // Play the M3U8 file
-        function playM3U8() {
-            const m3u8Content = localStorage.getItem('m3u8Content');
-            if (!m3u8Content) {
-                console.error('No M3U8 content found in localStorage');
-                return;
-            }
-            const blob = new Blob([m3u8Content], { type: 'application/x-mpegURL' });
-            const url = URL.createObjectURL(blob);
+function playM3U8() {
+    const m3u8Content = localStorage.getItem('m3u8Content');
+    if (!m3u8Content) {
+        console.error('No M3U8 content found in localStorage');
+        return;
+    }
+    const blob = new Blob([m3u8Content], { type: 'application/x-mpegURL' });
+    const url = URL.createObjectURL(blob);
 
-            const video = document.getElementById('video');
-            const source = document.createElement('source');
-            source.src = url;
-            source.type = 'application/x-mpegURL';
-            video.appendChild(source);
-            video.load();
-            video.play();
+    const video = document.getElementById('video');
 
-            // Clean up the Blob URL after use
-            video.onended = () => URL.revokeObjectURL(url);
-        }
+    // Clear previous sources
+    while (video.firstChild) {
+        video.removeChild(video.firstChild);
+    }
+
+    const source = document.createElement('source');
+    source.src = url;
+    source.type = 'application/x-mpegURL';
+    video.appendChild(source);
+    
+    video.load(); // Load the new source
+
+    // Play after a slight delay
+    setTimeout(() => {
+        video.play().catch(error => {
+            console.error('Error attempting to play:', error);
+        });
+    }, 100); // Adjust the delay if needed
+
+    // Clean up the Blob URL after use
+    video.onended = () => URL.revokeObjectURL(url);
+}
 
         function ni() {  
             fetchAndStoreM3U8('https://www.terabox1024.com/share/extstreaming.m3u8?uk=4400373015037&shareid=15102581453&type=M3U8_AUTO_360&fid=126574056574939&sign=1&timestamp=1&clienttype=1&channel=1')
