@@ -95,7 +95,7 @@ width="340" height="240"></iframe>
 
 <iframe src="data:text/html;charset=utf-8,%3C!DOCTYPE%20html%3E%0A%3Chtml%3E%0A%3Chead%3E%0A%20%20%3Ctitle%3EVideo%3C/title%3E%0A%3C/head%3E%0A%3Cbody%3E%0A%20%20%3Cvideo%20width%3D'340'%20height%3D'240'%20controls%3E%0A%20%20%20%20%3Csource%20src%3D'https%3A%2F%2Finteractive-examples.mdn.mozilla.net%2Fmedia%2Fcc0-videos%2Fflower.webm'%20type%3D'video%2Fwebm'%3E%0A%20%20%20%20Your%20browser%20does%20not%20support%20the%20video%20tag.%0A%20%20%3C/video%3E%0A%3C/body%3E%0A%3C/html%3E" width="340" height="240"></iframe>
 -->
-
+<!--
 <!DOCTYPE html>
 <html>
 <head>
@@ -157,5 +157,103 @@ function playM3U8() {
             .then(playM3U8);
         }
     </script>
+</body>
+</html>
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Data Fetch with Basic Authentication</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+        }
+
+        h2 {
+            color: #fff111;
+            cursor: pointer;
+            font-size: 2em;
+        }
+
+        textarea {
+            width: 100%;
+            height: 300px;
+            padding: 10px;
+            background-color: #444;
+            color: #fff666;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
+        input[type="text"] {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2 onclick="getData()">Fetch Data</h2>
+    
+    <input type="text" id="Stores" placeholder="Enter Redis Key" />
+    
+    <textarea id="textBox" readonly></textarea>
+    
+    <script>
+        async function getData() {
+            try {
+                // Get Redis Key from the input field
+                const Redis_Key = document.getElementById('Stores').value;
+                const url = `https://1nrp.vercel.app/api/Note/getNote?REDIS_KEY=${Redis_Key}`;
+
+                // Make the API request without providing the Authorization header
+                const response = await fetch(url, {
+                    method: 'GET',
+                    mode: 'cors',  // CORS mode to handle cross-origin requests
+                });
+
+                // If response is 401 (Unauthorized), the browser will prompt for credentials
+                if (response.status === 401) {
+                    console.log("Authentication required. The browser will show the prompt.");
+                }
+
+                // Parse the response JSON
+                const data = await response.json();
+
+                // Process the JSON data
+                let lines = [];
+                data.result.forEach((jsonString, index) => {
+                    let parsedObject = JSON.parse(jsonString);
+                    for (const key in parsedObject) {
+                        if (parsedObject.hasOwnProperty(key)) {
+                            lines.push(`${index + 1}: ${parsedObject[key] || '[No value]'}`);
+                        }
+                    }
+                });
+
+                // Join lines with a separator
+                const result = lines.join('\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n');
+                // Set the result in the textarea
+                document.getElementById('textBox').value = result;
+
+            } catch (error) {
+                console.error('Error fetching or parsing data:', error);
+                alert('An error occurred while fetching data. Please try again later.');
+            }
+        }
+    </script>
+
 </body>
 </html>
