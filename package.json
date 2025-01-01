@@ -13,6 +13,6 @@
       "vercel": "^3.0.0"
     },
     "engines": {
-      "node": "16.x"
+      "node": "22.x"
     }
   }
