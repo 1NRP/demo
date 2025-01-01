@@ -4,9 +4,17 @@
       {
         "src": "api/edge.js",
         "use": "@vercel/node"
+      },
+      { 
+        "src": "index.html",
+        "use": "@vercel/statuic"
       }
     ],
     "routes": [
+      {
+        "src": "/",
+        "dest": "index.html"
+      },
       {
         "src": "/api/edge",
         "dest": "/api/edge.js"
