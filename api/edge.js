@@ -1,3 +1,5 @@
+import { put } from '@vercel/blob';
+
 // Vercel Edge Function Configuration
 export const config = {
   runtime: 'edge', // Specify that this is an Edge function
