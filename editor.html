@@ -41,7 +41,7 @@
       mode: "javascript",
       lineNumbers: true,
       theme: "default",
-      extraKeys: { "Ctrl-Space": "autocomplete" }, // Enable autocomplete on Ctrl+Space
+      extraKeys: { "Space": "autocomplete" }, // Enable autocomplete on Ctrl+Space
     });
 
     const output = document.getElementById("output");
@@ -71,3 +71,70 @@
   </script>
 </body>
 </html>
+
+
+<html>
+<head>
+<style>
+    #editor {
+      width: 100%;
+      height: 300px;
+      border: 1px solid #ccc;
+    }
+    #output {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+      white-space: pre-wrap;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>JavaScript Notebook with Monaco Editor</h1>
+  <div id="editor"></div>
+  <button id="run">Run Code</button>
+  <div id="output"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.42.0/min/vs/loader.min.js"></script>
+  <script>
+    require.config({ paths: { vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.42.0/min/vs" } });
+
+    require(["vs/editor/editor.main"], function () {
+      const editor = monaco.editor.create(document.getElementById("editor"), {
+        value: "// Write your code here\nconsole.log('Hello, world!');",
+        language: "javascript",
+        theme: "vs-dark",
+      });
+
+      const output = document.getElementById("output");
+      const runButton = document.getElementById("run");
+
+      runButton.addEventListener("click", () => {
+        output.innerHTML = ""; // Clear previous output
+        const code = editor.getValue();
+
+        try {
+          const logs = [];
+          const originalConsoleLog = console.log;
+          console.log = (...args) => {
+            logs.push(args.join(" "));
+            originalConsoleLog(...args);
+          };
+
+          // Execute the user's code
+          new Function(code)();
+
+          console.log = originalConsoleLog;
+          output.textContent = logs.join("\n");
+        } catch (err) {
+          output.textContent = `Error: ${err.message}`;
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+
