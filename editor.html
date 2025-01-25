@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeMirror Integration</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    #editor {
+      height: 300px;
+      border: 1px solid #ccc;
+    }
+    #output {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+      white-space: pre-wrap;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>JavaScript Notebook with CodeMirror</h1>
+  <div id="editor"></div>
+  <button id="run">Run Code</button>
+  <div id="output"></div>
+
+  <script>
+    // Initialize CodeMirror
+    const editor = CodeMirror(document.getElementById("editor"), {
+      mode: "javascript",
+      lineNumbers: true,
+      theme: "default",
+      extraKeys: { "Ctrl-Space": "autocomplete" }, // Enable autocomplete on Ctrl+Space
+    });
+
+    const output = document.getElementById("output");
+    const runButton = document.getElementById("run");
+
+    runButton.addEventListener("click", () => {
+      output.innerHTML = ""; // Clear previous output
+      const code = editor.getValue();
+
+      try {
+        const logs = [];
+        const originalConsoleLog = console.log;
+        console.log = (...args) => {
+          logs.push(args.join(" "));
+          originalConsoleLog(...args);
+        };
+
+        // Execute the user's code
+        new Function(code)();
+
+        console.log = originalConsoleLog;
+        output.textContent = logs.join("\n");
+      } catch (err) {
+        output.textContent = `Error: ${err.message}`;
+      }
+    });
+  </script>
+</body>
+</html>
