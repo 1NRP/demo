@@ -1,142 +1,172 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CodeMirror Integration</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
-    #editor {
-      height: 300px;
-      border: 1px solid #ccc;
-    }
-    #output {
-      margin-top: 20px;
-      padding: 10px;
-      border: 1px solid #ccc;
-      background-color: #f9f9f9;
-      white-space: pre-wrap;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-  </style>
-</head>
-<body>
-  <h1>JavaScript Notebook with CodeMirror</h1>
-  <div id="editor"></div>
-  <button id="run">Run Code</button>
-  <div id="output"></div>
-
-  <script>
-    // Initialize CodeMirror
-    const editor = CodeMirror(document.getElementById("editor"), {
-      mode: "javascript",
-      lineNumbers: true,
-      theme: "default",
-      extraKeys: { "Space": "autocomplete" }, // Enable autocomplete on Ctrl+Space
-    });
-
-    const output = document.getElementById("output");
-    const runButton = document.getElementById("run");
-
-    runButton.addEventListener("click", () => {
-      output.innerHTML = ""; // Clear previous output
-      const code = editor.getValue();
-
-      try {
-        const logs = [];
-        const originalConsoleLog = console.log;
-        console.log = (...args) => {
-          logs.push(args.join(" "));
-          originalConsoleLog(...args);
-        };
-
-        // Execute the user's code
-        new Function(code)();
-
-        console.log = originalConsoleLog;
-        output.textContent = logs.join("\n");
-      } catch (err) {
-        output.textContent = `Error: ${err.message}`;
-      }
-    });
-  </script>
-</body>
-</html>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<style>
-    #editor {
-      width: 100%;
-      height: 300px;
-      border: 1px solid #ccc;
-    }
-    #output {
-      margin-top: 20px;
-      padding: 10px;
-      border: 1px solid #ccc;
-      background-color: #f9f9f9;
-      white-space: pre-wrap;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-  </style>
-</head>
-<body>
-  <h1>JavaScript Notebook with Monaco Editor</h1>
-  <div id="editor"></div>
-  <button id="run">Run Code</button>
-  <div id="output"></div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.42.0/min/vs/loader.min.js"></script>
-  <script>
-    require.config({ paths: { vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.42.0/min/vs" } });
-
-    require(["vs/editor/editor.main"], function () {
-      const editor = monaco.editor.create(document.getElementById("editor"), {
-        value: "// Write your code here\nconsole.log('Hello, world!');",
-        language: "javascript",
-        theme: "vs-dark",
-      });
-
-      const output = document.getElementById("output");
-      const runButton = document.getElementById("run");
-
-      runButton.addEventListener("click", () => {
-        output.innerHTML = ""; // Clear previous output
-        const code = editor.getValue();
-
-        try {
-          const logs = [];
-          const originalConsoleLog = console.log;
-          console.log = (...args) => {
-            logs.push(args.join(" "));
-            originalConsoleLog(...args);
-          };
-
-          // Execute the user's code
-          new Function(code)();
-
-          console.log = originalConsoleLog;
-          output.textContent = logs.join("\n");
-        } catch (err) {
-          output.textContent = `Error: ${err.message}`;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Code Editor with Suggestions</title>
+    <style>
+        .textarea-container {
+            position: relative;
+            width: 600px;
+            margin: 50px auto;
         }
-      });
-    });
-  </script>
+        textarea {
+            width: 100%;
+            height: 200px;
+            font-family: monospace;
+            font-size: 16px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .suggestions {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-top: none;
+            max-height: 150px;
+            overflow-y: auto;
+            z-index: 10;
+            width: 100%;
+            display: none;
+        }
+        .suggestion-item {
+            padding: 5px;
+            cursor: pointer;
+        }
+        .suggestion-item:hover {
+            background-color: #f0f0f0;
+        }
+        .keyword {
+            color: blue;
+            font-weight: bold;
+        }
+        .string {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h2>Real-time JavaScript Syntax Highlighter & Autocomplete</h2>
+
+    <div class="textarea-container">
+        <textarea class="js-editor"></textarea>
+        <div class="suggestions"></div>
+    </div>
+
+    <script>
+        const keywords = [
+            'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger', 'default', 'delete', 'do',
+            'else', 'export', 'extends', 'finally', 'for', 'function', 'if', 'import', 'in', 'instanceof', 'let',
+            'new', 'return', 'super', 'switch', 'this', 'throw', 'try', 'typeof', 'var', 'void', 'while', 'with'
+        ];
+
+        // Function to highlight JavaScript code and manage variables
+        function highlightCode(inputCode, variables) {
+            // Match strings and keywords
+            const regex = /("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|\/\/[^\n]*|\b(?:${keywords.join('|')})\b|\w+)/g;
+
+            return inputCode.replace(regex, function(match) {
+                // Match strings
+                if (match.startsWith('"') || match.startsWith("'")) {
+                    return `<span class="string">${match}</span>`;
+                }
+                // Match comments
+                if (match.startsWith('//')) {
+                    return `<span class="comment">${match}</span>`;
+                }
+                // Match keywords
+                if (keywords.includes(match)) {
+                    return `<span class="keyword">${match}</span>`;
+                }
+                // Match variable (user-defined)
+                if (variables.has(match)) {
+                    return `<span class="variable">${match}</span>`;
+                }
+                // Otherwise, just return the match as it is (no highlighting)
+                return match;
+            });
+        }
+
+        // Function to show suggestions
+        function showSuggestions(textarea, suggestionsDiv, variables) {
+            const text = textarea.value;
+            const cursorPos = textarea.selectionStart;
+            const startPos = text.lastIndexOf(' ', cursorPos - 1) + 1;
+            const word = text.slice(startPos, cursorPos);
+            
+            if (!word) {
+                suggestionsDiv.style.display = 'none';
+                return;
+            }
+
+            // Find possible keywords and user variables for suggestion
+            const possibleSuggestions = new Set([...keywords.filter(k => k.startsWith(word)), ...variables].slice(0, 10));
+
+            // Display suggestions
+            suggestionsDiv.innerHTML = '';
+            possibleSuggestions.forEach(suggestion => {
+                const div = document.createElement('div');
+                div.classList.add('suggestion-item');
+                div.textContent = suggestion;
+                div.onclick = function() {
+                    insertSuggestion(textarea, startPos, word, suggestion);
+                    suggestionsDiv.style.display = 'none';
+                };
+                suggestionsDiv.appendChild(div);
+            });
+
+            // Show the suggestions div
+            suggestionsDiv.style.display = possibleSuggestions.size > 0 ? 'block' : 'none';
+        }
+
+        // Function to insert the selected suggestion into the textarea
+        function insertSuggestion(textarea, startPos, word, suggestion) {
+            const text = textarea.value;
+            const newText = text.slice(0, startPos) + suggestion + text.slice(startPos + word.length);
+            textarea.value = newText;
+            textarea.selectionStart = textarea.selectionEnd = startPos + suggestion.length;
+        }
+
+        // Function to update the highlighter and variable list
+        function updateEditor() {
+            const textarea = document.querySelector('.js-editor');
+            const suggestionsDiv = document.querySelector('.suggestions');
+            const variables = new Set();
+
+            // Collect variables by finding all non-keyword, non-builtin names
+            const text = textarea.value;
+            const regex = /\b([a-zA-Z_$][a-zA-Z_$0-9]*)\b/g;
+            let match;
+            while ((match = regex.exec(text)) !== null) {
+                const word = match[1];
+                if (!keywords.includes(word)) {
+                    variables.add(word);
+                }
+            }
+
+            // Highlight the code with variables
+            const highlightedCode = highlightCode(text, variables);
+            textarea.innerHTML = highlightedCode;
+
+            // Show suggestions based on the current word
+            showSuggestions(textarea, suggestionsDiv, variables);
+        }
+
+        // Event listener for the textarea
+        const textarea = document.querySelector('.js-editor');
+        const suggestionsDiv = document.querySelector('.suggestions');
+
+        textarea.addEventListener('input', updateEditor);
+        textarea.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                suggestionsDiv.style.display = 'none'; // Hide suggestions when Enter is pressed
+            }
+        });
+    </script>
 </body>
 </html>
-
