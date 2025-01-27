@@ -1,383 +1,410 @@
-<!--
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JavaScript Code Editor with Suggestions</title>
-    <style>
-        .textarea-container {
-            position: relative;
-            width: 600px;
-            margin: 50px auto;
-        }
-        textarea {
-            width: 100%;
-            height: 200px;
-            font-family: monospace;
-            font-size: 16px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-        .suggestions {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            background-color: white;
-            border: 1px solid #ccc;
-            border-top: none;
-            max-height: 150px;
-            overflow-y: auto;
-            z-index: 10;
-            width: 100%;
-            display: none;
-        }
-        .suggestion-item {
-            padding: 5px;
-            cursor: pointer;
-        }
-        .suggestion-item:hover {
-            background-color: #f0f0f0;
-        }
-        .keyword {
-            color: blue;
-            font-weight: bold;
-        }
-        .string {
-            color: green;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" sizes="192x192" href="https://1nrp.github.io/1/Images/N-Logo1.png">
+  <title>Nihar's JS Notebook</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #0d203040;
+      padding: 0;
+    }
+    .toolbar {
+      padding: 4px;
+      background-color: #00200020;
+      border-bottom: 2px solid #34a054;
+    }
+    .toolbar input {
+      font-size: 16px;
+      border: 2px solid #34a054;
+      background-color: #00400040;
+      border-radius: 5px;
+      padding: 5px;
+    }
+    .toolbar button {
+      padding: 2px 6px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 5px;
+      background-color: #00400040;
+      border: 2px solid #34a054;
+    }
+    .toolbar button:hover {
+      background-color: #23974060;
+    }
+    .cell {
+      border: 1px solid #ccc;
+      margin: 2px;
+      padding: 2px;
+      width: 97.2vw;
+      height: auto;
+      border-radius: 5px;
+    }
+    .code-cell, .text-cell {
+      position: relative;
+      border: 2px solid #2e633540;
+      border-radius: 4px;
+      background-color: #397ba720;
+    }
+    .cell-buttons {
+      position: absolute;
+      top: 2px;
+      right: 4px;
+      display: flex;
+      gap: 25px;
+      opacity: 0.1;
+      margin: 4px 0px;
+      z-index: 100;
+    }
+    .cell-buttons:hover {
+     opacity: 1;
+    }
+    .cell-buttons button {
+      background-color: #4c8fb6b0;
+      border: 2px solid #2e6335;
+      padding: 6px;
+      border-radius: 4px;
+    }
+    .cell-buttons button:hover {
+      background-color: #444;
+    }
+    .output {
+      overflow-y: visible;
+      width: 98%;
+    }
+    .logDiv {
+      font-family: 'Times New Roman', Times, sans-serif;
+      border-top: 1px solid #33558880;
+      padding: 4px;
+      width: 100%;
+      margin: 4px 0px;
+      background-color: #02103020;
+    }
+    .errorDiv {
+      color: #ddd;
+      border: 1px solid #d00;
+      padding: 4px;
+      margin: 4px 0px;
+      background-color: #40000040;
+    }
+    .minimized {
+      max-height: 40px;
+    }
+    .markdown-render {
+      padding: 10px;
+      background: #fff;
+      border: 1px dashed #ccc;
+      border-radius: 5px;
+    }
+    
+.syntax-editor {
+  font-family: monospace;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.5;
+  padding: 10px;
+  border: 1px solid #ccc;
+  min-height: 200px;
+  background-color: #f5f5f5;
+}
+
+.highlight-keyword {
+  color: blue;
+  font-weight: bold;
+}
+
+.highlight-variable {
+  color: green;
+}
+
+.highlight-number {
+  color: red;
+}
+
+.highlight-function {
+  color: purple;
+}
+
+.highlight-comment {
+  color: gray;
+}
+
+.highlight-string {
+  color: brown;
+}
+
+.highlight-bracket {
+  color: orange;
+}
+
+  </style>
 </head>
 <body>
-    <h2>Real-time JavaScript Syntax Highlighter & Autocomplete</h2>
-
-    <div class="textarea-container">
-        <textarea class="js-editor"></textarea>
-        <div class="suggestions"></div>
+  <div class="toolbar">
+    <input style="display:none; margin:0px 0px 4px 0px;" id="notebook-title" placeholder="Untitled Notebook" value="Untitled Notebook">
+    <div>
+      <button id="add-code" style="padding: 3px 6px">+ CODE</button>
+      <button id="add-text" style="padding: 3px 6px">+ TEXT</button>
+      <button id="download-notebook">▼ LOAD</button>
+      <input id="upload-notebook" type="file" style="display: none;">
+      <button id="upload-trigger">▲ LOAD</button>
+      <button style="margin:0px 0px 0px 10px" id="move-down">▼</button>
+      <button id="move-up" onclick="">▲</button>
     </div>
+  </div>
+  <div id="notebook"></div>
+  <div id="editor" contenteditable="true" class="syntax-editor"></div>
 
-    <script>
-        const keywords = [
-            'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger', 'default', 'delete', 'do',
-            'else', 'export', 'extends', 'finally', 'for', 'function', 'if', 'import', 'in', 'instanceof', 'let',
-            'new', 'return', 'super', 'switch', 'this', 'throw', 'try', 'typeof', 'var', 'void', 'while', 'with'
-        ];
+  <script>
+  
+const keywords = ["var", "let", "const", "function", "return", "if", "else", "for", "while", "class", "this", "new", "try", "catch", "break", "continue", "typeof", "instanceof"];
+const symbols = ["(", ")", "{", "}", "[", "]", '"', "'", "//"];
 
-        // Function to highlight JavaScript code and manage variables
-        function highlightCode(inputCode, variables) {
-            // Match strings and keywords
-            const regex = /("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|\/\/[^\n]*|\b(?:${keywords.join('|')})\b|\w+)/g;
+document.getElementById("editor").addEventListener("input", function(event) {
+  highlightSyntax(event.target);
+});
 
-            return inputCode.replace(regex, function(match) {
-                // Match strings
-                if (match.startsWith('"') || match.startsWith("'")) {
-                    return `<span class="string">${match}</span>`;
-                }
-                // Match comments
-                if (match.startsWith('//')) {
-                    return `<span class="comment">${match}</span>`;
-                }
-                // Match keywords
-                if (keywords.includes(match)) {
-                    return `<span class="keyword">${match}</span>`;
-                }
-                // Match variable (user-defined)
-                if (variables.has(match)) {
-                    return `<span class="variable">${match}</span>`;
-                }
-                // Otherwise, just return the match as it is (no highlighting)
-                return match;
-            });
+function highlightSyntax(div) {
+  const content = div.textContent;
+  
+  // Replace content with highlights
+  let highlightedContent = content;
+
+  // Highlight numbers
+  highlightedContent = highlightedContent.replace(/(\b\d+(\.\d+)?\b)/g, `<span class="highlight-number">$1</span>`);
+
+  // Highlight strings (in quotes)
+  highlightedContent = highlightedContent.replace(/(['"`])(.*?)(\1)/g, `<span class="highlight-string">$&</span>`);
+
+  // Highlight comments (after //)
+  highlightedContent = highlightedContent.replace(/(\/\/.*?)(\n|$)/g, `<span class="highlight-comment">$1</span>`);
+
+  // Highlight keywords
+  highlightedContent = highlightedContent.replace(new RegExp(`\\b(${keywords.join("|")})\\b`, 'g'), `<span class="highlight-keyword">$1</span>`);
+
+  // Highlight functions (identifiers followed by ())
+  highlightedContent = highlightedContent.replace(/\b(\w+)\(\)/g, `<span class="highlight-function">$&</span>`);
+
+  // Highlight variables (check after var, let, const)
+  highlightedContent = highlightedContent.replace(/\b(var|let|const)\s+(\w+)\b/g, `<span class="highlight-variable">$2</span>`);
+
+  // Highlight brackets and move the cursor inside them
+  highlightedContent = highlightedContent.replace(/(\{|\}|\[|\]|\(|\))/g, `<span class="highlight-bracket">$1</span>`);
+
+  // Apply the highlighted content
+  div.innerHTML = highlightedContent;
+
+  // Move the cursor to the middle of the matching bracket or quote
+  placeCursorAtMatchingPair(div);
+}
+
+function placeCursorAtMatchingPair(div) {
+  const range = window.getSelection().getRangeAt(0);
+  const cursorPosition = range.startOffset;
+  const content = div.innerHTML;
+
+  const openBrackets = ['{', '[', '(', '"', "'"];
+  const closeBrackets = ['}', ']', ')', '"', "'"];
+  const matchingPairs = {
+    '{': '}',
+    '[': ']',
+    '(': ')',
+    '"': '"',
+    "'": "'"
+  };
+
+  let currentChar = content.charAt(cursorPosition);
+
+  // Check for matching pair when inside brackets or quotes
+  if (openBrackets.includes(currentChar)) {
+    let closingChar = matchingPairs[currentChar];
+    let closingPos = content.indexOf(closingChar, cursorPosition);
+    if (closingPos > cursorPosition) {
+      setCursorAt(content, closingPos);
+    }
+  }
+}
+
+function setCursorAt(content, position) {
+  const range = document.createRange();
+  const selection = window.getSelection();
+  range.setStart(content, position);
+  range.setEnd(content, position);
+  selection.removeAllRanges();
+  selection.addRange(range);
+}
+
+    // Editor settings.
+    let cellCounter = 0;
+    const notebook = document.getElementById('notebook');
+    function createCodeCell() {
+      const cellId = `cell-${++cellCounter}`;
+      const cell = document.createElement('div');
+      cell.classList.add('cell', 'code-cell');
+      cell.id = cellId;
+      cell.innerHTML = `
+        <div class="cell-buttons">
+          <button onclick="runCode('${cellId}')">⚙️</button>
+          <button onclick="minimizeCell('${cellId}')">▶️</button>
+          <button onclick="deleteCell('${cellId}')">❌</button>
+        </div>
+        <textarea class="code-editor"></textarea>
+        <div class="output"></div>
+      `;
+      notebook.appendChild(cell);
+    }
+
+    function createTextCell() {
+      const cellId = `cell-${++cellCounter}`;
+      const cell = document.createElement('div');
+      cell.classList.add('cell', 'text-cell');
+      cell.id = cellId;
+      cell.innerHTML = `
+        <div class="cell-buttons">
+          <button onclick="toggleMarkdown('${cellId}')">Toggle Markdown</button>
+          <button onclick="minimizeCell('${cellId}')">&#9660;</button>
+          <button onclick="deleteCell('${cellId}')">Delete</button>
+        </div>
+        <textarea class="markdown-editor"></textarea>
+        <div class="markdown-render minimized"></div>
+      `;
+      notebook.appendChild(cell);
+    }
+
+    function runCode(cellId) {
+      const cell = document.getElementById(cellId);
+      const output = cell.querySelector('.output');
+      output.innerHTML = '';
+
+      const cleanup = redirectConsole(output);
+      try {
+        const code = cell.editor.getValue();
+        new Function(code)();
+      } catch (err) {
+        console.error(err.message);
+      }
+      cleanup();
+    }
+    async function runCode(cellId) {
+      const cell = document.getElementById(cellId);
+      const output = cell.querySelector('.output');
+      output.innerHTML = '';
+
+      const cleanup = redirectConsole(output);
+      try {
+        const code = cell.editor.getValue();
+        await new Function(`return (async () => { ${code} })()`)();
+      } catch (err) {
+        console.error(err.message);
+      }
+      cleanup();
+    }
+
+    function redirectConsole(output) {
+      const originalLog = console.log;
+      const originalError = console.error;
+
+      console.log = (...args) => {
+        const msg = document.createElement('div');
+        msg.className = 'logDiv';
+        msg.textContent = '» ' + args.join('');
+        output.appendChild(msg);
+      };
+
+      console.error = (...args) => {
+        const msg = document.createElement('div');
+        msg.className = 'errorDiv';
+        msg.textContent = '» ' + args.join('');
+        output.appendChild(msg);
+      };
+
+      return () => {
+        console.log = originalLog;
+        console.error = originalError;
+      };
+    }
+
+    function toggleMarkdown(cellId) {
+      const cell = document.getElementById(cellId);
+      const editor = cell.querySelector('.markdown-editor');
+      const render = cell.querySelector('.markdown-render');
+
+      if (render.classList.contains('minimized')) {
+        render.innerHTML = marked(editor.value);
+        editor.classList.add('minimized');
+        render.classList.remove('minimized');
+      } else {
+        editor.classList.remove('minimized');
+        render.classList.add('minimized');
+      }
+    }
+
+    function minimizeCell(cellId) {
+      const cell = document.getElementById(cellId);
+      const codeMirrorCells = document.getElementsByClassName('CodeMirror');
+      for (let i = 0; i < codeMirrorCells.length; i++) {
+          codeMirrorCells[i].classList.toggle('minimized');
+      }
+     cell.classList.toggle('minimized');
+    }
+
+    function deleteCell(cellId) {
+      const cell = document.getElementById(cellId);
+      cell.remove();
+    }
+
+    function downloadNotebook() {
+      const title = document.getElementById('notebook-title').value;
+      const content = { title, cells: [] };
+
+      notebook.querySelectorAll('.cell').forEach(cell => {
+        if (cell.classList.contains('code-cell')) {
+          content.cells.push({ type: 'code', content: cell.editor.getValue() });
+        } else if (cell.classList.contains('text-cell')) {
+          const markdown = cell.querySelector('.markdown-editor').value;
+          content.cells.push({ type: 'text', content: markdown });
         }
+      });
 
-        // Function to show suggestions
-        function showSuggestions(textarea, suggestionsDiv, variables) {
-            const text = textarea.value;
-            const cursorPos = textarea.selectionStart;
-            const startPos = text.lastIndexOf(' ', cursorPos - 1) + 1;
-            const word = text.slice(startPos, cursorPos);
-            
-            if (!word) {
-                suggestionsDiv.style.display = 'none';
-                return;
-            }
+      const blob = new Blob([JSON.stringify(content, null, 2)], { type: 'application/json' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `JSNB-${title || 'Notebook'}.json`;
+      link.click();
+    }
 
-            // Find possible keywords and user variables for suggestion
-            const possibleSuggestions = new Set([...keywords.filter(k => k.startsWith(word)), ...variables].slice(0, 10));
+    function uploadNotebook(event) {
+      const file = event.target.files[0];
+      if (!file) return;
 
-            // Display suggestions
-            suggestionsDiv.innerHTML = '';
-            possibleSuggestions.forEach(suggestion => {
-                const div = document.createElement('div');
-                div.classList.add('suggestion-item');
-                div.textContent = suggestion;
-                div.onclick = function() {
-                    insertSuggestion(textarea, startPos, word, suggestion);
-                    suggestionsDiv.style.display = 'none';
-                };
-                suggestionsDiv.appendChild(div);
-            });
+      const reader = new FileReader();
+      reader.onload = e => {
+        const content = JSON.parse(e.target.result);
+        document.getElementById('notebook-title').value = content.title || 'Untitled Notebook';
 
-            // Show the suggestions div
-            suggestionsDiv.style.display = possibleSuggestions.size > 0 ? 'block' : 'none';
-        }
-
-        // Function to insert the selected suggestion into the textarea
-        function insertSuggestion(textarea, startPos, word, suggestion) {
-            const text = textarea.value;
-            const newText = text.slice(0, startPos) + suggestion + text.slice(startPos + word.length);
-            textarea.value = newText;
-            textarea.selectionStart = textarea.selectionEnd = startPos + suggestion.length;
-        }
-
-        // Function to update the highlighter and variable list
-        function updateEditor() {
-            const textarea = document.querySelector('.js-editor');
-            const suggestionsDiv = document.querySelector('.suggestions');
-            const variables = new Set();
-
-            // Collect variables by finding all non-keyword, non-builtin names
-            const text = textarea.value;
-            const regex = /\b([a-zA-Z_$][a-zA-Z_$0-9]*)\b/g;
-            let match;
-            while ((match = regex.exec(text)) !== null) {
-                const word = match[1];
-                if (!keywords.includes(word)) {
-                    variables.add(word);
-                }
-            }
-
-            // Highlight the code with variables
-            const highlightedCode = highlightCode(text, variables);
-            textarea.innerHTML = highlightedCode;
-
-            // Show suggestions based on the current word
-            showSuggestions(textarea, suggestionsDiv, variables);
-        }
-
-        // Event listener for the textarea
-        const textarea = document.querySelector('.js-editor');
-        const suggestionsDiv = document.querySelector('.suggestions');
-
-        textarea.addEventListener('input', updateEditor);
-        textarea.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                suggestionsDiv.style.display = 'none'; // Hide suggestions when Enter is pressed
-            }
+        notebook.innerHTML = '';
+        content.cells.forEach(cell => {
+          if (cell.type === 'code') {
+            createCodeCell();
+            notebook.lastChild.editor.setValue(cell.content);
+          } else if (cell.type === 'text') {
+            createTextCell();
+            notebook.lastChild.querySelector('.markdown-editor').value = cell.content;
+          }
         });
-    </script>
+      };
+
+      reader.readAsText(file);
+    }
+
+    document.getElementById('add-code').addEventListener('click', createCodeCell);
+    document.getElementById('add-text').addEventListener('click', createTextCell);
+    document.getElementById('download-notebook').addEventListener('click', downloadNotebook);
+    document.getElementById('upload-trigger').addEventListener('click', () => document.getElementById('upload-notebook').click());
+    document.getElementById('upload-notebook').addEventListener('change', uploadNotebook);
+  </script>
 </body>
 </html>
--->
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JavaScript Code Editor with Suggestions</title>
-    <style>
-        .editor-container {
-            position: relative;
-            width: 600px;
-            margin: 50px auto;
-        }
-        .editor {
-            width: 100%;
-            height: 200px;
-            font-family: monospace;
-            font-size: 16px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            min-height: 150px;
-        }
-        .suggestions {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            background-color: white;
-            border: 1px solid #ccc;
-            border-top: none;
-            max-height: 150px;
-            overflow-y: auto;
-            z-index: 10;
-            width: 100%;
-            display: none;
-            box-sizing: border-box;
-        }
-        .suggestion-item {
-            padding: 5px;
-            cursor: pointer;
-        }
-        .suggestion-item:hover {
-            background-color: #f0f0f0;
-        }
-        .keyword {
-            color: blue;
-            font-weight: bold;
-        }
-        .string {
-            color: green;
-        }
-        .variable {
-            color: purple;
-        }
-        .comment {
-            color: gray;
-        }
-    </style>
-</head>
-<body>
-    <h2>Real-time JavaScript Syntax Highlighter & Autocomplete</h2>
-
-    <div class="editor-container">
-        <div class="editor" contenteditable="true"></div>
-        <div class="suggestions"></div>
-    </div>
-
-    <script>
-        const keywords = [
-            'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger', 'default', 'delete', 'do',
-            'else', 'export', 'extends', 'finally', 'for', 'function', 'if', 'import', 'in', 'instanceof', 'let',
-            'new', 'return', 'super', 'switch', 'this', 'throw', 'try', 'typeof', 'var', 'void', 'while', 'with'
-        ];
-
-        // Function to highlight JavaScript code and manage variables
-        function highlightCode(inputCode, variables) {
-            // Match strings, comments, keywords, and variables
-            const regex = /("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|\/\/[^\n]*|\b(?:${keywords.join('|')})\b|\w+)/g;
-
-            return inputCode.replace(regex, function(match) {
-                // Match strings
-                if (match.startsWith('"') || match.startsWith("'")) {
-                    return `<span class="string">${match}</span>`;
-                }
-                // Match comments
-                if (match.startsWith('//')) {
-                    return `<span class="comment">${match}</span>`;
-                }
-                // Match keywords
-                if (keywords.includes(match)) {
-                    return `<span class="keyword">${match}</span>`;
-                }
-                // Match variable (user-defined)
-                if (variables.has(match)) {
-                    return `<span class="variable">${match}</span>`;
-                }
-                // Otherwise, just return the match as it is (no highlighting)
-                return match;
-            });
-        }
-
-        // Function to show suggestions
-        function showSuggestions(editor, suggestionsDiv, variables) {
-            const text = editor.textContent;
-            const cursorPos = getCaretPosition(editor);
-            const startPos = text.lastIndexOf(' ', cursorPos - 1) + 1;
-            const word = text.slice(startPos, cursorPos);
-
-            if (!word) {
-                suggestionsDiv.style.display = 'none';
-                return;
-            }
-
-            // Find possible keywords and user variables for suggestion
-            const possibleSuggestions = new Set([...keywords.filter(k => k.startsWith(word)), ...variables].slice(0, 10));
-
-            // Display suggestions
-            suggestionsDiv.innerHTML = '';
-            possibleSuggestions.forEach(suggestion => {
-                const div = document.createElement('div');
-                div.classList.add('suggestion-item');
-                div.textContent = suggestion;
-                div.onclick = function() {
-                    insertSuggestion(editor, startPos, word, suggestion);
-                    suggestionsDiv.style.display = 'none';
-                };
-                suggestionsDiv.appendChild(div);
-            });
-
-            // Show the suggestions div
-            suggestionsDiv.style.display = possibleSuggestions.size > 0 ? 'block' : 'none';
-        }
-
-        // Function to get the caret position in a contenteditable div
-        function getCaretPosition(editor) {
-            let caretPos = 0;
-            const selection = window.getSelection();
-            if (selection.rangeCount) {
-                const range = selection.getRangeAt(0);
-                const preCaretRange = range.cloneRange();
-                preCaretRange.selectNodeContents(editor);
-                preCaretRange.setEnd(range.endContainer, range.endOffset);
-                caretPos = preCaretRange.toString().length;
-            }
-            return caretPos;
-        }
-
-        // Function to insert the selected suggestion into the editor
-        function insertSuggestion(editor, startPos, word, suggestion) {
-            const text = editor.textContent;
-            const newText = text.slice(0, startPos) + suggestion + text.slice(startPos + word.length);
-            editor.textContent = newText;
-            placeCaretAt(editor, startPos + suggestion.length);
-        }
-
-        // Function to place the caret (cursor) at a specific position in the contenteditable div
-        function placeCaretAt(editor, position) {
-            const range = document.createRange();
-            const sel = window.getSelection();
-            range.setStart(editor.firstChild, position);
-            range.setEnd(editor.firstChild, position);
-            sel.removeAllRanges();
-            sel.addRange(range);
-        }
-
-        // Function to update the highlighter and variable list
-        function updateEditor() {
-            const editor = document.querySelector('.editor');
-            const suggestionsDiv = document.querySelector('.suggestions');
-            const variables = new Set();
-
-            // Collect variables by finding all non-keyword, non-builtin names
-            const text = editor.textContent;
-            const regex = /\b([a-zA-Z_$][a-zA-Z_$0-9]*)\b/g;
-            let match;
-            while ((match = regex.exec(text)) !== null) {
-                const word = match[1];
-                if (!keywords.includes(word)) {
-                    variables.add(word);
-                }
-            }
-
-            // Highlight the code with variables
-            const highlightedCode = highlightCode(text, variables);
-            editor.innerHTML = highlightedCode;
-
-            // Show suggestions based on the current word
-            showSuggestions(editor, suggestionsDiv, variables);
-        }
-
-        // Event listener for the contenteditable div
-        const editor = document.querySelector('.editor');
-        const suggestionsDiv = document.querySelector('.suggestions');
-
-        editor.addEventListener('input', updateEditor);
-        editor.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                suggestionsDiv.style.display = 'none'; // Hide suggestions when Enter is pressed
-            }
-        });
-    </script>
-</body>
-</html>
-
