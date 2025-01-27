@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -408,3 +408,176 @@ function setCursorAt(content, position) {
   </script>
 </body>
 </html>
+-->
+<div id="editor" contenteditable="true"></div>
+<div id="editor2" contenteditable="true"></div>
+<style>
+  .highlight-number { color: blue; }
+  .highlight-string { color: green; }
+  .highlight-comment { color: gray; font-style: italic; }
+  .highlight-keyword { color: purple; font-weight: bold; }
+  .highlight-function { color: orange; }
+  .highlight-variable { color: brown; }
+  .highlight-bracket { color: red; }
+  #editor {
+    white-space: pre; /* Preserve formatting for code */
+    font-family: monospace; /* Make it look like a code editor */
+    position: relative;
+    z-index: 1;
+    caret-color: black; /* Keep cursor visible */
+  }
+  #highlight {
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
+    color: transparent;
+    white-space: pre;
+    font-family: monospace;
+    overflow: hidden;
+    word-wrap: break-word;
+  }
+</style>
+<div id="highlight"></div>
+<script>
+  const keywords = ["var", "let", "const", "function", "return", "if", "else", "for", "while", "class", "this", "new", "try", "catch", "break", "continue", "typeof", "instanceof"];
+
+  const editor = document.getElementById("editor");
+  const highlightDiv = document.getElementById("highlight");
+
+  editor.addEventListener("input", () => {
+    updateHighlight();
+  });
+
+  function updateHighlight() {
+    const content = editor.textContent;
+
+    // Escape special HTML characters
+    const escapedContent = content.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+    // Highlight numbers
+    let highlightedContent = escapedContent.replace(/(\b\d+(\.\d+)?\b)/g, `<span class="highlight-number">$1</span>`);
+
+    // Highlight strings
+    highlightedContent = highlightedContent.replace(/(['"`])(.*?)(\1)/g, `<span class="highlight-string">$&</span>`);
+
+    // Highlight comments
+    highlightedContent = highlightedContent.replace(/(\/\/.*?)(\n|$)/g, `<span class="highlight-comment">$1</span>`);
+
+    // Highlight keywords
+    highlightedContent = highlightedContent.replace(new RegExp(`\\b(${keywords.join("|")})\\b`, "g"), `<span class="highlight-keyword">$1</span>`);
+
+    // Highlight functions
+    highlightedContent = highlightedContent.replace(/\b(\w+)\(\)/g, `<span class="highlight-function">$&</span>`);
+
+    // Highlight variables
+    highlightedContent = highlightedContent.replace(/\b(var|let|const)\s+(\w+)\b/g, `<span class="highlight-variable">$2</span>`);
+
+    // Highlight brackets
+    highlightedContent = highlightedContent.replace(/(\{|\}|\[|\]|\(|\))/g, `<span class="highlight-bracket">$1</span>`);
+
+    // Update the highlight display
+    highlightDiv.innerHTML = highlightedContent;
+  }
+
+  // Sync scrolling between the editor and highlight div
+  editor.addEventListener("scroll", () => {
+    highlightDiv.scrollTop = editor.scrollTop;
+    highlightDiv.scrollLeft = editor.scrollLeft;
+  });
+
+  // Initialize
+  updateHighlight();
+
+
+
+const keywords = ["var", "let", "const", "function", "return", "if", "else", "for", "while", "class", "this", "new", "try", "catch", "break", "continue", "typeof", "instanceof"];
+const symbols = ["(", ")", "{", "}", "[", "]", '"', "'", "//"];
+
+document.getElementById("editor2").addEventListener("input", function(event) {
+  highlightSyntax(event.target);
+});
+
+function highlightSyntax(div) {
+  const selection = window.getSelection();
+  const range = selection.getRangeAt(0);
+
+  // Save the cursor position
+  const cursorPosition = getCursorPosition(div, range);
+
+  const content = div.textContent;
+
+  // Replace content with highlights
+  let lightedContent = content
+    // Highlight numbers
+    .replace(/(\b\d+(\.\d+)?\b)/g, `<span class="highlight-number">$1</span>`)
+    // Highlight strings (in quotes)
+    .replace(/(['"`])(.*?)(\1)/g, `<span class="highlight-string">$&</span>`)
+    // Highlight comments (after //)
+    .replace(/(\/\/.*?)(\n|$)/g, `<span class="highlight-comment">$1</span>`)
+    // Highlight keywords
+    .replace(new RegExp(`\\b(${keywords.join("|")})\\b`, 'g'), `<span class="highlight-keyword">$1</span>`)
+    // Highlight functions (identifiers followed by ())
+    .replace(/\b(\w+)\(\)/g, `<span class="highlight-function">$&</span>`)
+    // Highlight variables (check after var, let, const)
+    .replace(/\b(var|let|const)\s+(\w+)\b/g, `$1 <span class="highlight-variable">$2</span>`)
+    // Highlight brackets
+    .replace(/(\{|\}|\[|\]|\(|\))/g, `<span class="highlight-bracket">$1</span>`);
+
+  // Apply the highlighted content
+  div.innerHTML = lightedContent;
+
+  // Restore the cursor position
+  restoreCursorPosition(div, cursorPosition);
+}
+
+function getCursorPosition(div, range) {
+  let position = 0;
+
+  // Count characters up to the range's start
+  const stack = [div];
+  while (stack.length) {
+    const node = stack.shift();
+
+    if (node === range.startContainer) {
+      position += range.startOffset;
+      break;
+    }
+
+    if (node.textContent) position += node.textContent.length;
+    stack.push(...node.childNodes);
+  }
+
+  return position;
+}
+
+function restoreCursorPosition(div, position) {
+  let range = document.createRange();
+  let selection = window.getSelection();
+
+  let stack = [div];
+  let currentPos = 0;
+
+  while (stack.length) {
+    const node = stack.shift();
+
+    if (node.nodeType === Node.TEXT_NODE) {
+      const nextPos = currentPos + node.textContent.length;
+
+      if (position <= nextPos) {
+        range.setStart(node, position - currentPos);
+        range.collapse(true);
+        break;
+      }
+
+      currentPos = nextPos;
+    } else {
+      stack.push(...node.childNodes);
+    }
+  }
+
+  selection.removeAllRanges();
+  selection.addRange(range);
+}
+
+</script>
+
