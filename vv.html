@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Play M3U8 Stream</title>
+</head>
+<body>
+  <h1>Play M3U8 Stream</h1>
+  <button onclick="playM3U8()">Play Video</button>
+
+  <script>
+    async function playM3U8() {
+      try {
+        // Fetch the M3U8 file
+        var response = await fetch('https://www.terabox1024.com/share/extstreaming.m3u8?uk=4399887125426&shareid=34946128152&type=M3U8_AUTO_360&fid=656166146894936&sign=1&timestamp=1&clienttype=1&channel=1');
+        var m3u8Content = await response.text();
+
+        // Create a Blob with the M3U8 content
+        const blob = new Blob([m3u8Content], { type: 'application/x-mpegURL' });
+        const m3u8Url = URL.createObjectURL(blob);
+
+        // Create a video element if it doesn't already exist
+        let video = document.getElementById('videoPlayer');
+        if (!video) {
+          video = document.createElement('video');
+          video.id = 'videoPlayer';
+          video.controls = true;
+          document.body.appendChild(video);
+        }
+
+        // Set the video source to the M3U8 URL
+        video.src = m3u8Url;
+        video.play();
+      } catch (error) {
+        console.error('Error loading M3U8 file:', error);
+      }
+    }
+  </script>
+</body>
+</html>
