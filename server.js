@@ -3,7 +3,7 @@ import { serveStatic } from '@hono/node-server/serve-static';
 
 import { Hono } from 'hono';
 
-import { hmac } from './hmac';
+import { hmac } from './hmac.js';
 
 const app = new Hono();
 
