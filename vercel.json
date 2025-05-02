@@ -1,5 +1,6 @@
 {
     "version": 1,
+    "type": "module",
     "builds": [
       {
         "src": "server.js",
@@ -7,6 +8,7 @@
       }
     ],
     "routes": [
+      { "src": "/auth", "dest": "/server.js" },
       { "src": "/(.*)", "dest": "/server.js" }
     ]
 }
