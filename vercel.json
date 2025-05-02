@@ -1,23 +1,12 @@
 {
-    "version": 2,
+    "version": 1,
     "builds": [
       {
-        "src": "api/edge.js",
+        "src": "server.js",
         "use": "@vercel/node"
-      },
-      { 
-        "src": "index.html",
-        "use": "@vercel/static"
       }
     ],
     "routes": [
-      {
-        "src": "/",
-        "dest": "index.html"
-      },
-      {
-        "src": "/api/edge",
-        "dest": "/api/edge.js"
-      }
+      { "src": "/(.*)", "dest": "/server.js" }
     ]
-  }
+}
