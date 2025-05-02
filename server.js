@@ -7,7 +7,7 @@ import { hmac } from './hmac';
 
 const app = new Hono();
 
-app.get("/", (ctx) =>  hmac(ctx) );
+app.get("/auth", (ctx) =>  hmac(ctx) );
 
 const port = 3000;
 
