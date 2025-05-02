@@ -1,7 +1,9 @@
 // Vercel Side function.
 import { createHmac, timingSafeEqual } from "node:crypto";
 
-export async function hmac(ctx) {
+export { hmac };
+
+async function hmac(ctx) {
     // 1. Extract headers
     const timestamp = ctx.req.header("x-auth-timestamp");
     const signature = ctx.req.header("x-auth-signature");
