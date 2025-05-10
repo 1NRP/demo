@@ -29,17 +29,17 @@ async function hmac(ctx) {
     const expectedSigBuf = Buffer.from(expectedSig);
 
     if (signatureBuf.length !== expectedSigBuf.length) {
-        ctx.res.status(401);
+        ctx.status(401);
         return ctx.json({ error: "Invalid signature length." });
     }
     if (!timingSafeEqual(signatureBuf, expectedSigBuf)) {
-        ctx.res.status(401);
+        ctx.status(401);
         return ctx.json({ error: "Invalid signature." });
     }
 
     // 4. Verify client ID (optional).
     if (clientId !== "nrp-aws-vps") {
-        ctx.res.status(403);
+        ctx.status(403);
         return ctx.json({ error: "Unauthorized client." });
     }
 
