@@ -1,13 +1,24 @@
 {
-    "version": 2,
-    "builds": [
-      {
-        "src": "server.js",
-        "use": "@vercel/node"
-      }
-    ],
-    "routes": [
-      { "src": "/auth", "dest": "/server.js" },
-      { "src": "/(.*)", "dest": "/server.js" }
-    ]
+  "version": 2,
+  "builds": [
+    {
+      "src": "MainServer.js",
+      "use": "@vercel/deno"
+    }
+  ],
+  "functions": {
+		"/(.*)": {
+      "runtime": "vercel-deno@3.1.0" 
+    }
+	},
+  "crons": [
+    {
+      "path": "/KV-And-Blob-Database-Deletion-Prevention-CRON-Job",
+      "schedule": "0 6 1/15 * *"
+    }
+  ],
+  "routes": [
+    { "src": "/Example", "dest": "/NodeJS/Note/Example.js" },
+    { "src": "/(.*)", "dest": "/MainServer.js" }
+  ]
 }

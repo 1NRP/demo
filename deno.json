@@ -1,0 +1,8 @@
+{
+  "imports": {
+    "@vercel/blob": "npm:@vercel/blob@^1.1.1"
+  },
+  "tasks": {
+    "run": "deno run --allow-net --allow-read --allow-env --allow-write --env-file='./.env' MainServer.js"
+  }
+}

@@ -1,0 +1,26 @@
+{
+    "name": "Web-Server",
+    "main": "MainServer.js",
+    "compatibility_date": "2025-01-01",
+    "assets": {
+      "directory": "./Files",
+      "binding": "ASSETS",
+      "run_worker_first": ["/api/*", "!/api/docs/*"]
+    },
+    "kv_namespaces": [
+      {
+        "binding": "KV",
+        "id": "11111111111111111111111111111111",
+        "preview_id": "11111111111111111111111111111111"
+      }
+    ],
+    "trigger": {
+      "crons": [
+        {
+          "name": "KV-And-Blob-Database-Deletion-Prevention-CRON-Job",
+          "expression": "0 6 1/15 * *",
+          "path": "/kv-and-blob-database-deletion-prevention-cron-job"
+        }
+      ]
+    }
+}
