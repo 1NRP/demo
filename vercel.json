@@ -2,7 +2,8 @@
   "version": 2,
   "functions": {
 		"/(.*)": {
-      "runtime": "vercel-dev-builder@0.0.5"
+      "runtime": "vercel-dev-builder@0.0.5",
+      "maxDuration": 10
     }
 	},
   "crons": [
