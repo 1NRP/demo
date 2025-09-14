@@ -360,7 +360,7 @@ async function TgChannels() {
     const response = await UPSTASH.LRANGE('TG_Channels');
     response.headers.set('Cache-Control', 'public, max-age=600, stale-while-revalidate=604800'); // Cache for 10 minutes (600 seconds). Revalidate after 1 week (6,04,800 seconds).
   } catch (error) {
-    console.error(error);  // Log the error for debugging
+    console.error(error);  // Log the error for debugging.
     return new Response('An error occurred while fetching from Upstash.', { status: 500 });
   }
 };
