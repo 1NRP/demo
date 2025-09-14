@@ -1,5 +1,6 @@
 #!/usr/bin/env deno run --allow-net --allow-read --allow-write --allow-env --env-file="./.env"
 
+// vercel-deno@3.1.0
 
 const CORS_ALLOWED_ORIGINS = ['https://1nrp.github.io']; // Allowed origins for CORS.
 const PORT = 8000;

@@ -1,5 +1,5 @@
 .env
-node_modules
-NodeJS
+/node_modules
+/NodeJS
 wrangler.jsonc
 package.json
