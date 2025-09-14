@@ -1,11 +1,10 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "MainServer.js",
-      "use": "@vercel/deno"
+  "functions": {
+		"/(.*)": {
+      "runtime": "vercel-deno@3.1.0" 
     }
-  ],
+	},
   "crons": [
     {
       "path": "/KV-And-Blob-Database-Deletion-Prevention-CRON-Job",
