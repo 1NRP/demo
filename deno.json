@@ -2,6 +2,16 @@
   "imports": {
     "@vercel/blob": "npm:@vercel/blob@^1.1.1"
   },
+  "fmt": {
+    "options": {
+      "useTabs": false,
+      "lineWidth": 80,
+      "indentWidth": 2,
+      "singleQuote": true,
+      "semiColons": "always",
+      "trailingComma": "all"
+    }
+  },
   "tasks": {
     "run": "deno run --allow-net --allow-read --allow-env --allow-write --env-file='./.env' MainServer.js"
   }

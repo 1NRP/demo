@@ -141,10 +141,10 @@ const Route = (method, pathname, handler) => Router.set(`${method.toUpperCase()}
 import { DeleteLink, GetM3U8, GetLink, SaveLink, CheckIfExists, TgChannels, DatabaseDeletionPreventionCRONJob as CronJob, 
          CorsProxy, JSNotebook, SaveNote, DeleteNote, GetNote, BlobServer, FyersToken } from './Functions.js';
 
-Route('GET', '/', () => ServeStaticFile('./Index.html'));
+Route('GET', '/', () => ServeStaticFile('../Index.html'));
 Route('GET', '/upload.js', () => ServeStaticFile('./VercelUpload.js'));
 Route('POST', '/login', LoginHandler); // Login route.
-Route('GET', '/login', () => ServeStaticFile('./Login.html'));
+Route('GET', '/login', () => ServeStaticFile('../Login.html'));
 Route('POST', '/deletelink', DeleteLink);
 Route('GET', '/getm3u8', GetM3U8);
 Route('GET', '/getlink', GetLink);
