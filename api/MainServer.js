@@ -139,10 +139,10 @@ const Router = new Map();
 const Route = (method, pathname, handler) => Router.set(`${method.toUpperCase()}:${pathname.toLowerCase()}`, handler);
 
 import { DeleteLink, GetM3U8, GetLink, SaveLink, CheckIfExists, TgChannels, DatabaseDeletionPreventionCRONJob as CronJob, 
-         CorsProxy, JSNotebook, SaveNote, DeleteNote, GetNote, BlobServer, FyersToken } from './Functions.js';
+         CorsProxy, JSNotebook, SaveNote, DeleteNote, GetNote, BlobServer, FyersToken } from '../Functions.js';
 
 Route('GET', '/', () => ServeStaticFile('../Index.html'));
-Route('GET', '/upload.js', () => ServeStaticFile('./VercelUpload.js'));
+Route('GET', '/upload.js', () => ServeStaticFile('../VercelUpload.js'));
 Route('POST', '/login', LoginHandler); // Login route.
 Route('GET', '/login', () => ServeStaticFile('../Login.html'));
 Route('POST', '/deletelink', DeleteLink);
@@ -155,7 +155,7 @@ Route('GET', '/tgchannels', TgChannels);
 Route('GET', '/cors-proxy', CorsProxy);
 Route('GET', '/jsnb', JSNotebook);
 Route('POST', '/jsnb', JSNotebook);
-Route('GET', '/blob', ProtectedRoute(() => ServeStaticFile('./Blob.html')));
+Route('GET', '/blob', ProtectedRoute(() => ServeStaticFile('../Blob.html')));
 Route('GET', '/fyerstoken', ProtectedRoute(FyersToken));
 Route('POST', '/fyerstoken', ProtectedRoute(FyersToken));
 Route('GET', '/getnote', ProtectedRoute(GetNote));
