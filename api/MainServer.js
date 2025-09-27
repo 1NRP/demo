@@ -139,7 +139,7 @@ const Router = new Map();
 const Route = (method, pathname, handler) => Router.set(`${method.toUpperCase()}:${pathname.toLowerCase()}`, handler);
 
 import { DeleteLink, GetM3U8, GetLink, SaveLink, CheckIfExists, TgChannels, DatabaseDeletionPreventionCRONJob as CronJob, 
-         CorsProxy, JSNotebook, SaveNote, DeleteNote, GetNote, BlobServer, FyersToken } from '../Functions.js';
+         CorsProxy, JSNotebook, SaveNote, DeleteNote, GetNote, /* BlobServer ,*/ FyersToken } from '../Functions.js';
 
 Route('GET', '/', () => ServeStaticFile('../Index.html'));
 Route('GET', '/upload.js', () => ServeStaticFile('../VercelUpload.js'));
@@ -161,8 +161,8 @@ Route('POST', '/fyerstoken', ProtectedRoute(FyersToken));
 Route('GET', '/getnote', ProtectedRoute(GetNote));
 Route('POST', '/savenote', ProtectedRoute(SaveNote));
 Route('POST', '/deletenote', ProtectedRoute(DeleteNote));
-Route('GET', '/blobserver', ProtectedRoute(BlobServer));
-Route('POST', '/blobserver', ProtectedRoute(BlobServer));
+// Route('GET', '/blobserver', ProtectedRoute(BlobServer));
+// Route('POST', '/blobserver', ProtectedRoute(BlobServer));
 
 async function MainHandler(req) {
   const path = new URL(req.url).pathname;
