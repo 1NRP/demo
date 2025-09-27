@@ -205,7 +205,9 @@ async function MainHandler(req) {
   return response;
 }
 
-console.log(`Deno Server Listening On http://0.0.0.0:${PORT}/`);
-Deno.serve({ port: PORT }, MainHandler);
+// console.log(`Deno Server Listening On http://0.0.0.0:${PORT}/`);
+// Deno.serve({ port: PORT }, MainHandler);
 
 // deno task run
+
+export default { MainHandler };
