@@ -59,6 +59,7 @@ const UPSTASH = {
   }
 };
 
+/*
 // Blob Server.
 import { list, copy, del, put } from 'npm:@vercel/blob';
 import { handleUpload } from 'npm:@vercel/blob/client';
@@ -72,7 +73,7 @@ export async function BlobServer(req) {
       const jsonResponse = await handleUpload({
         body,
         request: req,
-        onBeforeGenerateToken: async (_pathname, /* clientPayload */) => {
+        onBeforeGenerateToken: async (_pathname) => { // (_pathname, clientPayload )
           return {
             allowedContentTypes: [ 'image/*', 'video/*', 'audio/*', 'text/*', 'application/*' ], // Accept all common MIME types.
             addRandomSuffix: false,
@@ -126,6 +127,8 @@ export async function BlobServer(req) {
     }
   }
 };
+
+*/
 
 export async function TeraboxCloudflare(request) {
   const link = new URL(request.url);
