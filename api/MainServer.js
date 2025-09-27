@@ -1,4 +1,4 @@
-#!/usr/bin/env deno run --allow-net --allow-read --allow-write --allow-env --env-file="./.env"
+#!/usr/bin/env deno run --allow-net --allow-read --allow-write --allow-env --env="./.env"
 
 // vercel-deno@3.1.0
 
