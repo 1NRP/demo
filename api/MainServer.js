@@ -144,7 +144,7 @@ import { DeleteLink, GetM3U8, GetLink, SaveLink, CheckIfExists, TgChannels, Data
 Route('GET', '/', () => ServeStaticFile('../Index.html'));
 Route('GET', '/upload.js', () => ServeStaticFile('../VercelUpload.js'));
 Route('POST', '/login', LoginHandler); // Login route.
-Route('GET', '/login', () => ServeStaticFile('../Login.html'));
+Route('GET', 'api/login', () => ServeStaticFile('../Login.html'));
 Route('POST', '/deletelink', DeleteLink);
 Route('GET', '/getm3u8', GetM3U8);
 Route('GET', '/getlink', GetLink);
