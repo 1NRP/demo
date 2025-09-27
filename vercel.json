@@ -1,7 +1,7 @@
 {
   "version": 2,
   "functions": {
-		"/(.*)": {
+		"*.[jt]s": {
       "runtime": "vercel-deno@3.1.0",
       "maxDuration": 10
     }
