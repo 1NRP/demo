@@ -167,7 +167,7 @@ Route('POST', '/deletenote', ProtectedRoute(DeleteNote));
 async function MainHandler(req) {
   const path = new URL(req.url).pathname;
   const method = req.method;
-
+  console.log(`Request: ${method}... ${path}`);
   // Handle CORS preflight (OPTIONS) requests.
   if (method === 'OPTIONS') {
     const origin = req.headers.get('Origin');
@@ -186,6 +186,7 @@ async function MainHandler(req) {
 
   // Find and execute the route handler
   const Handler = Router.get(`${method}:${path.toLowerCase()}`);
+  console.log(`Handler: ${method} ${path}`);
   let response;
 
   if (Handler) {
