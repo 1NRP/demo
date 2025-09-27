@@ -210,4 +210,4 @@ async function MainHandler(req) {
 
 // deno task run
 
-export default { MainHandler };
+export default MainHandler;
