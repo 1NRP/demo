@@ -211,3 +211,38 @@ async function MainHandler(req) {
 // deno task run
 
 export default MainHandler;
+
+
+/*
+
+{
+  "name": "cloud-notes",
+  "version": "1.0",
+  "description": "A web app to store texts and files in Vercel KV & Blob storage.",
+  "main": "mainServer.js",
+  "type": "module",
+  "scripts": {
+    "start": "mainServer.js",
+    "serve": "npm run serve"
+  },
+  "dependencies": {
+    "@vercel/blob": "^0.27.1",
+    "@vercel/kv": "^3.0.0",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "crypto": "^1.0.1",
+    "express-basic-auth": "^1.2.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "serve": "^14.2.4",
+    "vercel": "^28.0.0"
+  },
+  "engines": {
+    "node": ">=20.x"
+  }
+}
+
+
+*/
