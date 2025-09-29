@@ -6,7 +6,7 @@
   <link rel="icon" sizes="192x192" href="https://1nrp.github.io/1/Images/N-Logo1.png">
   <meta charset="utf-8">
   <meta name="theme-color" content="#02121b">
-  <title>Firebase Cloud Notes</title>
+  <title>Sign In</title>
 </head>
 <style>
 body {
@@ -30,12 +30,18 @@ select:focus {
     border-radius: 8px;
     width: 70vw;
     animation-name: Login;
-    animation-duration: 0.5s;
+    animation-duration: 2s;
 }    
-#form-container input { outline: 0 }
+#form-container input { 
+    outline: 0;
+    color: #fff222;
+}
 #form-container h2 { 
     text-align: center;
-    color: #d88;
+    color: #dde00b;
+    font-size: 28px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 600;
     margin: -15px 0px 10px 0px;
 }
 a4 { color: #d88; font-weight: 800 }
@@ -54,9 +60,23 @@ a4 { color: #d88; font-weight: 800 }
     border: 2px solid #ddd;
     font-weight: 600;
     background-color: #4CAF50; 
-    color: #fff; 
+    color: #fff;
     border-radius: 4px;
 }
+.Alerts {
+      position: fixed;
+     /* top: 5dvh; */
+      left: 20dvw;
+      z-index: 50;
+      color: #000;
+      background-color: #fff;
+      font-weight: 1000;
+      padding: 5px;
+      border: none;
+      border-radius: 5px;
+      animation-name: Alert;
+      animation-duration: 1s;
+    }
 #form-container button:hover { 
     background-color: #4caf5099; }
 
@@ -64,20 +84,36 @@ a4 { color: #d88; font-weight: 800 }
     from {font-size: 10px; top: 5dvh}
     to {font-size: 25px; top: 10dvh}
 }
-@keyframes Login { from {opacity: 0; top: 0vh} to {opacity: 1; top: 30vh} }
+@keyframes Login {
+    from {opacity: 0; top: 0vh}
+    to {opacity: 1; top: 30vh}
+}
 </style>
 
 <body>
 
     <div id="form-container">
-        <h2>Login</h2> 
+        <h2>Sign In</h2> 
         <form id="loginForm"> 
           <input type="text" placeholder="Enter Email" id="userId" required> 
           <input type="password" placeholder="Enter Password" id="password" required> 
           <button type="submit">SUBMIT</button>
         </form>
+    </div>
 
 <script>
+	// Show Alerts depending upon the response received.
+	function showAlert(BgColor, Text) {
+		var alertBox = document.createElement('div')
+		alertBox.className = 'Alerts'
+		alertBox.style.backgroundColor = BgColor
+		alertBox.textContent = Text
+		document.body.appendChild(alertBox)
+		setTimeout(() => {
+			alertBox.remove()
+		}, 1000)
+	}
+
     const form = document.getElementById('loginForm');
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -90,5 +126,15 @@ a4 { color: #d88; font-weight: 800 }
             },
             body: JSON.stringify({ username, password }),
         });
+        if (response.ok) {
+            showAlert('#4CAF50', 'Login Successful')
+            setTimeout( () => { window.location.href = '/' }, 1000 );
+        } else {
+            const errorMessage = await response.json();
+            showAlert('#f44336', errorMessage.message);
+            console.log('Error: ', errorMessage);
+        }
     });
 </script>
+</body>
+</html>

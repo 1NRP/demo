@@ -1,0 +1,16 @@
+{
+	"fmt": {
+		"useTabs": true,
+		"lineWidth": 120,
+		"indentWidth": 2,
+		"semiColons": false,
+		"singleQuote": true,
+		"proseWrap": "always",
+		"exclude": ["*.json"]
+	},
+	// "nodeModulesDir": "auto",
+	"tasks": {
+		"run": "deno run --watch --allow-net --allow-read --allow-env --allow-write --env-file='./.env' api/MainServer.js",
+		"build": "deno run --allow-read --allow-env --allow-write --allow-run ESBuild/build.js"
+	}
+}
