@@ -1,4 +1,4 @@
-#!/usr/bin/env deno run --version v2.4.0 --env-file="./.env"
+#!/usr/bin/env deno run --version v2.0.0 --env-file="./.env"
 
 // Vercel-Deno automatically adds the "--allow-all" flag to the "run" command, 
 // which can't be used with other permission flags from Deno version 2.0 onwards.
