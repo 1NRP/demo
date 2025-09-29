@@ -1,5 +1,8 @@
-#!/usr/bin/env DENO_DIR=/tmp deno run --version v2.4.0 --allow-net --allow-read --allow-write --allow-env --env="./.env"
+#!/usr/bin/env deno run --version v2.2.0 --allow-net --allow-read --allow-env --env="./.env"
 
+// Or, #!/usr/bin/env DENO_DIR=/tmp deno run --version v2.2.0 --allow-net --allow-read --allow-write --allow-env --env="./.env"
+
+// Main Server File for handling all routes and requests.
 import {
 	BlobServer,
 	CheckIfExists,
