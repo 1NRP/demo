@@ -31,9 +31,9 @@ const ProtectedRoutes = ['/blob', '/fyerstoken', '/getnote', '/savenote', '/dele
 const PORT = 3000
 
 // deno task run  ( For Local Development ).
-Deno.serve({ port: PORT }, MainHandler)
+// Deno.serve({ port: PORT }, MainHandler)
 
-// export default MainHandler; // For Deployments On Vercel.
+export default MainHandler; // For Deployments On Vercel.
 
 const Router = new Map()
 const Route = (method, pathname, handler) => Router.set(`${method.toUpperCase()}:${pathname.toLowerCase()}`, handler)
