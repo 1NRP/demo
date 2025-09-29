@@ -201,8 +201,16 @@ export async function VerifyJWT(token) {
 }
 
 // Blob Server.
-import { VercelBlobMethods as BLOB } from './VercelBlobFunctions.js'
-
+// import { VercelBlobMethods as BLOB } from './VercelBlobFunctions.js'
+import { list, copy, del, put, handleUpload } from 'npm:@vercel/blob'
+const BLOB = {
+	List: list,
+	Copy: copy,
+	Delete: del,
+	Upload: put,
+	ServerUploadHandler: handleUpload,
+	BrowserUploadHandler: upload,
+}
 export async function BlobServer(req) {
 	if (req.method === 'POST') { // The token generation request is a "POST" request.
 		const body = req.body
