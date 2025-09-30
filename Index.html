@@ -1,340 +1,341 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<meta charset="utf-8">
-		<meta name="theme-color" content="#02121b">
-		<link rel="icon" sizes="192x192" href="https://1nrp.github.io/1/Images/N-Logo1.png">
-		<title>Cloud Notes</title>
-	</head>
-	<style>
-		body {
-			color: #fff;
-			background-color: #000;
-		}
-		input:focus,
-		textarea:focus,
-		select:focus {
-			outline: 0;
-		}
-		h2 {
-			font-family: cursive, arial, sans-serif;
-			font-size: 25px;
-			font-weight: 900;
-			margin: -8px 0px 2px 0px;
-		}
-		#TopBar {
-			display: flex;
-			flex-direction: row;
-		}
-		#Stores {
-			padding: 2px 2px;
-			border: 2px solid #555;
-			border-radius: 40px;
-			width: 80px;
-			position: absolute;
-			color: #fff;
-			background-color: #000;
-			margin: -6px 0px 0px 70vw;
-			font-weight: 500;
-		}
-		#textBox {
-			width: 96%;
-			height: 85vh;
-			padding: 6px;
-			font-family: sans-serif;
-			font-size: 15px;
-			resize: none;
-			overflow: auto;
-			background-color: #111136;
-			border: none;
-			color: #fff;
-			border-radius: 6px;
-		}
-		#deleteBox {
-			color: #fff;
-			height: auto;
-			min-height: 10%;
-			resize: none;
-			overflow: auto;
-			box-sizing: border-box;
-			width: 100%;
-			overflow: scroll;
-			background-color: #361923;
-			border: 2px solid #444;
-			border-radius: 6px;
-		}
-		#deleteBtn {
-			background-color: #802;
-			color: #b4b4b4;
-			border: none;
-			font-size: 15px;
-			border-radius: 50px;
-			cursor: pointer;
-			padding: 6px 8px;
-			font-weight: 900;
-			margin: 0px 2px 4px 0px;
-		}
-		#saveButton {
-			background-color: #205c89;
-			color: #b4b4b4;
-			border: none;
-			font-size: 15px;
-			border-radius: 50px;
-			cursor: pointer;
-			padding: 6px 8px;
-			font-weight: 900;
-			margin: 2px 2px 0px 15%;
-		}
-		#getNotes {
-			background-color: #761;
-			color: #b4b4b4;
-			border: none;
-			border-radius: 50px;
-			cursor: pointer;
-			font-size: 15px;
-			font-weight: 900;
-			padding: 6px 8px;
-			margin: 2px 2px 0px 15px;
-		}
-		#clearBtn {
-			border: none;
-			color: #b4b4b4;
-			border-radius: 50px;
-			background-color: #833;
-			padding: 2px 7px 5px 7px;
-			margin: 0px 0px 0px 15%;
-		}
-		#clearBtn:hover,
-		#getNotes:hover,
-		#deleteBtn:hover,
-		#saveButton:hover {
-			background-color: #444;
-		}
-		.Alerts {
-			position: fixed;
-			/* top: 5dvh; */
-			left: 15dvw;
-			background-color: #fff;
-			color: #000;
-			font-weight: 900;
-			padding: 5px 5px;
-			border: none;
-			border-radius: 5px;
-			animation-name: Alert;
-			animation-duration: 1s;
-		}
-		/* Alert Animation */
-		@keyframes Alert {
-			from {
-				font-size: 10px;
-				top: 5dvh;
-			}
-			to {
-				font-size: 25px;
-				top: 10dvh;
-			}
-		}
-	</style>
-	<body>
-		<!-- * Keyboard Shortcuts: Fetch Notes: "ArrowRight + ArrowDown", Save Notes: "ArrowRight + ArrowUp", Delete Notes: "ArrowRight + End"  -->
-		<div id="TopBar">
-			<h2 id="Header">Nihar's Cloud Notes</h2>
-			<select id="Stores">
-				<option value="Miscellaneous" data-Name="Nihar's Cloud Notes" data-Colour="#111136">Miscellaneous</option>
-				<option value="Trading_And_Investing" data-Name="Trading & Investing" data-Colour="#4e3144">
-					Trading & Investing
-				</option>
-				<option value="Important_Webpages" data-Name="Important Webpages" data-Colour="#395c42">
-					Important Webpages
-				</option>
-				<option value="Movie_Watch_List" data-Name="Movie Watch List" data-Colour="#503959">Movie Watch List</option>
-				<option value="Book_Summaries" data-Name="Book Summaries" data-Colour="#664337">Book Summaries</option>
-				<option value="TG_Channels" data-Name="TG Channels" data-Colour="#376661">TG Channels</option>
-				<option value="To_Do_List" data-Name="To Do List" data-Colour="#364b57">To Do List</option>
-				<option value="Keywords" data-Name="Keywords" data-Colour="#272729">Keywords</option>
-				<option value="Book_List" data-Name="Book List" data-Colour="#8c7842">Book List</option>
-				<option value="Quotes" data-Name="Quotes" data-Colour="#1d423a">Quotes</option>
-			</select>
-		</div>
-		<textarea id="textBox" spellcheck="false" autocomplete="off" translate="no"></textarea>
-		<button id="deleteBtn" onclick="deleteNote()">DELETE</button>
-		<button id="clearBtn" onclick="document.getElementById('textBox').value=''">✖</button>
-		<button id="saveButton" onclick="saveNotes()">SAVE</button>
-		<button id="getNotes" onclick="getNote()">VIEW</button>
-		<textarea id="deleteBox" spellcheck="false" autocomplete="off" translate="no"></textarea>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <meta name="theme-color" content="#02121b">
+    <link rel="icon" sizes="192x192" href="https://1nrp.github.io/1/Images/N-Logo1.png">
+    <title>Cloud Notes</title>
+  </head>
+  <style>
+    body {
+      color: #fff;
+      background-color: #000;
+    }
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: 0;
+    }
+    h2 {
+      font-family: cursive, arial, sans-serif;
+      font-size: 25px;
+      font-weight: 900;
+      margin: -8px 0px 2px 0px;
+    }
+    #TopBar {
+      display: flex;
+      flex-direction: row;
+    }
+    #Stores {
+      padding: 2px 2px;
+      border: 2px solid #555;
+      border-radius: 40px;
+      width: 80px;
+      position: absolute;
+      color: #fff;
+      background-color: #000;
+      margin: -6px 0px 0px 70vw;
+      font-weight: 500;
+    }
+    #textBox {
+      width: 96%;
+      height: 85vh;
+      padding: 6px;
+      font-family: sans-serif;
+      font-size: 15px;
+      resize: none;
+      overflow: auto;
+      background-color: #111136;
+      border: none;
+      color: #fff;
+      border-radius: 6px;
+    }
+    #deleteBox {
+      color: #fff;
+      height: auto;
+      min-height: 10%;
+      resize: none;
+      overflow: auto;
+      box-sizing: border-box;
+      width: 100%;
+      overflow: scroll;
+      background-color: #361923;
+      border: 2px solid #444;
+      border-radius: 6px;
+    }
+    #deleteBtn {
+      background-color: #802;
+      color: #b4b4b4;
+      border: none;
+      font-size: 15px;
+      border-radius: 50px;
+      cursor: pointer;
+      padding: 6px 8px;
+      font-weight: 900;
+      margin: 0px 2px 4px 0px;
+    }
+    #saveButton {
+      background-color: #205c89;
+      color: #b4b4b4;
+      border: none;
+      font-size: 15px;
+      border-radius: 50px;
+      cursor: pointer;
+      padding: 6px 8px;
+      font-weight: 900;
+      margin: 2px 2px 0px 15%;
+    }
+    #getNotes {
+      background-color: #761;
+      color: #b4b4b4;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 900;
+      padding: 6px 8px;
+      margin: 2px 2px 0px 15px;
+    }
+    #clearBtn {
+      border: none;
+      color: #b4b4b4;
+      border-radius: 50px;
+      background-color: #833;
+      padding: 2px 7px 5px 7px;
+      margin: 0px 0px 0px 15%;
+    }
+    #clearBtn:hover,
+    #getNotes:hover,
+    #deleteBtn:hover,
+    #saveButton:hover {
+      background-color: #444;
+    }
+    .Alerts {
+      position: fixed;
+      /* top: 5dvh; */
+      left: 15dvw;
+      background-color: #fff;
+      color: #000;
+      font-weight: 900;
+      padding: 5px 5px;
+      border: none;
+      border-radius: 5px;
+      animation-name: Alert;
+      animation-duration: 1s;
+    }
+    /* Alert Animation */
+    @keyframes Alert {
+      from {
+        font-size: 10px;
+        top: 5dvh;
+      }
+      to {
+        font-size: 25px;
+        top: 10dvh;
+      }
+    }
+  </style>
+  <body>
+    <!-- * Keyboard Shortcuts: Fetch Notes: "ArrowRight + ArrowDown", Save Notes: "ArrowRight + ArrowUp", Delete Notes: "ArrowRight + End"  -->
+    <div id="TopBar">
+      <h2 id="Header">Nihar's Cloud Notes</h2>
+      <select id="Stores">
+        <option value="Miscellaneous" data-Name="Nihar's Cloud Notes" data-Colour="#111136">Miscellaneous</option>
+        <option value="Trading_And_Investing" data-Name="Trading & Investing" data-Colour="#4e3144">
+          Trading & Investing
+        </option>
+        <option value="Important_Webpages" data-Name="Important Webpages" data-Colour="#395c42">
+          Important Webpages
+        </option>
+        <option value="Movie_Watch_List" data-Name="Movie Watch List" data-Colour="#503959">Movie Watch List</option>
+        <option value="Book_Summaries" data-Name="Book Summaries" data-Colour="#664337">Book Summaries</option>
+        <option value="TG_Channels" data-Name="TG Channels" data-Colour="#376661">TG Channels</option>
+        <option value="To_Do_List" data-Name="To Do List" data-Colour="#364b57">To Do List</option>
+        <option value="Keywords" data-Name="Keywords" data-Colour="#272729">Keywords</option>
+        <option value="Book_List" data-Name="Book List" data-Colour="#8c7842">Book List</option>
+        <option value="Quotes" data-Name="Quotes" data-Colour="#1d423a">Quotes</option>
+      </select>
+    </div>
+    <textarea id="textBox" spellcheck="false" autocomplete="off" translate="no"></textarea>
+    <button id="deleteBtn" onclick="deleteNote()">DELETE</button>
+    <button id="clearBtn" onclick="document.getElementById('textBox').value=''">✖</button>
+    <button id="saveButton" onclick="saveNotes()">SAVE</button>
+    <button id="getNotes" onclick="getNote()">VIEW</button>
+    <textarea id="deleteBox" spellcheck="false" autocomplete="off" translate="no"></textarea>
 
-		<script>
+    <script>
+      // Redirecting to '/login' page if not Authenticated.
+      ;(async () => {
+        const route = '/blob'
+        const response = await fetch(route)
+        if (response.status === 401) {
+          showAlert({ BgColor: '#f2074e', Text: 'Login Required' })
+          console.log('Redirecting To Login Page...')
+          setTimeout(() => {
+            window.location.href = '/login'
+          }, 1000)
+        }
+      })()
 
-// Redirecting to '/login' page if not Authenticated.
-(async () => {
-	const route = '/blob'
-	const response = await fetch(route)
-	if ( response.status === 401 ) {
-		showAlert({ BgColor: '#f2074e', Text: 'Login Required' })
-		console.log('Redirecting To Login Page...')
-		setTimeout( () => { window.location.href = '/login' }, 1000 )
-	}
-})()
+      document.getElementById('Stores').addEventListener('change', function () {
+        var dropdown = document.getElementById('Stores')
+        var chosenStore = dropdown.options[dropdown.selectedIndex]
+        var Name = chosenStore.getAttribute('data-Name')
+        var Colour = chosenStore.getAttribute('data-Colour')
+        document.getElementById('textBox').style.backgroundColor = Colour
+        document.getElementById('Header').innerText = Name
+      })
 
-			document.getElementById('Stores').addEventListener('change', function () {
-				var dropdown = document.getElementById('Stores')
-				var chosenStore = dropdown.options[dropdown.selectedIndex]
-				var Name = chosenStore.getAttribute('data-Name')
-				var Colour = chosenStore.getAttribute('data-Colour')
-				document.getElementById('textBox').style.backgroundColor = Colour
-				document.getElementById('Header').innerText = Name
-			})
+      // Auto expand deleteBox if texts overflow while typing or pasting, to properly see what will be deleted.
+      document.addEventListener('DOMContentLoaded', function () {
+        const textarea = document.getElementById('deleteBox')
+        textarea.addEventListener('input', function () {
+          this.style.height = 'auto' // Reset the height.
+          this.style.height = this.scrollHeight + 'px' // Set the height to the scroll height.
+        })
+        // Trigger input event to adjust height if there's initial content.
+        textarea.dispatchEvent(new Event('input'))
+      })
 
-			// Auto expand deleteBox if texts overflow while typing or pasting, to properly see what will be deleted.
-			document.addEventListener('DOMContentLoaded', function () {
-				const textarea = document.getElementById('deleteBox')
-				textarea.addEventListener('input', function () {
-					this.style.height = 'auto' // Reset the height
-					this.style.height = this.scrollHeight + 'px' // Set the height to the scroll height
-				})
-				// Trigger input event to adjust height if there's initial content
-				textarea.dispatchEvent(new Event('input'))
-			})
+      // Show Alerts depending upon the response received.
+      function showAlert({ BgColor = '#fff', Text = 'Alert' } = {}) {
+        var alertBox = document.createElement('div')
+        alertBox.className = 'Alerts'
+        alertBox.style.backgroundColor = BgColor
+        alertBox.textContent = Text
+        document.body.appendChild(alertBox)
+        setTimeout(() => {
+          alertBox.remove()
+        }, 1000)
+      }
 
-			// Show Alerts depending upon the response received.
-			function showAlert({ BgColor = '#fff', Text = 'Alert' } = {}) {
-				var alertBox = document.createElement('div')
-				alertBox.className = 'Alerts'
-				alertBox.style.backgroundColor = BgColor
-				alertBox.textContent = Text
-				document.body.appendChild(alertBox)
-				setTimeout(() => {
-					alertBox.remove()
-				}, 1000)
-			}
+      // Save the Last Line (LL) in KV Cloud storage.
+      async function saveNotes() {
+        const AlertText = document.getElementById('Header').innerText
+        const textValue = document.getElementById('textBox').value.trim()
+        const lines = textValue.split('\n\n\n\n\n\n')
+        const date = `● Date: ${new Date().toLocaleDateString('en-IN')} ●`
+        const Sentence = lines[lines.length - 1].trim()
+        const lastSentence = date + '\n' + Sentence
+        if (Sentence && lastSentence) {
+          try {
+            const REDIS_KEY = document.getElementById('Stores').value
+            const response = await fetch('/saveNote', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ lastSentence, REDIS_KEY }),
+            })
+            if (response.ok) {
+              console.log('Note sent to Vercel KV store with KEY:', REDIS_KEY)
+              // Show saved alert when "OK" response (200) is received from the server.
+              showAlert({ BgColor: '#1bd13d', Text: `✔ ${AlertText}` })
+            } else {
+              const errorData = await response.json()
+              console.error('Error from server:', errorData.error)
+            }
+          } catch (error) {
+            console.error('Error sending note to Vercel KV:', error)
+          }
+        }
+      }
 
-			// Save the Last Line (LL) in KV Cloud storage.
-			async function saveNotes() {
-				const AlertText = document.getElementById('Header').innerText
-				const textValue = document.getElementById('textBox').value.trim()
-				const lines = textValue.split('\n\n\n\n\n\n')
-				const date = `● Date: ${new Date().toLocaleDateString('en-IN')} ●`
-				const Sentence = lines[lines.length - 1].trim()
-				const lastSentence = date + '\n' + Sentence
-				if (Sentence && lastSentence) {
-					try {
-						const REDIS_KEY = document.getElementById('Stores').value
-						const response = await fetch('/saveNote', {
-							method: 'POST',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({ lastSentence, REDIS_KEY }),
-						})
-						if (response.ok) {
-							console.log('Note sent to Vercel KV store with KEY:', REDIS_KEY)
-							// Show saved alert when "OK" response (200) is received from the server.
-							showAlert({ BgColor: '#1bd13d', Text: `✔ ${AlertText}` })
-						} else {
-							const errorData = await response.json()
-							console.error('Error from server:', errorData.error)
-						}
-					} catch (error) {
-						console.error('Error sending note to Vercel KV:', error)
-					}
-				}
-			}
+      // Delete the specific Note in KV Cloud storage.
+      async function deleteNote() {
+        const deleteValue = document.getElementById('deleteBox').value.trim()
+        const AlertText = document.getElementById('Header').innerText
+        if (deleteValue) {
+          try {
+            const Redis_Key = document.getElementById('Stores').value
+            const response = await fetch(`/deleteNote?REDIS_KEY=${Redis_Key}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain' },
+              body: deleteValue,
+            })
+            if (response.ok) {
+              const data = await response.json() // Wait for the JSON response.
+              if (data.result !== 0) {
+                console.log('Note deleted in Vercel KV store with KEY:', Redis_Key)
+                // Show deleted alert if response result is positive {result: (list_count)}. 'list_count' is the number of deleted values.
+                showAlert({ BgColor: '#f2074e', Text: `✖ ${AlertText}` })
+              } else {
+                // Show not found alert if response result is Zero {result: 0}.
+                console.log('This Note does not exist in Vercel KV store with KEY:', Redis_Key)
+                showAlert({ BgColor: '#e8af05', Text: `⚠ ${AlertText}` })
+              }
+            } else {
+              const errorData = await response.json() // Wait for the JSON error response.
+              console.error('Error from server:', errorData.error)
+            }
+          } catch (error) {
+            console.error('Error deleting note in Vercel KV:', error)
+          }
+        }
+      }
 
-			// Delete the specific Note in KV Cloud storage.
-			async function deleteNote() {
-				const deleteValue = document.getElementById('deleteBox').value.trim()
-				const AlertText = document.getElementById('Header').innerText
-				if (deleteValue) {
-					try {
-						const Redis_Key = document.getElementById('Stores').value
-						const response = await fetch(`/deleteNote?REDIS_KEY=${Redis_Key}`, {
-							method: 'POST',
-							headers: { 'Content-Type': 'text/plain' },
-							body: deleteValue,
-						})
-						if (response.ok) {
-							const data = await response.json() // Wait for the JSON response.
-							if (data.result !== 0) {
-								console.log('Note deleted in Vercel KV store with KEY:', Redis_Key)
-								// Show deleted alert if response result is positive {result: (list_count)}. 'list_count' is the number of deleted values.
-								showAlert({ BgColor: '#f2074e', Text: `✖ ${AlertText}` })
-							} else {
-								// Show not found alert if response result is Zero {result: 0}.
-								console.log('This Note does not exist in Vercel KV store with KEY:', Redis_Key)
-								showAlert({ BgColor: '#e8af05', Text: `⚠ ${AlertText}` })
-							}
-						} else {
-							const errorData = await response.json() // Wait for the JSON error response.
-							console.error('Error from server:', errorData.error)
-						}
-					} catch (error) {
-						console.error('Error deleting note in Vercel KV:', error)
-					}
-				}
-			}
+      // Retrive the texts from KV Cloud storage.
+      async function getNote() {
+        try {
+          const Redis_Key = document.getElementById('Stores').value
+          const response = await fetch(`/getNote?REDIS_KEY=${Redis_Key}`)
+          const data = await response.json()
+          const result = data.result.join('\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n')
+          document.getElementById('textBox').value = result
+        } catch (error) {
+          console.error('Error fetching or parsing data:', error)
+        }
+      }
 
-			// Retrive the texts from KV Cloud storage.
-			async function getNote() {
-				try {
-					const Redis_Key = document.getElementById('Stores').value
-					const response = await fetch(`/getNote?REDIS_KEY=${Redis_Key}`)
-					const data = await response.json()
-					const result = data.result.join('\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n')
-					document.getElementById('textBox').value = result
-				} catch (error) {
-					console.error('Error fetching or parsing data:', error)
-				}
-			}
+      // Keyboard Shortcuts for different Functions
+      let arrowRightPressed = false
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'ArrowRight') {
+          arrowRightPressed = true
+        }
+        if (arrowRightPressed) {
+          if (event.key === 'ArrowUp') {
+            saveNotes()
+          } else if (event.key === 'ArrowDown') {
+            getNote()
+          } else if (event.key === 'End') {
+            deleteNote()
+          }
+        }
+      })
 
-			// Keyboard Shortcuts for different Functions
-			let arrowRightPressed = false
-			document.addEventListener('keydown', function (event) {
-				if (event.key === 'ArrowRight') {
-					arrowRightPressed = true
-				}
-				if (arrowRightPressed) {
-					if (event.key === 'ArrowUp') {
-						saveNotes()
-					} else if (event.key === 'ArrowDown') {
-						getNote()
-					} else if (event.key === 'End') {
-						deleteNote()
-					}
-				}
-			})
+      document.addEventListener('keyup', function (event) {
+        if (event.key === 'ArrowRight') {
+          arrowRightPressed = false
+        }
+      })
 
-			document.addEventListener('keyup', function (event) {
-				if (event.key === 'ArrowRight') {
-					arrowRightPressed = false
-				}
-			})
-
-			// Function to paste specific note into deleteBox
-			function pasteLineText(event) {
-				var textBox = document.getElementById('textBox')
-				var text = textBox.value
-				var cursorPosition = textBox.selectionStart // Get cursor position
-				// Find the nearest start line before the cursor position
-				var startLine = text.lastIndexOf(
-					'\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n',
-					cursorPosition,
-				)
-				// Find the nearest end line after the cursor position
-				var endLine = text.indexOf('\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n', cursorPosition)
-				// Adjust start and end positions to get the text between them
-				var startOfLine = startLine + '\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n'.length
-				var endOfLine = endLine
-				// If no start line is found before the cursor position, start from the beginning
-				if (startLine === -1 || cursorPosition < startLine) {
-					startOfLine = 0
-				}
-				// If no end line is found after the cursor position, select till the end of text
-				if (endLine === -1 || cursorPosition > endLine) {
-					endOfLine = text.length
-				}
-				var lineText = text.substring(startOfLine, endOfLine)
-				document.getElementById('deleteBox').value = lineText
-			}
-			document.getElementById('textBox').onclick = pasteLineText
-		</script>
-	</body>
+      // Function to paste specific note into deleteBox
+      function pasteLineText(event) {
+        var textBox = document.getElementById('textBox')
+        var text = textBox.value
+        var cursorPosition = textBox.selectionStart // Get cursor position
+        // Find the nearest start line before the cursor position
+        var startLine = text.lastIndexOf(
+          '\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n',
+          cursorPosition,
+        )
+        // Find the nearest end line after the cursor position
+        var endLine = text.indexOf('\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n', cursorPosition)
+        // Adjust start and end positions to get the text between them
+        var startOfLine = startLine + '\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n'.length
+        var endOfLine = endLine
+        // If no start line is found before the cursor position, start from the beginning
+        if (startLine === -1 || cursorPosition < startLine) {
+          startOfLine = 0
+        }
+        // If no end line is found after the cursor position, select till the end of text
+        if (endLine === -1 || cursorPosition > endLine) {
+          endOfLine = text.length
+        }
+        var lineText = text.substring(startOfLine, endOfLine)
+        document.getElementById('deleteBox').value = lineText
+      }
+      document.getElementById('textBox').onclick = pasteLineText
+    </script>
+  </body>
 </html>

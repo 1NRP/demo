@@ -1,0 +1,17 @@
+{
+  "name": "cloud-notes",
+  "version": "1.0",
+  "description": "A web app to store texts and files in Vercel KV & Blob storage.",
+  "main": "MainServer.js",
+  "type": "module",
+  "scripts": {
+    "start": "node MainServer.js"
+  },
+  "dependencies": {
+    "@vercel/blob": "2.0.0",
+    "@deno/shim-deno": "^0.18.0"
+  },
+  "engines": {
+    "node": ">=20.x"
+  }
+}
