@@ -332,8 +332,14 @@ export const FileTypes = {
     flv: 'video/x-flv',
 };
 export async function ServeStaticFile(FilePath) {
+    const path = await import('node:path');
+    const { readFile } = await import('node:fs/promises');
+    const { fileURLToPath } = await import('node:url');
+    const __dirname = path.dirname(fileURLToPath(import.meta.url)); // Ensures looking for files next to the JS file and not relative to the working directory.
+
     try {
-        const File = await dntShim.Deno.readFile(FilePath);
+        const File = await readFile(path.join(__dirname, FilePath), 'utf-8');
+        
         const type = FileTypes[FilePath.split('.').pop() || 'html'];
         return new Response(new Blob([File], { type }), {
             headers: { 'Content-Type': type },
