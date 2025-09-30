@@ -331,15 +331,21 @@ export const FileTypes = {
     webm: 'video/webm',
     flv: 'video/x-flv',
 };
+
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 export async function ServeStaticFile(FilePath) {
-    const path = await import('node:path');
-    const { readFile } = await import('node:fs/promises');
-    const { fileURLToPath } = await import('node:url');
-    const __dirname = path.dirname(fileURLToPath(import.meta.url)); // Ensures looking for files next to the JS file and not relative to the working directory.
+
+    // const path = await import('node:path');
+    // const { readFile } = await import('node:fs/promises');
+    // const { fileURLToPath } = await import('node:url');
+    // const __dirname = path.dirname(fileURLToPath(import.meta.url)); // Ensures looking for files next to the JS file and not relative to the working directory.
 
     try {
-        const File = await readFile(path.join(__dirname, FilePath), 'utf-8');
-        
+        const File = await readFile(join(__dirname, FilePath));
+
         const type = FileTypes[FilePath.split('.').pop() || 'html'];
         return new Response(new Blob([File], { type }), {
             headers: { 'Content-Type': type },
