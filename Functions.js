@@ -316,7 +316,7 @@ export const FileTypes = {
   flv: 'video/x-flv',
 }
 
-import { Login, Blob as BlobSite, Index, VercelUpload } from './StaticFiles.js';
+import { Login, Blob as BlobSite, Index, VercelUpload } from './Static.js';
 
 export async function ServeStaticFile(FilePath) {
   let File;
