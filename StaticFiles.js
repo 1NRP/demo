@@ -5,7 +5,10 @@
 
 import { Deno } from './NodeCompatibility.js';
 
-export const Login = await Deno.readTextFile('./Login.html');
-export const Index = await Deno.readTextFile('./Index.html');
-export const Blob = await Deno.readTextFile('./Blob.html');
-export const VercelUpload = await Deno.readTextFile('./VercelUpload.js');
+// StaticFiles.js
+import fs from "fs";
+
+export const Login = await Deno.readTextFile(new URL("./Login.html", import.meta.url));
+export const Index = await Deno.readTextFile(new URL("./Index.html", import.meta.url));
+export const Blob = await Deno.readTextFile(new URL('./Blob.html'), import.meta.url);
+export const VercelUpload = await Deno.readTextFile(new URL('./VercelUpload.js'), import.meta.url);
