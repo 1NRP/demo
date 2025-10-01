@@ -5,11 +5,10 @@
   "main": "MainServer.js",
   "type": "module",
   "scripts": {
-    "start": "node MainServer.js"
+    "start": "node --watch MainServer.js"
   },
   "dependencies": {
-    "@vercel/blob": "2.0.0",
-    "@deno/shim-deno": "^0.18.0"
+    "@vercel/blob": "2.0.0"
   },
   "engines": {
     "node": ">=20.x"

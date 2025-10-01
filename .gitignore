@@ -1,6 +1,3 @@
 .env
-/node_modules
-/NodeJS
-wrangler.jsonc
-package.json
-/DNT
+node_modules
+Misc
