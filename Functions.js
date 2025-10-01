@@ -306,7 +306,7 @@ export const FileTypes = {
   svg: 'image/svg+xml',
   pdf: 'application/pdf',
   doc: 'application/msword',
-  m3u8: 'application/vnd.apple.mpegurl',
+  m3u8: 'application/x-mpegURL',
   mp4: 'video/mp4',
   mp3: 'audio/mpeg',
   wav: 'audio/wav',
@@ -317,9 +317,19 @@ export const FileTypes = {
 }
 
 export async function ServeStaticFile(FilePath) {
+  let File;
+  const Environment = Deno.env.get('NRP_DEPLOYMENT_ENVIRONMENT')
+
+  if ( Environment == 'Vercel' ) { // For Vercel bundling compatibility.
+    const files = await import('./StaticFiles.js')
+    const exportName = FilePath.split('/').pop().split('.').shift()
+    File = files[ exportName ]
+  } else {
+    File = await Deno.readFile(FilePath)
+  }
+
   try {
-    const File = await Deno.readFile(FilePath)
-    const type = FileTypes[FilePath.split('.').pop() || 'html']
+    const type = FileTypes[ FilePath.split('.').pop() || 'html' ]
     return new Response(new Blob([File], { type }), {
       headers: { 'Content-Type': type },
     })
@@ -357,20 +367,11 @@ export async function LoginHandler(req) {
   }
 }
 
-export async function LoginStatus(req) {
-    const cookies = ParseCookies(req.headers.get('Cookie'))
-    const token = cookies.jwt_token
-
-    if (!token) {
-      return new Response(JSON.stringify({ loggedIn: false, message: 'Missing token' }), { status: 401 })
-    }
-
-    const payload = await VerifyJWT(token)
-    if (!payload) {
-      return new Response(JSON.stringify({ loggedIn: false, message: 'Invalid token' }), { status: 401 })
-    }
-
-    return new Response(JSON.stringify({ loggedIn: true }), { status: 200 })
+export async function LoginStatus() {
+  return new Response(JSON.stringify({ loggedIn: true }), { 
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+  })
 }
 
 export async function ProtectedRoute(Handler, req) {
@@ -381,7 +382,7 @@ export async function ProtectedRoute(Handler, req) {
       <h3 style="color: #e6b61a; font-weight: 600; text-align: center; font-size: 20px;"> Redirecting To Sign In Page... </h3>
       <script> setTimeout(() => { window.location.href = '/login' }, 2000) </script>
 	</body>
-    </html>
+  </html>
 	`
   const cookies = ParseCookies(req.headers.get('Cookie'))
   const token = cookies.jwt_token
@@ -396,8 +397,8 @@ export async function ProtectedRoute(Handler, req) {
   console.log(' "VerifyJWT" Time Taken: ', +((t1 - t0).toFixed(2)), 'Miliseconds.')
 
   if (!payload) {
-    return new Response(redirectPage.replace('Missing', 'Invalid'), {
-      status: 401,
+    return new Response(redirectPage.replace('Missing', 'Invalid'), { 
+      status: 401, 
       headers: { 'Content-Type': 'text/html' },
     })
   }
@@ -409,7 +410,7 @@ export async function ProtectedRoute(Handler, req) {
 export async function TeraboxCloudflare(request) {
   const { shortURL, CacheOption ,Token } = Object.fromEntries( new URL(request.url).searchParams )
   const Cache = CacheOption === 'Yes' // Convert Cache to boolean.
-  
+
   if (Token !== 'cloudF-code-0088') {
     return new Response('Wrong Access Token Code. Request Is Unauthorized', { status: 401 })
   }
@@ -456,7 +457,7 @@ export async function TeraboxCloudflare(request) {
 
 export async function CorsProxy(req) {
   try {
-    const Link = new URL(req.url).searchParams.get('Link')
+    const Link = new URL(req.url).searchParams.get('URL')
     const response = await fetch(Link)
 
     response.headers.set('Cache-Control', 'public, max-age=3600')
@@ -567,8 +568,6 @@ export { DeleteNote, GetNote, SaveNote } // Export The Note Functions.
 async function SaveNote(req) {
   try {
     const { lastSentence, REDIS_KEY } = await req.json()
-    console.log('Received lastSentence:', lastSentence)
-    console.log('Using REDIS_KEY:', REDIS_KEY)
     return await UPSTASH.LPUSH(REDIS_KEY, lastSentence)
   } catch (error) {
     console.error('Error Name: ', error.name, 'Error Message: ', error.message)

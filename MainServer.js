@@ -42,11 +42,13 @@ const Router = new Map()
 const Route = (method, pathname, handler) => Router.set(`${method.toUpperCase()}:${pathname.toLowerCase()}`, handler)
 
 Route('GET', '/', () => ServeStaticFile('./Index.html'))
+Route('GET', '/login', () => ServeStaticFile('./Login.html'))
+Route('GET', '/blob', () => ServeStaticFile('./Blob.html'))
 Route('GET', '/notes', () => ServeStaticFile('./Notes.html'))
 Route('GET', '/upload.js', () => ServeStaticFile('./VercelUpload.js'))
-Route('POST', '/login', LoginHandler) // Login route.
-Route('GET', '/login', () => ServeStaticFile('./Login.html'))
+
 Route('GET', '/loginstatus', LoginStatus)
+Route('POST', '/login', LoginHandler) // Login route.
 Route('POST', '/deletelink', DeleteLink)
 Route('GET', '/getm3u8', GetM3U8)
 Route('GET', '/getlink', GetLink)
@@ -57,7 +59,6 @@ Route('GET', '/tgchannels', TgChannels)
 Route('GET', '/cors-proxy', CorsProxy)
 Route('GET', '/jsnb', JSNotebook)
 Route('POST', '/jsnb', JSNotebook)
-Route('GET', '/blob', () => ServeStaticFile('./Blob.html'))
 Route('GET', '/fyerstoken', FyersToken)
 Route('POST', '/fyerstoken', FyersToken)
 Route('GET', '/getnote', GetNote)
@@ -86,7 +87,7 @@ async function MainHandler(req) {
     return new Response(null, { status: 204 }) // Standard response for non-matching origins.
   }
 
-  // Find and execute the route handler.
+  // Find and execute the route handler
   const Handler = Router.get(`${method}:${path.toLowerCase()}`)
   let response
 

@@ -1,7 +1,6 @@
-import * as fs from 'fs/promises'
-import path from 'path'
-import { createServer } from 'http'
-import { Writable } from "node:stream";
+import { readFile, writeFile } from 'node:fs/promises'
+import { createServer } from 'node:http'
+import { Writable } from 'node:stream'
 
 export { Deno, fetch }
 
@@ -9,37 +8,31 @@ export { Deno, fetch }
 
 const Deno = {
   serve: Serve,
-  readFile: async (filePath) => {
-    const file = path.join(process.cwd(), filePath.split('/')[1])
-    return await fs.readFile(file)
+  readFile,
+  writeFile,
+  readTextFile: async function (filePath) {
+    return await readFile(filePath, { encoding: 'utf8' })
   },
-  writeFile: async (filePath, data) => {
-    const file = path.join(process.cwd(), filePath.split('/')[1])
-    return await fs.writeFile(file, data)
+  writeTextFile: async function (filePath, data) {
+    return await writeFile(filePath, data, { encoding: 'utf8' })
   },
-  readTextFile: async (filePath) => {
-    const file = path.join(process.cwd(), filePath)
-    return await readFile(file, { encoding: "utf8" })
-  },
-  env: {
-    get: (value) => {
-      return process.env[value]
-    }
+  env: { 
+    get: (value) => process.env[value] 
   }
 }
 
 // patch 'fetch' to support 'duplex' option in Node.js 18+.
 const _nativeFetch = globalThis.fetch; // Keep reference to the original built-in fetch.
-const fetch = async (url, opts = {}) => {
-  if (opts.body && !opts.duplex) opts.duplex = "half"; // If there's a body and no duplex specified → enforce duplex: 'half'
-  return _nativeFetch(url, opts);
+const fetch = async (url, options = {}) => {
+  if (options.body && !options.duplex) options.duplex = "half"; // If there's a body and no duplex specified → enforce duplex: 'half'
+  return _nativeFetch(url, options);
 };
 
 // Serve handler that takes a Web-standard Request and returns a Response similar to Deno.serve() and Cloudflare Workers.
-export async function Serve(Handler, opts = {}) {
+export async function Serve(Handler, options = {}) {
   // Default options.
-  const port = opts.port ?? 3000;
-  const hostname = opts.hostname ?? "0.0.0.0";
+  const port = options.port ?? 3000;
+  const hostname = options.hostname ?? "0.0.0.0";
 
   const server = createServer(async (req, res) => {
     try {
@@ -76,7 +69,7 @@ export async function Serve(Handler, opts = {}) {
   });
 
   server.listen(port, hostname, () => {
-    console.log(`Node.js HTTP Server Listening On http://${hostname}:${port}`);
+    console.log(`HTTP Server Listening On http://${hostname}:${port}`);
   });
 
   return server;
