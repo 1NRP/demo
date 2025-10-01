@@ -316,14 +316,18 @@ export const FileTypes = {
   flv: 'video/x-flv',
 }
 
+import { Login, Blob as BlobSite, Index, VercelUpload } from './StaticFiles.js';
+
 export async function ServeStaticFile(FilePath) {
   let File;
   const Environment = Deno.env.get('NRP_DEPLOYMENT_ENVIRONMENT') || 'No Environment Type Found. Assuming Local Environment.'
   console.log('Serving Static File: ', FilePath, 'Server Environment: ', Environment)
   if ( Environment == 'Vercel' ) { // For Vercel bundling compatibility.
-    const files = await import('./StaticFiles.js')
     const exportName = FilePath.split('/').pop().split('.').shift()
-    File = files[ exportName ]
+    if ( exportName == 'Login' ) File = Login
+    if ( exportName == 'Blob' ) File = BlobSite
+    if ( exportName == 'index' ) File = Index
+    else if ( exportName == 'VercelUpload' ) File = VercelUpload
     console.log('File Size :', File || 'File Not Found In StaticFiles.js')
   } else {
     File = await Deno.readFile(FilePath)
