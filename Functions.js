@@ -319,11 +319,12 @@ export const FileTypes = {
 export async function ServeStaticFile(FilePath) {
   let File;
   const Environment = Deno.env.get('NRP_DEPLOYMENT_ENVIRONMENT') || 'No Environment Type Found. Assuming Local Environment.'
-  // console.log('Serving Static File: ', FilePath, 'Server Environment: ', Environment)
+  console.log('Serving Static File: ', FilePath, 'Server Environment: ', Environment)
   if ( Environment == 'Vercel' ) { // For Vercel bundling compatibility.
     const files = await import('./StaticFiles.js')
     const exportName = FilePath.split('/').pop().split('.').shift()
     File = files[ exportName ]
+    console.log('File Size :', File || 'File Not Found In StaticFiles.js')
   } else {
     File = await Deno.readFile(FilePath)
   }
