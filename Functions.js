@@ -316,35 +316,6 @@ export const FileTypes = {
   flv: 'video/x-flv',
 }
 
-// import { Login, Blob as BlobSite, Index, VercelUpload } from './Static.js';
-
-// export async function ServeStaticFile(FilePath) {
-//   let File;
-//   const Environment = Deno.env.get('NRP_DEPLOYMENT_ENVIRONMENT') || 'No Environment Type Found. Assuming Local Environment.'
-//   console.log('Serving Static File: ', FilePath, 'Server Environment: ', Environment)
-//   if ( Environment == 'Vercel' ) { // For Vercel bundling compatibility.
-//     const exportName = FilePath.split('/').pop().split('.').shift()
-//     console.log('Export Name: ', exportName)
-//     if ( exportName == 'Login' ) File = Login
-//     if ( exportName == 'Blob' ) File = BlobSite
-//     if ( exportName == 'Index' ) File = Index
-//     if ( exportName == 'VercelUpload' ) File = VercelUpload
-//     console.log('File :', File || 'File Not Found In StaticFiles.js')
-//   } else {
-//     File = await Deno.readFile(FilePath)
-//   }
-
-//   try {
-//     const type = FileTypes[ FilePath.split('.').pop() || 'html' ]
-//     return new Response(new Blob([File], { type }), {
-//       headers: { 'Content-Type': type },
-//     })
-//   } catch (error) {
-//     console.error(`Error serving ${FilePath}: `, error)
-//     return new Response('An Error Occurred While Serving The File Request.', { status: 500 })
-//   }
-// }
-
 export async function ServeStaticFile(FilePath) {
   let File;
   const Environment = Deno.env.get('NRP_DEPLOYMENT_ENVIRONMENT')
