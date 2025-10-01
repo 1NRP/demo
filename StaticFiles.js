@@ -5,7 +5,7 @@
 
 import { Deno } from './NodeCompatibility.js';
 
-export const Login = Deno.readTextFile('./Login.html');
-export const Index = Deno.readTextFile('./Index.html');
-export const Blob = Deno.readTextFile('./Blob.html');
-export const VercelUpload = Deno.readTextFile('./VercelUpload.js');
+export const Login = await Deno.readTextFile('./Login.html');
+export const Index = await Deno.readTextFile('./Index.html');
+export const Blob = await Deno.readTextFile('./Blob.html');
+export const VercelUpload = await Deno.readTextFile('./VercelUpload.js');
