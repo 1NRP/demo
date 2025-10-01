@@ -324,11 +324,12 @@ export async function ServeStaticFile(FilePath) {
   console.log('Serving Static File: ', FilePath, 'Server Environment: ', Environment)
   if ( Environment == 'Vercel' ) { // For Vercel bundling compatibility.
     const exportName = FilePath.split('/').pop().split('.').shift()
+    console.log('Export Name: ', exportName)
     if ( exportName == 'Login' ) File = Login
     if ( exportName == 'Blob' ) File = BlobSite
     if ( exportName == 'index' ) File = Index
-    else if ( exportName == 'VercelUpload' ) File = VercelUpload
-    console.log('File Size :', File || 'File Not Found In StaticFiles.js')
+    if ( exportName == 'VercelUpload' ) File = VercelUpload
+    console.log('File :', File || 'File Not Found In StaticFiles.js')
   } else {
     File = await Deno.readFile(FilePath)
   }
@@ -365,7 +366,8 @@ export async function LoginHandler(req) {
       })
     }
   } catch (e) {
-    return new Response(JSON.stringify({ success: false, message: 'Invalid request body' }), {
+    console.error('Login Error:', e)
+    return new Response(JSON.stringify({ success: false, message: 'Invalid request' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     })
