@@ -1,5 +1,5 @@
 // Node.js Compatibility.
-if (!Deno.version && typeof process !== 'undefined' && process.versions?.node) {
+if ( process.env && process.env.NRP_DEPLOYMENT_ENVIRONMENT == 'Vercel' /*!Deno.version && typeof process !== 'undefined' && process.versions?.node */ ) {
   const { Deno, fetch } = await import('./NodeCompatibility.js')
   globalThis.Deno = Deno
   globalThis.fetch = fetch
