@@ -48,12 +48,11 @@ export async function Serve( options = {}, Handler ) {
       const response = await Handler(request)
 
       // Convert Web Response -> Node res.
-      const { status, headers, body } = response
-      res.writeHead(status ?? 200, Object.fromEntries(headers ?? []))
+      res.writeHead(response.status ?? 200, Object.fromEntries(response.headers ?? []))
 
-      if (body) {
+      if (response.body) {
         // Pipe Web ReadableStream to Node.js res.
-        const body = body
+        const body = response.body
         if (body.pipeTo) {
           await body.pipeTo(Writable.toWeb(res))
         } else {
