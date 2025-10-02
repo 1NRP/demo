@@ -1,8 +1,8 @@
 // Node.js Compatibility.
-if (typeof process !== 'undefined' && process.versions?.node) {
-  const { Deno, fetch } = await import('./NodeCompatibility.js');
-  globalThis.Deno = Deno;
-  globalThis.fetch = fetch;
+if (!Deno.version && typeof process !== 'undefined' && process.versions?.node) {
+  const { Deno, fetch } = await import('./NodeCompatibility.js')
+  globalThis.Deno = Deno
+  globalThis.fetch = fetch
 }
 
 const UPSTASH = {
@@ -263,7 +263,7 @@ export async function BlobServer(req) {
         const params = Object.fromEntries(new URL(req.url).searchParams)
         const { FILE_URL, NEW_PATHNAME } = params
         await Copy(FILE_URL, NEW_PATHNAME, {
-          access: 'public'
+          access: 'public',
         })
         await Delete(FILE_URL)
         return new Response(JSON.stringify({ message: 'Blob renamed.' }))
@@ -317,20 +317,20 @@ export const FileTypes = {
 }
 
 export async function ServeStaticFile(FilePath) {
-  let File;
+  let File
   const Environment = Deno.env.get('NRP_DEPLOYMENT_ENVIRONMENT')
 
-  if ( Environment == 'Vercel' ) { // For Vercel bundling compatibility.
-    const files = await import('./Static.js')
+  if (Environment == 'Vercel') { // For Vercel bundling compatibility.
+    const files = await import('./StaticFiles.js')
     const exportName = FilePath.split('/').pop().split('.').shift()
-    console.log('Serving Static File: ', FilePath, 'Server Environment: ', Environment, 'Export Name: ', exportName)
-    File = files[ exportName ]
+    File = files[exportName]
+  
   } else {
     File = await Deno.readFile(FilePath)
   }
 
   try {
-    const type = FileTypes[ FilePath.split('.').pop() || 'html' ]
+    const type = FileTypes[FilePath.split('.').pop() || 'html']
     return new Response(new Blob([File], { type }), {
       headers: { 'Content-Type': type },
     })
@@ -361,8 +361,7 @@ export async function LoginHandler(req) {
       })
     }
   } catch (e) {
-    console.error('Login Error:', e)
-    return new Response(JSON.stringify({ success: false, message: 'Invalid Request' }), {
+    return new Response(JSON.stringify({ success: false, message: 'Invalid request body' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     })
@@ -370,7 +369,7 @@ export async function LoginHandler(req) {
 }
 
 export async function LoginStatus() {
-  return new Response(JSON.stringify({ loggedIn: true }), { 
+  return new Response(JSON.stringify({ loggedIn: true }), {
     status: 200,
     headers: { 'Content-Type': 'application/json' },
   })
@@ -379,8 +378,13 @@ export async function LoginStatus() {
 export async function ProtectedRoute(Handler, req) {
   const redirectPage = `
 	<html>
+  <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="icon" sizes="192x192" href="https://1nrp.github.io/1/Images/N-Logo1.png">
+      <title> Unauthorized: Redirecting To Sign In Page... </title>
+  </head>
 	<body style="background-color: #02121b">
-      <h2 style="color: #d88; font-weight: 800; text-align: center; font-size: 30px; margin-top: 20vh;"> Unauthorized: Missing Token. </h2>
+      <h2 style="color:#d88; font-weight: 800; text-align: center; font-size: 30px; margin-top: 20vh;"> Unauthorized: Missing Token. </h2>
       <h3 style="color: #e6b61a; font-weight: 600; text-align: center; font-size: 20px;"> Redirecting To Sign In Page... </h3>
       <script> setTimeout(() => { window.location.href = '/login' }, 2000) </script>
 	</body>
@@ -399,8 +403,8 @@ export async function ProtectedRoute(Handler, req) {
   console.log(' "VerifyJWT" Time Taken: ', +((t1 - t0).toFixed(2)), 'Miliseconds.')
 
   if (!payload) {
-    return new Response(redirectPage.replace('Missing', 'Invalid'), { 
-      status: 401, 
+    return new Response(redirectPage.replace('Missing Token', 'Invalid Token'), {
+      status: 401,
       headers: { 'Content-Type': 'text/html' },
     })
   }
@@ -409,8 +413,31 @@ export async function ProtectedRoute(Handler, req) {
   return Handler(req /* ,payload */)
 }
 
+export async function StaticFilesExporter(fileNamesArray) {
+  const textArr = []
+
+  function escapeTemplateLiteral(text) {
+    return text
+      .replace(/`/g, '\\`') // escape backticks.
+      .replace(/\${/g, '\\${') // escape ${ interpolation.
+  }
+
+  for (const file of fileNamesArray) {
+    const text = await Deno.readTextFile('./' + file)
+    const safeText = escapeTemplateLiteral(text)
+    const varName = file.replace(/\.[^.]+$/, '') // strip file extension.
+    const format = `export const ${varName} = \`${safeText}\``
+    textArr.push(format)
+  }
+
+  const output = textArr.join('\n\n')
+  await Deno.writeTextFile('./StaticFiles.js', output)
+
+  console.log('✅ StaticFiles.js Generated')
+}
+
 export async function TeraboxCloudflare(request) {
-  const { shortURL, CacheOption ,Token } = Object.fromEntries( new URL(request.url).searchParams )
+  const { shortURL, CacheOption, Token } = Object.fromEntries(new URL(request.url).searchParams)
   const Cache = CacheOption === 'Yes' // Convert Cache to boolean.
 
   if (Token !== 'cloudF-code-0088') {

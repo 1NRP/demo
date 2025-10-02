@@ -1,679 +1,4 @@
-export const Login = `<!DOCTYPE html>
-<html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" sizes="192x192" href="https://1nrp.github.io/1/Images/N-Logo1.png">
-    <meta charset="utf-8">
-    <meta name="theme-color" content="#02121b">
-    <title>Sign In</title>
-  </head>
-  <style>
-    body {
-      color: #fff;
-      background-color: #02121b;
-    }
-
-    input:focus,
-    textarea,
-    select:focus {
-      outline: 0;
-    }
-
-    #form-container {
-      position: fixed;
-      top: 30vh;
-      left: 10vw;
-      background-color: #456;
-      box-shadow: 10px 10px 8px #789;
-      padding: 20px;
-      border-radius: 8px;
-      width: 70vw;
-      animation-name: Login;
-      animation-duration: 2s;
-    }
-    #form-container input {
-      outline: 0;
-      color: #fff222;
-    }
-    #form-container h2 {
-      text-align: center;
-      color: #dde00b;
-      font-size: 28px;
-      font-family: Arial, Helvetica, sans-serif;
-      font-weight: 600;
-      margin: -15px 0px 10px 0px;
-    }
-    a4 {
-      color: #d88;
-      font-weight: 800;
-    }
-    #userId, #password {
-      width: 90%;
-      padding: 10px;
-      background-color: #222;
-      margin-bottom: 10px;
-      border: 2px dashed #888;
-      border-radius: 6px;
-    }
-    ::placeholder {
-      font-weight: 600;
-    }
-    #form-container button {
-      width: 96.2%;
-      padding: 10px;
-      border: 2px solid #ddd;
-      font-weight: 600;
-      background-color: #4caf50;
-      color: #fff;
-      border-radius: 4px;
-    }
-    .Alerts {
-      position: fixed;
-      /* top: 5dvh; */
-      left: 20dvw;
-      z-index: 50;
-      color: #000;
-      background-color: #fff;
-      font-weight: 1000;
-      padding: 5px;
-      border: none;
-      border-radius: 5px;
-      animation-name: Alert;
-      animation-duration: 1s;
-    }
-    #form-container button:hover {
-      background-color: #4caf5099;
-    }
-
-    @keyframes Alert {
-      from {
-        font-size: 10px;
-        top: 5dvh;
-      }
-      to {
-        font-size: 25px;
-        top: 10dvh;
-      }
-    }
-    @keyframes Login {
-      from {
-        opacity: 0;
-        top: 0vh;
-      }
-      to {
-        opacity: 1;
-        top: 30vh;
-      }
-    }
-  </style>
-
-  <body>
-    <div id="form-container">
-      <h2>Sign In</h2>
-      <form id="loginForm">
-        <input type="text" placeholder="Enter Valid Email" id="userId" required>
-        <input type="password" placeholder="Enter Password" id="password" required>
-        <button type="submit">SUBMIT</button>
-      </form>
-    </div>
-
-    <script>
-      // Show Alerts depending upon the response received.
-      function showAlert(BgColor, Text) {
-        var alertBox = document.createElement('div')
-        alertBox.className = 'Alerts'
-        alertBox.style.backgroundColor = BgColor
-        alertBox.textContent = Text
-        document.body.appendChild(alertBox)
-        setTimeout(() => {
-          alertBox.remove()
-        }, 1000)
-      }
-
-      const form = document.getElementById('loginForm')
-      form.addEventListener('submit', async (event) => {
-        event.preventDefault()
-        const username = document.getElementById('userId').value
-        const password = document.getElementById('password').value
-        const response = await fetch('/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ username, password }),
-        })
-        if (response.ok) {
-          showAlert('#4CAF50', 'Login Successful')
-          setTimeout(() => {
-            window.location.href = '/'
-          }, 1000)
-        } else {
-          const errorMessage = await response.json()
-          showAlert('#f44336', errorMessage.message)
-          console.log('Error: ', errorMessage)
-        }
-      })
-    </script>
-  </body>
-</html>
-`
-
-export const Index = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" sizes="192x192" href="https://1nrp.github.io/1/Images/N-Logo1.png">
-  <meta charset="utf-8">
-  <title>Websites</title>
-</head>
-<style>
-  body {
-    color: #fff;
-    background-color: #010b14;
-  }
-  a:link, a {
-    background-color: #044d5f;
-    color: #c6e3e6;
-    font-family: arial, sans-serif;
-    font-size: 20px;
-    font-weight: 1000;
-    padding: 4px 20px 5px 20px;
-    border-radius: 6px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    }
-    a:hover {
-      background-color: #0b4b4b64;
-    }
-    h2 {
-      color: #dd4d0a;
-      font-size: 30px;
-      font-weight: 300;
-      font-family: fantasy, arial, sans-serif;
-    }
-</style>
-
-<center>
-    
-    <h2>WEBPAGE LINKS</h2>
-
-    <p><a href="/Notes" target="_self">Cloud Notes</a>
-    <p><a href="/Login" target="_self">Sign In</a>
-    <p><a href="/Blob">Blob</a></p>
-    
-</center>
-
-</body> 
-</html>`
-
-export const Blob = `<!DOCTYPE html>
-<html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta charset="utf-8">
-    <meta name="theme-color" content="#02121b">
-    <link rel="icon" sizes="192x192" href="https://1nrp.github.io/1/Images/N-Logo1.png">
-    <title>Blob Store</title>
-  </head>
-  <style>
-    body {
-      color: #fff;
-      background-color: #02121b;
-    }
-    input:focus,
-    textarea:focus,
-    select:focus {
-      outline: 0;
-    }
-    h2 {
-      font-family: cursive, arial, sans-serif;
-      font-size: 25px;
-      font-weight: 900;
-      margin: -8px 0px 2px 0px;
-    }
-    #TopBar {
-      display: flex;
-      flex-direction: row;
-    }
-    #Stores {
-      padding: 2px 2px;
-      border: 2px solid #555;
-      border-radius: 40px;
-      width: 80px;
-      position: absolute;
-      color: #fff;
-      background-color: #000;
-      margin: -6px 0px 0px 74vw;
-      font-weight: 500;
-    }
-    #viewBox {
-      width: 99%;
-      height: 80vh;
-      border-radius: 8px;
-      position: relative;
-      border: 2px solid #333;
-      overflow-y: scroll;
-      background-color: #111135;
-      margin: 2px;
-    }
-    #uploadBox {
-      color: #fffd;
-      min-height: 20%;
-      overflow: auto;
-      width: 65%;
-      overflow: scroll;
-      border: 2px dashed #754;
-      border-radius: 6px;
-      padding: 6px;
-    }
-    #uploadButton {
-      background-color: #205c89;
-      color: #fffb;
-      border: none;
-      font-size: 25px;
-      border-radius: 50px;
-      padding: 0px 8px 5px 7px;
-      font-weight: 1000;
-    }
-    #getFilesBtn {
-      background-color: #126419;
-      color: #fffb;
-      border: none;
-      border-radius: 50px;
-      font-size: 25px;
-      font-weight: 1000;
-      padding: 2px 8px 3px 7px;
-    }
-    #clearBtn {
-      border: none;
-      color: #fffb;
-      font-size: 25px;
-      font-weight: 1000;
-      border-radius: 50px;
-      background-color: #833;
-      padding: 0px 9px 4px 8px;
-    }
-    #clearBtn:hover,
-    #getFilesBtn:hover,
-    #uploadButton:hover {
-      background-color: #444;
-    }
-    .Alerts {
-      position: fixed;
-      /* top: 5dvh; */
-      left: 15dvw;
-      background-color: #fff;
-      color: #fffd;
-      font-weight: 900;
-      padding: 5px 5px;
-      border: none;
-      z-index: 50;
-      border-radius: 5px;
-      animation-name: Alert;
-      animation-duration: 1s;
-    }
-    /* Alert Animation */
-    @keyframes Alert {
-      from {
-        font-size: 10px;
-        top: 5dvh;
-      }
-      to {
-        font-size: 25px;
-        top: 10dvh;
-      }
-    }
-    @keyframes Menu {
-      from {
-        opacity: 0;
-      }
-      to {
-        opacity: 1;
-      }
-    }
-    .cell-buttons {
-      position: absolute;
-      top: 2px;
-      right: 4px;
-      display: flex;
-      gap: 25px;
-      z-index: 20;
-      margin-top: 6px;
-      background-color: #4c8fb680;
-      border: 2px solid #157c23;
-      padding: 6px;
-      opacity: 0.2;
-      border-radius: 4px;
-    }
-    .toggle-btn:hover {
-      opacity: 1;
-      background-color: #444;
-    }
-    .fileDiv {
-      border: 2px solid #960f6960;
-      border-radius: 4px;
-      overflow-y: visible;
-      height: auto;
-      position: relative;
-      margin: 2px;
-      border-radius: 6px;
-      padding: 2px;
-    }
-    .toggle-btn {
-      position: absolute;
-      right: 6px;
-      top: 6px;
-      opacity: 0.4;
-      padding: 3px 6px 2px 6px;
-      font-size: 14px;
-      background-color: #0d4257;
-      font-weight: 800;
-      border: 2px solid #444e09;
-      color: #fff;
-      transition: transform 0.2s ease;
-      border-radius: 50%;
-    }
-    .cell-buttons-div {
-      display: none;
-      position: absolute;
-      right: 50px;
-      top: 8px;
-      padding: 2px;
-      z-index: 100;
-      background-color: #265a7c;
-      border: none;
-      border-radius: 10px;
-      animation-name: Menu;
-      animation-duration: 0.5s;
-    }
-    .cell-buttons-div button {
-      margin: 2px;
-      background-color: #0d2136;
-      padding: 6px;
-      border: none;
-      border-radius: 6px;
-    }
-  </style>
-  <body>
-    <!--  * Keyboard Shortcuts: Fetch Notes: "ArrowRight + ArrowDown", Save Notes: "ArrowRight + ArrowUp", Delete Notes: "ArrowRight + End"  -->
-    <div id="TopBar">
-      <h2 id="Header">Blob Store</h2>
-      <select id="Stores">
-        <option value="Text" data-Colour="#111135">Text</option>
-        <option value="Image" data-Colour="#4e3144">Image</option>
-        <option value="Audio" data-Colour="#664337">Audio</option>
-        <option value="Video" data-Colour="#503959">Video</option>
-        <option value="Document" data-Colour="#395c42">Document</option>
-        <option value="TI_Images" data-Colour="#664337">T&I Images</option>
-        <option value="Others" data-Colour="#272729">Others</option>
-      </select>
-    </div>
-    <div id="viewBox"></div>
-    <form id="uploadForm">
-      <div style="display: flex; gap: 10px; align-items: center">
-        <button
-          id="clearBtn"
-          type="button"
-          onclick="document.getElementById('uploadBox').value=''; document.getElementById('viewBox').innerHTML=''; document.getElementById('fileMetadata').style.display='none'; document.getElementById('progressSpan').style.display = 'none';"
-        >
-          ✖
-        </button>
-        <input id="uploadBox" type="file" multiple accept="*/*" required />
-        <button id="uploadButton" type="submit">▲</button>
-        <button id="getFilesBtn" type="button" onclick="getFiles()">▼</button>
-      </div>
-    </form>
-    <progress id="progressBar" style="width: 100%; height: 15px; border: none" value="0" max="100"></progress>
-    <p
-      id="progressSpan"
-      style="display: none; border: 2px dashed #fff888; border-radius: 4px; width: auto; padding: 2px; margin-top: 2px; font-weight: 700; text-align: center; color: #fffd"
-    >
-    </p>
-    <p
-      id="currentFile"
-      style="display: none; border: 2px dashed #196d08; border-radius: 4px; width: 98.5%; padding: 2px; margin-top: 2px; text-wrap: wrap; font-size: 12px; font-weight: 600; color: #fff888"
-    >
-    </p>
-    <!-- Display file metadata -->
-    <div id="fileMetadata" style="display: none"></div>
-    <iframe id="downloadFrame" src="" name="IFrame" style="display: none"></iframe>
-    <!-- Dummy iframe to support downloading files in X-Mini browser without leaving the webpage. -->
-    <script src="upload.js"></script>
-    <!-- Bundled code for Vercel Blob's client-side 'upload' function. -->
-
-    <script>
-      // File Upload Functionality.
-      document.getElementById('uploadForm').addEventListener('submit', async (event) => {
-        event.preventDefault()
-        const fileInput = document.getElementById('uploadBox')
-        const files = Array.from(fileInput.files) // Convert FileList to an array.
-        document.getElementById('uploadButton').disabled = files.length === 0 // Disable button if no files.
-        if (files.length > 0) {
-          for (const file of files) {
-            let optForMultiPartUpload = false
-            const pathname = \`\${document.getElementById('Stores').value}/\${file.name}\`
-            if (!file) {
-              alert('Please select a file to upload.')
-              return
-            } else if (file.size > 200000000 /* 200 MB */) {
-              alert('Filesize exceeded 200 MB.')
-              return
-            } else if (file.size >= 10000000 /* 10 MB */) {
-              optForMultiPartUpload = true
-            }
-            try {
-              // Upload the file to Vercel Blob.
-              const newBlob = await upload(pathname, file, {
-                access: 'public',
-                handleUploadUrl: '/blobserver',
-                multipart: optForMultiPartUpload,
-                clientPayload: \`\${file.type}\`,
-                onUploadProgress: (progress) => {
-                  const { percentage } = progress
-                  // console.log(\`Upload Progress: \${percentage}%\`);
-                  document.getElementById('progressBar').value = \`\${percentage}\`
-                  document.getElementById('progressSpan').style.display = 'block'
-                  document.getElementById('progressSpan').textContent = \`\${percentage} %\`
-                  document.getElementById('currentFile').style.display = 'block'
-                  document.getElementById('currentFile').textContent = file.name
-                },
-              })
-              if (newBlob.ok) {
-                document.getElementById('progressSpan').style.display = 'none'
-                document.getElementById('fileMetadata').style.display = 'none'
-                document.getElementById('currentFile').style.display = 'none'
-                // Show saved alert when "OK" response (200) is received from the server.
-                showAlert({ BgColor: '#1bd13d', Text: '✔ File Saved' })
-              }
-              // Reset the 'multipart' option.
-              optForMultiPartUpload = false
-            } catch (error) {
-              console.error('Error uploading file:', error)
-              alert(\`An error occurred while uploading: \${file.name}. Please try again.\`)
-              continue
-            }
-          }
-        }
-      })
-
-      document.getElementById('uploadBox').addEventListener('change', (event) => {
-        const files = Array.from(event.target.files) // Convert FileList to an array.
-        document.getElementById('uploadButton').disabled = !files
-        if (files) {
-          for (file of files) {
-            const div = document.createElement('div')
-            div.innerHTML = \`
-                <h3 style="color: #205c89;">File : \${file.name}</h3>
-                <p style="color: #64770e;"><strong>Type:</strong> <span style="color: #76ddbe;">\${file.type}</span></p>
-                <p style="color: #64770e;"><strong>Size:</strong> <span style="color: #76ddbe;">\${
-              (file.size / (1024 * 1024)).toFixed(2)
-            } MB</span></p>
-            \`
-            document.getElementById('fileMetadata').appendChild(div)
-          }
-          document.getElementById('fileMetadata').style.display = 'block'
-        } else {
-          document.getElementById('fileMetadata').style.display = 'none'
-        }
-      })
-
-      document.getElementById('Stores').addEventListener('change', function () {
-        var dropdown = document.getElementById('Stores')
-        var chosenStore = dropdown.options[dropdown.selectedIndex]
-        var Colour = chosenStore.getAttribute('data-Colour')
-        document.getElementById('viewBox').style.backgroundColor = Colour
-        document.getElementById('Header').innerText = chosenStore.value
-      })
-
-      // Show Alerts depending upon the response received.
-      function showAlert({ BgColor = '#fff', Text = 'Alert' } = {}) {
-        var alertBox = document.createElement('div')
-        alertBox.className = 'Alerts'
-        alertBox.style.backgroundColor = BgColor
-        alertBox.textContent = Text
-        document.body.appendChild(alertBox)
-        setTimeout(() => {
-          alertBox.remove()
-        }, 1000)
-      }
-
-      // Retrive the Files from BLob storage.
-      async function getFiles() {
-        try {
-          const Folder_Name = document.getElementById('Stores').value
-          const response = await fetch(\`/blobserver?TASK=List&FOLDER_NAME=\${Folder_Name}\`)
-          const blobs = await response.json()
-          document.getElementById('viewBox').innerHTML = ''
-          let count = 1
-          for (let blob of blobs) {
-            const div = document.createElement('div')
-            div.className = 'fileDiv'
-            const name = blob.pathname.split('/').slice(-1)[0]
-            const size = (blob.size / 1000000).toFixed(2) + 'MB',
-              downloadLink = blob.downloadUrl,
-              Link = blob.url
-            div.ondblclick = () => navigator.clipboard.writeText(Link)
-            div.innerHTML = \`
-              <button class="toggle-btn" onclick="toggleButtons(this)">☰</button>
-              <p>\${count++}. \${name} [\${size}]</p>
-                <div class="cell-buttons-div">
-                  <button onclick="downloadFile('\${downloadLink}')">📥</button>
-                  <button onclick="renameFile('\${Link}')">✏️</button>
-                  <button onclick="deleteFile('\${Link}')">❌</button>
-                </div>
-            \`
-            document.getElementById('viewBox').appendChild(div)
-          }
-        } catch (error) {
-          console.error('Error fetching or parsing data:', error)
-        }
-      }
-
-      function downloadFile(Link) {
-        const frame = document.getElementById('downloadFrame')
-        frame.src = Link
-        /*
-  setTimeout(() => {
-  frame.src = '';
-  }, 5000);
-  */
-      }
-
-      /*
-// X-Mini browser redirects to the download link, thus leaving the tab, instead of downloading the file. So an alternative method (Iframe) is used.
-// Main stream browsers support the below method without leaving the tab.
-function downloadFile(Link) {
-    const url = document.createElement('a');
-    url.href = Link;
-    url.click();
-}
-			*/
-
-      async function renameFile(Link) {
-        const newFileName = prompt('Enter the new file name:')
-        const newPathName = \`\${document.getElementById('Stores').value}/\${newFileName}\`
-        if (newFileName) {
-          try {
-            const response = await fetch(\`/BlobServer?TASK=Rename&FILE_URL=\${Link}&NEW_PATHNAME=\${newPathName}\`)
-            if (response.ok) {
-              showAlert({ BgColor: '#1bd13d', Text: \`✔ File Renamed\` })
-            } else {
-              const errorData = await response.json()
-              console.error('Error from server:', errorData.error)
-            }
-          } catch (error) {
-            console.error('Error renaming file:', error)
-          }
-        }
-      }
-
-      async function deleteFile(Link) {
-        const confirmDelete = confirm('Are you sure you want to delete this file ?')
-        if (confirmDelete) {
-          try {
-            const response = await fetch(\`/BlobServer?TASK=Delete&URL=\${Link}\`)
-            if (response.ok) {
-              showAlert({ BgColor: '#f2074e', Text: \`✖ File Deleted\` })
-            } else {
-              const errorData = await response.json()
-              alert('Error from server:', errorData.error)
-            }
-          } catch (error) {
-            alert('Error deleting file:', error)
-          }
-        }
-      }
-
-      // Toggle the Action/Menu Buttons for each file.
-      function toggleButtons(button) {
-        // Toggle the rotation of the button
-        button.style.transform = button.style.transform === 'rotate(180deg)' ? 'rotate(0deg)' : 'rotate(180deg)'
-        // Get all elements (NodeList) with the class '.cell-buttons-div' and convert the NodeList into an array.
-        const cellsArr = Array.from(document.querySelectorAll('.cell-buttons-div'))
-        // Find the index of the target element
-        const currentDiv = cellsArr.indexOf(button.nextElementSibling.nextElementSibling)
-        // Remove the current button from the list (1 element starting at currentDiv)
-        cellsArr.splice(currentDiv, 1)
-        // Hide all div elements except the one being toggled
-        for (let element of cellsArr) {
-          element.style.display = 'none'
-        }
-        // Toggle the display of the buttons div
-        const buttonsDiv = button.nextElementSibling.nextElementSibling // Skip over the <p> and target the next div.
-        buttonsDiv.style.display = buttonsDiv.style.display === 'block' ? 'none' : 'block'
-      }
-
-      // Keyboard Shortcuts for different Functions
-      let arrowRightPressed = false
-      document.addEventListener('keydown', function (event) {
-        if (event.key === 'ArrowRight') {
-          arrowRightPressed = true
-        }
-
-        if (arrowRightPressed) {
-          if (event.key === 'ArrowUp') {
-            document.getElementById('uploadButton').click()
-          } else if (event.key === 'ArrowDown') {
-            getFiles()
-          } else if (event.key === 'End') {
-            document.getElementById('clearBtn').click()
-          }
-        }
-      })
-
-      document.addEventListener('keyup', function (event) {
-        if (event.key === 'ArrowRight') {
-          arrowRightPressed = false
-        }
-      })
-    </script>
-  </body>
-</html>
-`
-
-export const VercelUpload = `;(() => {
+;(() => {
   var De = Object.create
   var te = Object.defineProperty
   var Xe = Object.getOwnPropertyDescriptor
@@ -867,7 +192,7 @@ export const VercelUpload = `;(() => {
   var z = B((Jt, pe) => {
     function Ze(e, t) {
       if (typeof e != 'function') {
-        throw new TypeError(\`Expected the first argument to be a function.\`)
+        throw new TypeError('Expected the first argument to be a function.')
       }
       let r, n = 0
       return function (...a) {
@@ -951,12 +276,12 @@ export const VercelUpload = `;(() => {
     if (e?.token) return e.token
     if (process.env.BLOB_READ_WRITE_TOKEN) return process.env.BLOB_READ_WRITE_TOKEN
     throw new u(
-      'No token found. Either configure the \`BLOB_READ_WRITE_TOKEN\` environment variable, or pass a \`token\` option to your calls.',
+      'No token found. Either configure the `BLOB_READ_WRITE_TOKEN` environment variable, or pass a `token` option to your calls.',
     )
   }
   var u = class extends Error {
     constructor(e) {
-      super(\`Vercel Blob: \${e}\`)
+      super(`Vercel Blob: ${e}`)
     }
   }
   function G(e) {
@@ -983,7 +308,7 @@ export const VercelUpload = `;(() => {
     try {
       t = process.env.VERCEL_BLOB_API_URL || process.env.NEXT_PUBLIC_VERCEL_BLOB_API_URL
     } catch {}
-    return \`\${t || 'https://blob.vercel-storage.com'}\${e}\`
+    return `${t || 'https://blob.vercel-storage.com'}${e}`
   }
   var he = typeof TextEncoder == 'function' ? new TextEncoder() : null
   function Be(e) {
@@ -1045,7 +370,7 @@ export const VercelUpload = `;(() => {
       (ye = process.env.NEXT_PUBLIC_DEBUG) != null && ye.includes('blob')) && (Ae = !0)
   } catch {}
   function b(e, ...t) {
-    Ae && console.debug(\`vercel-blob: \${e}\`, ...t)
+    Ae && console.debug(`vercel-blob: ${e}`, ...t)
   }
   var Ce = typeof A == 'function',
     dt = Ce && ke,
@@ -1140,13 +465,13 @@ export const VercelUpload = `;(() => {
     },
     yt = class extends u {
       constructor(e) {
-        super(\`Content type mismatch, \${e}.\`)
+        super(`Content type mismatch, ${e}.`)
       }
     },
     bt = class extends u {
       constructor(e) {
         super(
-          \`Pathname mismatch, \${e}. Check the pathname used in upload() or put() matches the one from the client token.\`,
+          `Pathname mismatch, ${e}. Check the pathname used in upload() or put() matches the one from the client token.`,
         )
       }
     },
@@ -1157,7 +482,7 @@ export const VercelUpload = `;(() => {
     },
     wt = class extends u {
       constructor(e) {
-        super(\`File is too large, \${e}.\`)
+        super(`File is too large, ${e}.`)
       }
     },
     _t = class extends u {
@@ -1188,9 +513,9 @@ export const VercelUpload = `;(() => {
     Et = class extends u {
       constructor(e) {
         super(
-          \`Too many requests please lower the number of concurrent requests \${
-            e ? \` - try again in \${e} seconds\` : ''
-          }.\`,
+          `Too many requests please lower the number of concurrent requests ${
+            e ? ` - try again in ${e} seconds` : ''
+          }.`,
         ), this.retryAfter = e ?? 0
       }
     },
@@ -1205,7 +530,7 @@ export const VercelUpload = `;(() => {
     try {
       e = process.env.VERCEL_BLOB_API_VERSION_OVERRIDE || process.env.NEXT_PUBLIC_VERCEL_BLOB_API_VERSION_OVERRIDE
     } catch {}
-    return \`\${e ?? Rt}\`
+    return `${e ?? Rt}`
   }
   function Ut() {
     try {
@@ -1282,7 +607,7 @@ export const VercelUpload = `;(() => {
       s = Re(r),
       a = Pt(),
       [, , , o = ''] = s.split('_'),
-      i = \`\${o}:\${Date.now()}:\${Math.random().toString(16).slice(2)}\`,
+      i = `${o}:${Date.now()}:${Math.random().toString(16).slice(2)}`,
       c = 0,
       d = 0,
       l = 0,
@@ -1300,7 +625,7 @@ export const VercelUpload = `;(() => {
               'x-api-blob-request-attempt': String(c),
               'x-api-version': n,
               ...m ? { 'x-content-length': String(d) } : {},
-              authorization: \`Bearer \${s}\`,
+              authorization: `Bearer ${s}`,
               ...a,
               ...t.headers,
             },
@@ -1335,7 +660,7 @@ export const VercelUpload = `;(() => {
     }, {
       retries: Ut(),
       onRetry: (p) => {
-        p instanceof Error && b(\`retrying API request to \${e}\`, p.message), c = c + 1
+        p instanceof Error && b(`retrying API request to ${e}`, p.message), c = c + 1
       },
     })
     if (!y) throw new Ie()
@@ -1376,8 +701,8 @@ export const VercelUpload = `;(() => {
   }
   async function L({ pathname: e, options: t, extraChecks: r, getToken: n }) {
     if (!e) throw new u('pathname is required')
-    if (e.length > ve) throw new u(\`pathname is too long, maximum length is \${ve}\`)
-    for (let s of ot) if (e.includes(s)) throw new u(\`pathname cannot contain "\${s}", please encode it if needed\`)
+    if (e.length > ve) throw new u(`pathname is too long, maximum length is ${ve}`)
+    for (let s of ot) if (e.includes(s)) throw new u(`pathname cannot contain "${s}", please encode it if needed`)
     if (!t) throw new u('missing options, see usage')
     if (t.access !== 'public') throw new u('access must be "public"')
     return r && r(t), n && (t.token = await n(e, t)), t
@@ -1390,7 +715,7 @@ export const VercelUpload = `;(() => {
   }
   async function Y({ uploadId: e, key: t, pathname: r, parts: n, headers: s, options: a }) {
     try {
-      let o = await F(\`/mpu/\${r}\`, {
+      let o = await F(`/mpu/${r}`, {
         method: 'POST',
         headers: {
           ...s,
@@ -1416,7 +741,7 @@ export const VercelUpload = `;(() => {
   async function K(e, t, r) {
     b('mpu: create', 'pathname:', e)
     try {
-      let n = await F(\`/mpu/\${e}\`, {
+      let n = await F(`/mpu/${e}`, {
         method: 'POST',
         headers: { ...t, 'x-mpu-action': 'create' },
         signal: r.abortSignal,
@@ -1459,7 +784,7 @@ export const VercelUpload = `;(() => {
     },
   ) {
     var i, c, d
-    let l = F(\`/mpu/\${r}\`, {
+    let l = F(`/mpu/${r}`, {
       signal: a.signal,
       method: 'POST',
       headers: {
@@ -1478,7 +803,7 @@ export const VercelUpload = `;(() => {
     let y = await l
     return (d = s.abortSignal) == null || d.removeEventListener('abort', m), y
   }
-  var $e = typeof window < 'u' ? 6 : 8, J = 8 * 1024 * 1024, C = $e * J * 2
+  var $e = typeof globalThis < 'u' ? 6 : 8, J = 8 * 1024 * 1024, C = $e * J * 2
   function Ct({ uploadId: e, key: t, pathname: r, stream: n, headers: s, options: a, totalToLoad: o }) {
     b('mpu: upload init', 'key:', t)
     let i = new AbortController()
@@ -1511,7 +836,7 @@ export const VercelUpload = `;(() => {
             'activeUploads:',
             p,
             'currentBytesInMemory:',
-            \`\${w(h)}/\${w(C)}\`,
+            `${w(h)}/${w(C)}`,
             'bytesSent:',
             w(E),
           ), _ = !0;
@@ -1544,7 +869,7 @@ export const VercelUpload = `;(() => {
             O(f)
           }
         }
-        b('mpu: upload read end', 'activeUploads:', p, 'currentBytesInMemory:', \`\${w(h)}/\${w(C)}\`, 'bytesSent:', w(E)),
+        b('mpu: upload read end', 'activeUploads:', p, 'currentBytesInMemory:', `${w(h)}/${w(C)}`, 'bytesSent:', w(E)),
           _ = !1
       }
       async function Fe(f) {
@@ -1558,7 +883,7 @@ export const VercelUpload = `;(() => {
             'activeUploads:',
             p,
             'currentBytesInMemory:',
-            \`\${w(h)}/\${w(C)}\`,
+            `${w(h)}/${w(C)}`,
             'bytesSent:',
             w(E),
           )
@@ -1585,7 +910,7 @@ export const VercelUpload = `;(() => {
               'activeUploads',
               p,
               'currentBytesInMemory:',
-              \`\${w(h)}/\${w(C)}\`,
+              `${w(h)}/${w(C)}`,
               'bytesSent:',
               w(E),
             ), T
@@ -1645,7 +970,7 @@ export const VercelUpload = `;(() => {
       let i = await L({ pathname: s, options: o, extraChecks: r, getToken: t }), c = I(e, i)
       if (i.multipart === !0) return It(s, a, c, i)
       let d = i.onUploadProgress ? (0, He.default)(i.onUploadProgress, 100) : void 0,
-        l = await F(\`/\${s}\`, { method: 'PUT', body: a, headers: c, signal: i.abortSignal }, {
+        l = await F(`/${s}`, { method: 'PUT', body: a, headers: c, signal: i.abortSignal }, {
           ...i,
           onUploadProgress: d,
         })
@@ -1690,26 +1015,26 @@ export const VercelUpload = `;(() => {
   }
   function M(e) {
     return function (r) {
-      if (!r.token.startsWith('vercel_blob_client_')) throw new u(\`\${e} must be called with a client token\`)
+      if (!r.token.startsWith('vercel_blob_client_')) throw new u(`${e} must be called with a client token`)
       if (r.addRandomSuffix !== void 0 || r.cacheControlMaxAge !== void 0) {
         throw new u(
-          \`\${e} doesn't allow addRandomSuffix and cacheControlMaxAge. Configure these options at the server side when generating client tokens.\`,
+          `${e} doesn't allow addRandomSuffix and cacheControlMaxAge. Configure these options at the server side when generating client tokens.`,
         )
       }
     }
   }
-  var hr = Z({ allowedOptions: ['contentType'], extraChecks: M('client/\`put\`') }),
-    mr = Me({ allowedOptions: ['contentType'], extraChecks: M('client/\`createMultipartUpload\`') }),
-    yr = qe({ allowedOptions: ['contentType'], extraChecks: M('client/\`createMultipartUpload\`') }),
-    br = Oe({ allowedOptions: ['contentType'], extraChecks: M('client/\`multipartUpload\`') }),
-    gr = Le({ allowedOptions: ['contentType'], extraChecks: M('client/\`completeMultipartUpload\`') }),
+  var hr = Z({ allowedOptions: ['contentType'], extraChecks: M('client/`put`') }),
+    mr = Me({ allowedOptions: ['contentType'], extraChecks: M('client/`createMultipartUpload`') }),
+    yr = qe({ allowedOptions: ['contentType'], extraChecks: M('client/`createMultipartUpload`') }),
+    br = Oe({ allowedOptions: ['contentType'], extraChecks: M('client/`multipartUpload`') }),
+    gr = Le({ allowedOptions: ['contentType'], extraChecks: M('client/`completeMultipartUpload`') }),
     Ve = Z({
       allowedOptions: ['contentType'],
       extraChecks(e) {
-        if (e.handleUploadUrl === void 0) throw new u("client/\`upload\` requires the 'handleUploadUrl' parameter")
+        if (e.handleUploadUrl === void 0) throw new u("client/`upload` requires the 'handleUploadUrl' parameter")
         if (e.addRandomSuffix !== void 0 || e.cacheControlMaxAge !== void 0) {
           throw new u(
-            "client/\`upload\` doesn't allow addRandomSuffix and cacheControlMaxAge. Configure these options at the server side when generating client tokens.",
+            "client/`upload` doesn't allow addRandomSuffix and cacheControlMaxAge. Configure these options at the server side when generating client tokens.",
           )
         }
       },
@@ -1755,7 +1080,7 @@ export const VercelUpload = `;(() => {
       return !1
     }
   }
-  window.upload = Ve
+  globalThis.upload = Ve
 })()
 /*! Bundled license information:
 
@@ -1775,4 +1100,3 @@ is-buffer/index.js:
    * MIT Licensed
    *)
 */
-`

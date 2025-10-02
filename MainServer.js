@@ -19,24 +19,24 @@ import {
   TgChannels,
 } from './Functions.js'
 
-import { Deno } from './NodeCompatibility.js';
-
 // Node.js Compatibility.
-if ( !Deno.version && typeof process !== 'undefined' && process.versions?.node) { // Deno might be having 'process' var defined for Node.js compatibility. So check for Deno.version absense.
-  const { Deno, fetch } = await import('./NodeCompatibility.js');
-  globalThis.Deno = Deno;
-  globalThis.fetch = fetch;
-  console.log("Running in Node.js. Imported Deno functions for Node Compatibility. Patched fetch() to support duplex option.");
+if (!Deno.version && typeof process !== 'undefined' && process.versions?.node) { // Deno might be having 'process' var defined for Node.js compatibility. So check for Deno.version absense.
+  const { Deno, fetch } = await import('./NodeCompatibility.js')
+  globalThis.Deno = Deno
+  globalThis.fetch = fetch
+  console.log(
+    'Running in Node.js. Imported Deno functions for Node Compatibility. Patched fetch() to support duplex option.',
+  )
 }
 
 const CORS_ALLOWED_ORIGINS = ['https://1nrp.github.io'] // Allowed origins for CORS.
-const ProtectedRoutes = ['/blob', '/fyerstoken', '/getnote', '/savenote', '/deletenote', '/blobserver'] // Protected Routes. Require Authentication.
+const ProtectedRoutes = ['/blob', '/fyerstoken', '/getnote', '/savenote', '/loginstatus', '/deletenote', '/blobserver'] // Protected Routes. Require Authentication.
 const PORT = 3000
 
 // deno task run  ( For Local Development ).
-Deno.serve( MainHandler, { port: PORT } )
+Deno.serve({ port: PORT }, MainHandler)
 
-// export default MainHandler; // For Serverless Deployment On Vercel, Deno Deploy, Cloudflare Workers etc.
+// export default MainHandler; // For Serverless Deployment On Deno Deploy, Cloudflare Workers etc.
 
 const Router = new Map()
 const Route = (method, pathname, handler) => Router.set(`${method.toUpperCase()}:${pathname.toLowerCase()}`, handler)
@@ -93,7 +93,7 @@ async function MainHandler(req) {
 
   if (Handler) {
     // console.log(`HTTP Request Received: \n Method: ${method}, \n Path: ${path}`)
-    if ( ProtectedRoutes.includes(path.toLowerCase()) ) {
+    if (ProtectedRoutes.includes(path.toLowerCase())) {
       response = await ProtectedRoute(Handler, req)
     } else {
       response = await Handler(req)
