@@ -679,7 +679,7 @@ async function TgChannels() {
 
 async function GetM3U8(request) {
   const link = new URL(request.url)
-  const { shortURL, CacheOption: Cache, AccessToken: Token } = Object.fromEntries(link.searchParams)
+  const { URL: shortURL, CacheOption: Cache, AccessToken: Token } = Object.fromEntries(link.searchParams)
 
   if (Token !== 't9EmqwvV1OO4AiMq1bIxv8F9I3sxx7lgONdyPfZmOBMktgAmR2pNNfHmBoVjeQIc7') {
     return new Response('Wrong Access Token Code. Request Is Unauthorized', { status: 401 })
