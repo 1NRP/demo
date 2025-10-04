@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <meta name="theme-color" content="#02121b">
+    <link rel="icon" sizes="192x192" href="https://1nrp.github.io/1/Images/N-Logo1.png">
+    <title>Blob Store</title>
+  </head>
+  <style>
+    body {
+      color: #fff;
+      background-color: #02121b;
+    }
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: 0;
+    }
+    h2 {
+      font-family: cursive, arial, sans-serif;
+      font-size: 25px;
+      font-weight: 900;
+      margin: -8px 0px 2px 0px;
+    }
+    #TopBar {
+      display: flex;
+      flex-direction: row;
+    }
+    #Stores {
+      padding: 2px 2px;
+      border: 2px solid #555;
+      border-radius: 40px;
+      width: 80px;
+      position: absolute;
+      color: #fff;
+      background-color: #000;
+      margin: -6px 0px 0px 74vw;
+      font-weight: 500;
+    }
+    #viewBox {
+      width: 99%;
+      height: 80vh;
+      border-radius: 8px;
+      position: relative;
+      border: 2px solid #333;
+      overflow-y: scroll;
+      background-color: #111135;
+      margin: 2px;
+    }
+    #uploadBox {
+      color: #fffd;
+      min-height: 20%;
+      overflow: auto;
+      width: 65%;
+      overflow: scroll;
+      border: 2px dashed #754;
+      border-radius: 6px;
+      padding: 6px;
+    }
+    #uploadButton {
+      background-color: #205c89;
+      color: #fffb;
+      border: none;
+      font-size: 25px;
+      border-radius: 50px;
+      padding: 0px 8px 5px 7px;
+      font-weight: 1000;
+    }
+    #getFilesBtn {
+      background-color: #126419;
+      color: #fffb;
+      border: none;
+      border-radius: 50px;
+      font-size: 25px;
+      font-weight: 1000;
+      padding: 2px 8px 3px 7px;
+    }
+    #clearBtn {
+      border: none;
+      color: #fffb;
+      font-size: 25px;
+      font-weight: 1000;
+      border-radius: 50px;
+      background-color: #833;
+      padding: 0px 9px 4px 8px;
+    }
+    #clearBtn:hover,
+    #getFilesBtn:hover,
+    #uploadButton:hover {
+      background-color: #444;
+    }
+    .Alerts {
+      position: fixed;
+      /* top: 5dvh; */
+      left: 15dvw;
+      background-color: #fff;
+      color: #fffd;
+      font-weight: 900;
+      padding: 5px 5px;
+      border: none;
+      z-index: 50;
+      border-radius: 5px;
+      animation-name: Alert;
+      animation-duration: 1s;
+    }
+    /* Alert Animation */
+    @keyframes Alert {
+      from {
+        font-size: 10px;
+        top: 5dvh;
+      }
+      to {
+        font-size: 25px;
+        top: 10dvh;
+      }
+    }
+    @keyframes Menu {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+    .cell-buttons {
+      position: absolute;
+      top: 2px;
+      right: 4px;
+      display: flex;
+      gap: 25px;
+      z-index: 20;
+      margin-top: 6px;
+      background-color: #4c8fb680;
+      border: 2px solid #157c23;
+      padding: 6px;
+      opacity: 0.2;
+      border-radius: 4px;
+    }
+    .toggle-btn:hover {
+      opacity: 1;
+      background-color: #444;
+    }
+    .fileDiv {
+      border: 2px solid #960f6960;
+      border-radius: 4px;
+      overflow-y: visible;
+      height: auto;
+      position: relative;
+      margin: 2px;
+      border-radius: 6px;
+      padding: 2px;
+    }
+    .toggle-btn {
+      position: absolute;
+      right: 6px;
+      top: 6px;
+      opacity: 0.4;
+      padding: 3px 6px 2px 6px;
+      font-size: 14px;
+      background-color: #0d4257;
+      font-weight: 800;
+      border: 2px solid #444e09;
+      color: #fff;
+      transition: transform 0.2s ease;
+      border-radius: 50%;
+    }
+    .cell-buttons-div {
+      display: none;
+      position: absolute;
+      right: 50px;
+      top: 8px;
+      padding: 2px;
+      z-index: 100;
+      background-color: #265a7c;
+      border: none;
+      border-radius: 10px;
+      animation-name: Menu;
+      animation-duration: 0.5s;
+    }
+    .cell-buttons-div button {
+      margin: 2px;
+      background-color: #0d2136;
+      padding: 6px;
+      border: none;
+      border-radius: 6px;
+    }
+  </style>
+  <body>
+    <!--  * Keyboard Shortcuts: Fetch Notes: "ArrowRight + ArrowDown", Save Notes: "ArrowRight + ArrowUp", Delete Notes: "ArrowRight + End"  -->
+    <div id="TopBar">
+      <h2 id="Header">Blob Store</h2>
+      <select id="Stores">
+        <option value="Text" data-Colour="#111135">Text</option>
+        <option value="Image" data-Colour="#4e3144">Image</option>
+        <option value="Audio" data-Colour="#664337">Audio</option>
+        <option value="Video" data-Colour="#503959">Video</option>
+        <option value="Document" data-Colour="#395c42">Document</option>
+        <option value="TI_Images" data-Colour="#664337">T&I Images</option>
+        <option value="Others" data-Colour="#272729">Others</option>
+      </select>
+    </div>
+    <div id="viewBox"></div>
+    <form id="uploadForm">
+      <div style="display: flex; gap: 10px; align-items: center">
+        <button
+          id="clearBtn"
+          type="button"
+          onclick="document.getElementById('uploadBox').value=''; document.getElementById('viewBox').innerHTML=''; document.getElementById('fileMetadata').style.display='none'; document.getElementById('progressSpan').style.display = 'none';"
+        >
+          ✖
+        </button>
+        <input id="uploadBox" type="file" multiple accept="*/*" required />
+        <button id="uploadButton" type="submit">▲</button>
+        <button id="getFilesBtn" type="button" onclick="getFiles()">▼</button>
+      </div>
+    </form>
+    <progress id="progressBar" style="width: 100%; height: 15px; border: none" value="0" max="100"></progress>
+    <p
+      id="progressSpan"
+      style="display: none; border: 2px dashed #fff888; border-radius: 4px; width: auto; padding: 2px; margin-top: 2px; font-weight: 700; text-align: center; color: #fffd"
+    >
+    </p>
+    <p
+      id="currentFile"
+      style="display: none; border: 2px dashed #196d08; border-radius: 4px; width: 98.5%; padding: 2px; margin-top: 2px; text-wrap: wrap; font-size: 12px; font-weight: 600; color: #fff888"
+    >
+    </p>
+    <!-- Display file metadata -->
+    <div id="fileMetadata" style="display: none"></div>
+    <iframe id="downloadFrame" src="" name="IFrame" style="display: none"></iframe>
+    <!-- Dummy iframe to support downloading files in X-Mini browser without leaving the webpage. -->
+    <script src="upload.js"></script>
+    <!-- Bundled code for Vercel Blob's client-side 'upload' function. -->
+
+    <script>
+      // File Upload Functionality.
+      document.getElementById('uploadForm').addEventListener('submit', async (event) => {
+        event.preventDefault()
+        const fileInput = document.getElementById('uploadBox')
+        const files = Array.from(fileInput.files) // Convert FileList to an array.
+        document.getElementById('uploadButton').disabled = files.length === 0 // Disable button if no files.
+        if (files.length > 0) {
+          for (const file of files) {
+            let optForMultiPartUpload = false
+            const pathname = `${document.getElementById('Stores').value}/${file.name}`
+            if (!file) {
+              alert('Please select a file to upload.')
+              return
+            } else if (file.size > 200000000 /* 200 MB */) {
+              alert('Filesize exceeded 200 MB.')
+              return
+            } else if (file.size >= 10000000 /* 10 MB */) {
+              optForMultiPartUpload = true
+            }
+            try {
+              // Upload the file to Vercel Blob.
+              const newBlob = await upload(pathname, file, {
+                access: 'public',
+                handleUploadUrl: '/blobserver',
+                multipart: optForMultiPartUpload,
+                clientPayload: `${file.type}`,
+                onUploadProgress: (progress) => {
+                  const { percentage } = progress
+                  // console.log(`Upload Progress: ${percentage}%`);
+                  document.getElementById('progressBar').value = `${percentage}`
+                  document.getElementById('progressSpan').style.display = 'block'
+                  document.getElementById('progressSpan').textContent = `${percentage} %`
+                  document.getElementById('currentFile').style.display = 'block'
+                  document.getElementById('currentFile').textContent = file.name
+                },
+              })
+              if (newBlob.ok) {
+                document.getElementById('progressSpan').style.display = 'none'
+                document.getElementById('fileMetadata').style.display = 'none'
+                document.getElementById('currentFile').style.display = 'none'
+                // Show saved alert when "OK" response (200) is received from the server.
+                showAlert({ BgColor: '#1bd13d', Text: '✔ File Saved' })
+              }
+              // Reset the 'multipart' option.
+              optForMultiPartUpload = false
+            } catch (error) {
+              console.error('Error uploading file:', error)
+              alert(`An error occurred while uploading: ${file.name}. Please try again.`)
+              continue
+            }
+          }
+        }
+      })
+
+      document.getElementById('uploadBox').addEventListener('change', (event) => {
+        const files = Array.from(event.target.files) // Convert FileList to an array.
+        document.getElementById('uploadButton').disabled = !files
+        if (files) {
+          for (file of files) {
+            const div = document.createElement('div')
+            div.innerHTML = `
+                <h3 style="color: #205c89;">File : ${file.name}</h3>
+                <p style="color: #64770e;"><strong>Type:</strong> <span style="color: #76ddbe;">${file.type}</span></p>
+                <p style="color: #64770e;"><strong>Size:</strong> <span style="color: #76ddbe;">${
+              (file.size / (1024 * 1024)).toFixed(2)
+            } MB</span></p>
+            `
+            document.getElementById('fileMetadata').appendChild(div)
+          }
+          document.getElementById('fileMetadata').style.display = 'block'
+        } else {
+          document.getElementById('fileMetadata').style.display = 'none'
+        }
+      })
+
+      document.getElementById('Stores').addEventListener('change', function () {
+        var dropdown = document.getElementById('Stores')
+        var chosenStore = dropdown.options[dropdown.selectedIndex]
+        var Colour = chosenStore.getAttribute('data-Colour')
+        document.getElementById('viewBox').style.backgroundColor = Colour
+        document.getElementById('Header').innerText = chosenStore.value
+      })
+
+      // Show Alerts depending upon the response received.
+      function showAlert({ BgColor = '#fff', Text = 'Alert' } = {}) {
+        var alertBox = document.createElement('div')
+        alertBox.className = 'Alerts'
+        alertBox.style.backgroundColor = BgColor
+        alertBox.textContent = Text
+        document.body.appendChild(alertBox)
+        setTimeout(() => {
+          alertBox.remove()
+        }, 1000)
+      }
+
+      // Retrive the Files from BLob storage.
+      async function getFiles() {
+        try {
+          const Folder_Name = document.getElementById('Stores').value
+          const response = await fetch(`/blobserver?TASK=List&FOLDER_NAME=${Folder_Name}`)
+          const blobs = await response.json()
+          document.getElementById('viewBox').innerHTML = ''
+          let count = 1
+          for (let blob of blobs) {
+            const div = document.createElement('div')
+            div.className = 'fileDiv'
+            const name = blob.pathname.split('/').slice(-1)[0]
+            const size = (blob.size / 1000000).toFixed(2) + 'MB',
+              downloadLink = blob.downloadUrl,
+              Link = blob.url
+            div.ondblclick = () => navigator.clipboard.writeText(Link)
+            div.innerHTML = `
+              <button class="toggle-btn" onclick="toggleButtons(this)">☰</button>
+              <p>${count++}. ${name} [${size}]</p>
+                <div class="cell-buttons-div">
+                  <button onclick="downloadFile('${downloadLink}')">📥</button>
+                  <button onclick="renameFile('${Link}')">✏️</button>
+                  <button onclick="deleteFile('${Link}')">❌</button>
+                </div>
+            `
+            document.getElementById('viewBox').appendChild(div)
+          }
+        } catch (error) {
+          console.error('Error fetching or parsing data:', error)
+        }
+      }
+
+      function downloadFile(Link) {
+        const frame = document.getElementById('downloadFrame')
+        frame.src = Link
+        /*
+  setTimeout(() => {
+  frame.src = '';
+  }, 5000);
+  */
+      }
+
+      /*
+// X-Mini browser redirects to the download link, thus leaving the tab, instead of downloading the file. So an alternative method (Iframe) is used.
+// Main stream browsers support the below method without leaving the tab.
+function downloadFile(Link) {
+    const url = document.createElement('a');
+    url.href = Link;
+    url.click();
+}
+			*/
+
+      async function renameFile(Link) {
+        const newFileName = prompt('Enter the new file name:')
+        const newPathName = `${document.getElementById('Stores').value}/${newFileName}`
+        if (newFileName) {
+          try {
+            const response = await fetch(`/BlobServer?TASK=Rename&FILE_URL=${Link}&NEW_PATHNAME=${newPathName}`)
+            if (response.ok) {
+              showAlert({ BgColor: '#1bd13d', Text: `✔ File Renamed` })
+            } else {
+              const errorData = await response.json()
+              console.error('Error from server:', errorData.error)
+            }
+          } catch (error) {
+            console.error('Error renaming file:', error)
+          }
+        }
+      }
+
+      async function deleteFile(Link) {
+        const confirmDelete = confirm('Are you sure you want to delete this file ?')
+        if (confirmDelete) {
+          try {
+            const response = await fetch(`/BlobServer?TASK=Delete&URL=${Link}`)
+            if (response.ok) {
+              showAlert({ BgColor: '#f2074e', Text: `✖ File Deleted` })
+            } else {
+              const errorData = await response.json()
+              alert('Error from server:', errorData.error)
+            }
+          } catch (error) {
+            alert('Error deleting file:', error)
+          }
+        }
+      }
+
+      // Toggle the Action/Menu Buttons for each file.
+      function toggleButtons(button) {
+        // Toggle the rotation of the button
+        button.style.transform = button.style.transform === 'rotate(180deg)' ? 'rotate(0deg)' : 'rotate(180deg)'
+        // Get all elements (NodeList) with the class '.cell-buttons-div' and convert the NodeList into an array.
+        const cellsArr = Array.from(document.querySelectorAll('.cell-buttons-div'))
+        // Find the index of the target element
+        const currentDiv = cellsArr.indexOf(button.nextElementSibling.nextElementSibling)
+        // Remove the current button from the list (1 element starting at currentDiv)
+        cellsArr.splice(currentDiv, 1)
+        // Hide all div elements except the one being toggled
+        for (let element of cellsArr) {
+          element.style.display = 'none'
+        }
+        // Toggle the display of the buttons div
+        const buttonsDiv = button.nextElementSibling.nextElementSibling // Skip over the <p> and target the next div.
+        buttonsDiv.style.display = buttonsDiv.style.display === 'block' ? 'none' : 'block'
+      }
+
+      // Keyboard Shortcuts for different Functions
+      let arrowRightPressed = false
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'ArrowRight') {
+          arrowRightPressed = true
+        }
+
+        if (arrowRightPressed) {
+          if (event.key === 'ArrowUp') {
+            document.getElementById('uploadButton').click()
+          } else if (event.key === 'ArrowDown') {
+            getFiles()
+          } else if (event.key === 'End') {
+            document.getElementById('clearBtn').click()
+          }
+        }
+      })
+
+      document.addEventListener('keyup', function (event) {
+        if (event.key === 'ArrowRight') {
+          arrowRightPressed = false
+        }
+      })
+    </script>
+  </body>
+</html>

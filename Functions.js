@@ -1,5 +1,7 @@
+import { Deno } from './NodeCompatibility.js'
+
 // Node.js Compatibility.
-if ( process.env && process.env.NRP_DEPLOYMENT_ENVIRONMENT == 'Vercel' /*!Deno.version && typeof process !== 'undefined' && process.versions?.node */ ) {
+if ( !process?.env?.NRP_DEPLOYMENT_ENVIRONMENT == 'Vercel' && !Deno?.version && process?.versions?.node ) {
   const { Deno, fetch } = await import('./NodeCompatibility.js')
   globalThis.Deno = Deno
   globalThis.fetch = fetch
@@ -129,6 +131,26 @@ function pemToArrayBuffer(pem) {
   const view = new Uint8Array(buf)
   for (let i = 0; i < bin.length; i++) view[i] = bin.charCodeAt(i)
   return buf
+}
+
+// Hash Passwords using Web Crypto API.
+export async function CreatePasswordHash(password) {
+  const salt = Deno.env.get('USERNAME_PASSWORD_SALT') ?? "" // crypto.getRandomValues(new Uint8Array(16)) 
+  const encoder = new TextEncoder()
+  const dataBytes = encoder.encode(password + salt)
+  const hash = await crypto.subtle.digest( 'SHA-256', dataBytes )
+  const hashArray = Array.from(new Uint8Array(hash))
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
+  return hashHex
+}
+
+// Create Hash using Web Crypto API.
+export async function CreateHash(text) {
+  const dataBytes = new TextEncoder().encode(text)
+  const hash = await crypto.subtle.digest('SHA-256', dataBytes)
+  const hashArray = Array.from(new Uint8Array(hash))
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
+  return hashHex
 }
 
 export async function CreateJWT(username) {
@@ -320,7 +342,7 @@ export async function ServeStaticFile(FilePath) {
   let File
   const Environment = Deno.env.get('NRP_DEPLOYMENT_ENVIRONMENT')
 
-  if (Environment == 'Vercel') { // For Vercel bundling compatibility.
+  if (Environment == 'Vercel') { // For Vercel bundling compatibility of static files.
     const files = await import('./StaticFiles.js')
     const exportName = FilePath.split('/').pop().split('.').shift()
     File = files[exportName]
@@ -386,7 +408,7 @@ export async function ProtectedRoute(Handler, req) {
 	<body style="background-color: #02121b">
       <h2 style="color:#d88; font-weight: 800; text-align: center; font-size: 30px; margin-top: 20vh;"> Unauthorized: Missing Token. </h2>
       <h3 style="color: #e6b61a; font-weight: 600; text-align: center; font-size: 20px;"> Redirecting To Sign In Page... </h3>
-      <script> setTimeout(() => { window.location.href = '/login' }, 2000) </script>
+      <script> setTimeout(() => { window.location.href = '/login' }, 1000) </script>
 	</body>
   </html>
 	`
@@ -410,30 +432,7 @@ export async function ProtectedRoute(Handler, req) {
   }
 
   // Pass the request and the verified payload to the actual handler.
-  return Handler(req /* ,payload */)
-}
-
-export async function StaticFilesExporter(fileNamesArray) {
-  const textArr = []
-
-  function escapeTemplateLiteral(text) {
-    return text
-      .replace(/`/g, '\\`') // escape backticks.
-      .replace(/\${/g, '\\${') // escape ${ interpolation.
-  }
-
-  for (const file of fileNamesArray) {
-    const text = await Deno.readTextFile('./' + file)
-    const safeText = escapeTemplateLiteral(text)
-    const varName = file.replace(/\.[^.]+$/, '') // strip file extension.
-    const format = `export const ${varName} = \`${safeText}\``
-    textArr.push(format)
-  }
-
-  const output = textArr.join('\n\n')
-  await Deno.writeTextFile('./StaticFiles.js', output)
-
-  console.log('✅ StaticFiles.js Generated')
+  return await Handler(req /* ,payload */)
 }
 
 export async function TeraboxCloudflare(request) {
@@ -488,17 +487,18 @@ export async function CorsProxy(req) {
   try {
     const Link = new URL(req.url).searchParams.get('URL')
     const response = await fetch(Link)
-
-    response.headers.set('Cache-Control', 'public, max-age=3600')
-    response.headers.set('Access-Control-Allow-Origin', 'https://1nrp.github.io')
-
-    return response
+    
+    const resp = new Response(response.body)
+    resp.headers.set('Cache-Control', 'public, max-age=3600')
+    resp.headers.set('Access-Control-Allow-Origin', 'https://1nrp.github.io')
+    return resp
   } catch (error) {
     console.error('Error:', error)
   }
 }
 
 export async function DatabaseDeletionPreventionCRONJob() {
+  const { put: PUT } = await import('@vercel/blob')
   try {
     const today = new Date().toLocaleDateString('en-GB').replaceAll('/', '-') // Format the date to YYYY-MM-DD instead of MM/DD/YYYY to avoid issues of creating a new folder with the date as the name.
     const date = `[ Date: ${today} ]` // Can be used to differentiate names of the saved Blob files in database, as the names will be prefixed with different dates.
@@ -509,9 +509,9 @@ export async function DatabaseDeletionPreventionCRONJob() {
     // For Vercel BLOB.
     const blobFileName = `Database-Deletion-Prevention/${date} Vercel-Blob-Database-Deletion-Prevention.txt`
     const textContent =
-      `${date} Vercel-BLOB-Database-Deletion-Prevention. This text is sent to the Vercel Blob database every 15 days to ensure the database does not get deleted due to inactivity, as Vercel deletes a database if not used (GET or POST) for more than 1 month.`
+      `${date} Vercel-BLOB-Database-Deletion-Prevention. This text is sent to the Vercel Blob database every 10 days to ensure the database does not get deleted due to inactivity, as Vercel deletes a database if not used (GET or POST) for more than 1 month.`
     //const token = process.env.BLOB_READ_WRITE_TOKEN;  // Uncomment if needed.
-    const saveBlob = await put(blobFileName, textContent, {
+    const saveBlob = await PUT(blobFileName, textContent, {
       access: 'public',
       addRandomSuffix: false,
       ContentType: 'text/plain',
@@ -534,7 +534,7 @@ export async function DatabaseDeletionPreventionCRONJob() {
 
 export async function FyersToken(req) {
   try {
-    const appHash = await Deno.env.get('FYERS_APP_HASH') // The 'appID' and 'appSecret' are already Hashed and stored in environment variables.
+    const appHash = Deno.env.get('FYERS_APP_HASH') // The 'appID' and 'appSecret' are already Hashed and stored in environment variables.
     const url = new URL(req.url)
     const auth_code = url.searchParams.get('auth_code')
     const Token = url.searchParams.get('Token')
@@ -629,12 +629,12 @@ export { CheckIfExists, DeleteLink, GetLink, GetM3U8, SaveLink, TgChannels }
 async function GetLink() {
   try {
     const response = await UPSTASH.LRANGE('TB_Links')
-    response.headers.set('Cache-Control', 'public, max-age=10, stale-while-revalidate=172800')
-    response.headers.set('Access-Control-Allow-Origin', 'https://1nrp.github.io')
-    return response
+    const resp = new Response(response.body)
+    resp.headers.set('Cache-Control', 'public, max-age=10, stale-while-revalidate=172800')
+    return resp
   } catch (error) {
     console.error(error) // Log the error for debugging.
-    return new Response('An error occurred while fetching from Upstash.', { status: 500 })
+    return new Response('An error occurred while fetching from KV.', { status: 500 })
   }
 }
 
@@ -643,7 +643,7 @@ async function CheckIfExists(req) {
     return await UPSTASH.LPOS('TB_Links', req.body)
   } catch (error) {
     console.error(error)
-    return new Response('An error occurred while checking if exists or not in Upstash.', { status: 500 })
+    return new Response('An error occurred while checking if exists or not in KV.', { status: 500 })
   }
 }
 
@@ -652,7 +652,7 @@ async function DeleteLink(req) {
     return await UPSTASH.LREM('TB_Links', req.body)
   } catch (error) {
     console.error(error)
-    return new Response('An error occurred while sending to Upstash.', { status: 500 })
+    return new Response('An error occurred while sending to KV.', { status: 500 })
   }
 }
 
@@ -661,25 +661,26 @@ async function SaveLink(req) {
     return await UPSTASH.LPUSH('TB_Links', req.body)
   } catch (error) {
     console.error(error)
-    return new Response('An error occurred while sending to Upstash.', { status: 500 })
+    return new Response('An error occurred while sending to KV.', { status: 500 })
   }
 }
 
 async function TgChannels() {
   try {
     const response = await UPSTASH.LRANGE('TG_Channels')
-    response.headers.set('Cache-Control', 'public, max-age=600, stale-while-revalidate=604800') // Cache for 10 minutes (600 seconds). Revalidate after 1 week (6,04,800 seconds).
+    const resp = new Response(response.body)
+    resp.headers.set('Cache-Control', 'public, max-age=600, stale-while-revalidate=604800') // Cache for 10 minutes (600 seconds). Revalidate after 1 week (6,04,800 seconds).
+    return resp
   } catch (error) {
     console.error(error) // Log the error for debugging.
-    return new Response('An error occurred while fetching from Upstash.', { status: 500 })
+    return new Response('An error occurred while fetching from KV.', { status: 500 })
   }
 }
 
 async function GetM3U8(request) {
-  const link = new URL('https://example.com' + request.url) // Express provides only the path in Request.url.
-  const shortURL = link.searchParams.get('URL')
-  const Cache = link.searchParams.get('CacheOption') === 'Yes' // Convert Cache to boolean.
-  const Token = link.searchParams.get('AccessToken')
+  const link = new URL(request.url)
+  const { shortURL, CacheOption, Token } = Object.fromEntries(link.searchParams)
+  const Cache = CacheOption == 'Yes' // Convert Cache to boolean.
 
   if (Token !== 't9EmqwvV1OO4AiMq1bIxv8F9I3sxx7lgONdyPfZmOBMktgAmR2pNNfHmBoVjeQIc7') {
     return new Response('Wrong Access Token Code. Request Is Unauthorized', { status: 401 })
@@ -695,9 +696,9 @@ async function GetM3U8(request) {
 
     // Not Adding The Cookie Header Only Fetches 30 Seconds Of The Video. Get it by Inspecting the Network Tab of the Terabox Webpage.
     const tbHeaders = new Headers()
-    const Cookie =
+    const cookie =
       'csrfToken=d4XE8GgrDLUWGi0VrMhBGhoj; browserid=MplsviPBWAXvHjkmrC50dtNbTtZ-TZoz-SwtrA2TOr1GDCXPUyQNkKiIEg0=; lang=en; TSID=TVXQQOOR4DxS9SWcPPDzjRWcwWUuHZgC; __bid_n=196b99dccf129ec2e74207; g_state={"i_l":0}; ndus=YuAqZKCteHuiYFHuyxk-Lx0nXsIscEwH1afty9gM; ndut_fmt=686106BA8EABE19FE3B1B80A4B2D9A932FEFE4938C490620A3404BE764E6DB76'
-    tbHeaders.set('Cookie', Cookie)
+    tbHeaders.set('Cookie', cookie)
 
     //tbHeaders.append('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0');
     //tbHeaders.append('Accept', '*/*');
@@ -730,11 +731,11 @@ async function GetM3U8(request) {
       `https://dm.1024tera.com/share/streaming?uk=${uk}&shareid=${shareid}&type=M3U8_FLV_264_480&fid=${fs_id}&sign=e079e32543e8a8e08d13776fc9e6c3fdaec67489&timestamp=1746887076&jsToken=1F1DA1DCB0EDBEBF4D4026783231FF6C9B4DB9B51B9760AA7BDD646E468831907207153BCE380C6E022CF085CFB889982CF47DC211FCCFBE69AE839F30F263E0CEBA873FED7A8A6AE0102FEF4265151A7491413528A981953B8CCE16C5FD12EE&esl=1&isplayer=1&ehps=1&clienttype=0&app_id=250528&web=1&channel=dubox&short_link=5`
 
     const response = await fetch(m3u8Url, { headers: tbHeaders })
-    response.headers.set('Content-Type', 'application/x-mpegURL')
-    response.headers.set('Access-Control-Allow-Origin', 'https://1nrp.github.io')
-    response.headers.set('Cache-Control', 'max-age=86400')
+    const resp = new Response(response.body)
+    resp.headers.set('Content-Type', 'application/x-mpegURL')
+    resp.headers.set('Cache-Control', 'max-age=86400')
 
-    return response
+    return resp
   } catch (error) {
     console.error('Error:', error)
     return new Response('An error occurred.', { status: 500 })
