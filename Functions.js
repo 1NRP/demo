@@ -232,7 +232,7 @@ export async function VerifyJWT(token) {
 // Blob Server.
 export async function BlobServer(req) {
   if (req.method === 'POST') { // The token generation request is a "POST" request.
-    const body = req.body
+    const body = await req.blob()
     const { handleUpload } = await import('@vercel/blob/client')
     try {
       const jsonResponse = await handleUpload({
@@ -249,7 +249,10 @@ export async function BlobServer(req) {
           return tokenPayload
         },
       })
-      return new Response(jsonResponse)
+      return new Response(jsonResponse, {
+		  status: 200,
+		  headers: { 'Content-Type': 'application/json' }
+	  })
     } catch (error) {
       console.error('Error while handling the upload:', error)
       return new Response(JSON.stringify({ error: error.message }))
@@ -436,7 +439,7 @@ export async function ProtectedRoute(Handler, req) {
 }
 
 export async function TeraboxCloudflare(request) {
-  const { shortURL, CacheOption, Token } = Object.fromEntries(new URL(request.url).searchParams)
+  const { URL: shortURL, CacheOption, AccessToken: Token } = Object.fromEntries(new URL(request.url).searchParams)
   const Cache = CacheOption === 'Yes' // Convert Cache to boolean.
 
   if (Token !== 'cloudF-code-0088') {
