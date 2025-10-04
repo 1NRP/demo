@@ -20,7 +20,7 @@ import {
 } from './Functions.js'
 
 // Node.js Compatibility.
-if (!Deno?.version && process?.versions?.node) { // Deno might be having 'process' var defined for Node.js compatibility. So check for Deno.version absense.
+if (typeof Deno == 'undefined' && process?.versions?.node) { // Deno might be having 'process' var defined for Node.js compatibility. So check for Deno.version absense.
   const { Deno, fetch } = await import('./NodeCompatibility.js')
   globalThis.Deno = Deno
   globalThis.fetch = fetch
