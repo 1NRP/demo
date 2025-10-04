@@ -679,8 +679,7 @@ async function TgChannels() {
 
 async function GetM3U8(request) {
   const link = new URL(request.url)
-  const { shortURL, CacheOption, Token } = Object.fromEntries(link.searchParams)
-  const Cache = CacheOption == 'Yes' // Convert Cache to boolean.
+  const { shortURL, CacheOption: Cache, AccessToken: Token } = Object.fromEntries(link.searchParams)
 
   if (Token !== 't9EmqwvV1OO4AiMq1bIxv8F9I3sxx7lgONdyPfZmOBMktgAmR2pNNfHmBoVjeQIc7') {
     return new Response('Wrong Access Token Code. Request Is Unauthorized', { status: 401 })
@@ -710,7 +709,7 @@ async function GetM3U8(request) {
 
     // Fetch short URL info.
     const apiUrl = `https://www.terabox.app/api/shorturlinfo?shorturl=${shortURL}&root=1`
-    const options = Cache
+    const options = Cache = 'Yes'
       ? { headers: tbHeaders, cf: { cacheTtl: 31536000, cacheEverything: true } }
       : { headers: tbHeaders }
     const infoResponse = await fetch(apiUrl, options)
