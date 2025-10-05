@@ -1,9 +1,8 @@
 // Node.js Compatibility.
-if ( process && process.env.NRP_DEPLOYMENT_ENVIRONMENT == 'Vercel' ) { // Deno might be having 'process' var defined for Node.js compatibility. So check for other parameters.
+if ( typeof Deno?.version == 'undefined' && typeof process != 'undefined' && process.versions?.node ) { // Deno might be having 'process' var defined for Node.js compatibility. So check for Deno.version absense.
   const { Deno, fetch } = await import('./NodeCompatibility.js')
   globalThis.Deno = Deno
   globalThis.fetch = fetch
-  console.log("Running On Vercel. Imported Custom Deno Object.")
 }
 
 export async function SendJson(res) { // 'res' is a Response object.
@@ -353,7 +352,7 @@ export async function ServeStaticFile(FilePath) {
   let File
   const Environment = Deno.env.get('NRP_DEPLOYMENT_ENVIRONMENT')
 
-  if (Environment == 'vVercel') { // For Vercel bundling compatibility of static files.
+  if (Environment == 'Vercel') { // For Vercel bundling compatibility of static files.
     const files = await import('./StaticFiles.js')
     const exportName = FilePath.split('/').pop().split('.').shift()
     File = files[exportName]
