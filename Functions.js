@@ -1,8 +1,9 @@
 // Node.js Compatibility.
-if ( typeof Deno == 'undefined' && typeof process != 'undefined' && process.versions?.node ) { // Deno might be having 'process' var defined for Node.js compatibility. So check for Deno.version absense.
+if ( process && process.env.NRP_DEPLOYMENT_ENVIRONMENT == 'Vercel' ) { // Deno might be having 'process' var defined for Node.js compatibility. So check for other parameters.
   const { Deno, fetch } = await import('./NodeCompatibility.js')
   globalThis.Deno = Deno
   globalThis.fetch = fetch
+  console.log("Running On Vercel. Imported Custom Deno Object.")
 }
 
 export async function SendJson(res) { // 'res' is a Response object.
