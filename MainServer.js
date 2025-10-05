@@ -20,7 +20,7 @@ import {
 } from './Functions.js'
 
 // Node.js Compatibility.
-if (typeof Deno == 'undefined' && process?.versions?.node) { // Deno might be having 'process' var defined for Node.js compatibility. So check for Deno.version absense.
+if (!Deno.version && typeof process !== 'undefined' && process.versions?.node) { // Deno might be having 'process' var defined for Node.js compatibility. So check for Deno.version absense.
   const { Deno, fetch } = await import('./NodeCompatibility.js')
   globalThis.Deno = Deno
   globalThis.fetch = fetch
@@ -30,7 +30,7 @@ if (typeof Deno == 'undefined' && process?.versions?.node) { // Deno might be ha
 }
 
 const CORS_ALLOWED_ORIGINS = ['https://1nrp.github.io'] // Allowed origins for CORS.
-const ProtectedRoutes = ['/blob', '/fyerstoken', '/getnote', '/savenote', '/loginstatus', '/deletenote', '/blobserver'] // Protected Routes. Require Authentication.
+const ProtectedRoutes = ['/blob', '/fyerstoken', '/getnote', '/jsnb', '/savenote', '/loginstatus', '/deletenote', '/blobserver'] // Protected Routes. Require Authentication.
 const PORT = 3000
 
 // deno task run  ( For Local Development ).
@@ -46,6 +46,7 @@ Route('GET', '/login', () => ServeStaticFile('./Login.html'))
 Route('GET', '/blob', () => ServeStaticFile('./Blob.html'))
 Route('GET', '/notes', () => ServeStaticFile('./Notes.html'))
 Route('GET', '/upload.js', () => ServeStaticFile('./VercelUpload.js'))
+Route('GET', '/vue', () => ServeStaticFile('./Vue.html'))
 
 Route('GET', '/loginstatus', LoginStatus)
 Route('POST', '/login', LoginHandler) // Login route.
@@ -93,7 +94,7 @@ async function MainHandler(req) {
 
   if (Handler) {
     // console.log(`HTTP Request Received: \n Method: ${method}, \n Path: ${path}`)
-    if (ProtectedRoutes.includes(path.toLowerCase())) {
+    if ( ProtectedRoutes.includes(path.toLowerCase()) ) {
       response = await ProtectedRoute(Handler, req)
     } else {
       response = await Handler(req)

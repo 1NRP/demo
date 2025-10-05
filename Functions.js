@@ -1,25 +1,30 @@
-import { Deno } from './NodeCompatibility.js'
-
 // Node.js Compatibility.
-if ( !process?.env?.NRP_DEPLOYMENT_ENVIRONMENT == 'Vercel' && !Deno?.version && process?.versions?.node ) {
+if (!Deno.version && typeof process !== 'undefined' && process.versions?.node) { // Deno might be having 'process' var defined for Node.js compatibility. So check for Deno.version absense.
   const { Deno, fetch } = await import('./NodeCompatibility.js')
   globalThis.Deno = Deno
   globalThis.fetch = fetch
 }
 
+export async function SendJson(res) { // 'res' is a Response object.
+  const response = new Response( await res.blob(), { status: res.status } )
+  response.headers.set('Content-Type', 'application/json')
+  return response
+}
+
 const UPSTASH = {
   url: Deno.env.get('UPSTASH_REDIS_REST_URL'),
   token: Deno.env.get('UPSTASH_REDIS_REST_TOKEN'),
-
+  
   GET: async (key) => {
-    return await fetch(`${UPSTASH.url}/GET/${key}`, {
+    const res = await fetch(`${UPSTASH.url}/GET/${key}`, {
       headers: {
         'Authorization': `Bearer ${UPSTASH.token}`,
       },
     })
+    return await SendJson(res)
   },
   SET: async (key, value) => {
-    return await fetch(`${UPSTASH.url}/SET/${key}`, {
+    const res = await fetch(`${UPSTASH.url}/SET/${key}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'text/plain',
@@ -27,9 +32,10 @@ const UPSTASH = {
       },
       body: value,
     })
+    return await SendJson(res)
   },
   LPUSH: async (key, value) => {
-    return await fetch(`${UPSTASH.url}/LPUSH/${key}`, {
+    const res = await fetch(`${UPSTASH.url}/LPUSH/${key}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'text/plain',
@@ -37,16 +43,18 @@ const UPSTASH = {
       },
       body: value,
     })
+    return await SendJson(res)
   },
   LRANGE: async (key, start = 0, end = -1) => {
-    return await fetch(`${UPSTASH.url}/LRANGE/${key}/${start}/${end}`, {
+    const res = await fetch(`${UPSTASH.url}/LRANGE/${key}/${start}/${end}`, {
       headers: {
         'Authorization': `Bearer ${UPSTASH.token}`,
       },
     })
+    return await SendJson(res)
   },
   LREM: async (key, value) => {
-    return await fetch(UPSTASH.url + '/LREM/' + key + '/0/', {
+    const res = await fetch(UPSTASH.url + '/LREM/' + key + '/0/', {
       method: 'POST',
       headers: {
         'Content-Type': 'text/plain',
@@ -54,9 +62,10 @@ const UPSTASH = {
       },
       body: value,
     })
+    return await SendJson(res)
   },
   LPOS: async (key, value) => {
-    return await fetch(`${UPSTASH.url}/LPOS/${key}/`, {
+    const res = await fetch(`${UPSTASH.url}/LPOS/${key}/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'text/plain',
@@ -64,6 +73,7 @@ const UPSTASH = {
       },
       body: value,
     })
+    return await SendJson(res)
   },
 }
 
@@ -232,13 +242,13 @@ export async function VerifyJWT(token) {
 // Blob Server.
 export async function BlobServer(req) {
   if (req.method === 'POST') { // The token generation request is a "POST" request.
-    const body = await req.blob()
+    const body = await req.json() // The Vercel SDK sends the payload from the browser as JSON.
     const { handleUpload } = await import('@vercel/blob/client')
     try {
       const jsonResponse = await handleUpload({
         body,
         request: req,
-        onBeforeGenerateToken: async (_pathname) => { // (_pathname, clientPayload )
+        onBeforeGenerateToken: async (_pathname) => { // (_pathname, clientPayload, multipart)
           return {
             allowedContentTypes: ['image/*', 'video/*', 'audio/*', 'text/*', 'application/*'], // Accept all common MIME types.
             addRandomSuffix: false,
@@ -249,10 +259,7 @@ export async function BlobServer(req) {
           return tokenPayload
         },
       })
-      return new Response(jsonResponse, {
-		  status: 200,
-		  headers: { 'Content-Type': 'application/json' }
-	  })
+      return new Response(JSON.stringify(jsonResponse), { status: 200, headers: { 'Content-Type': 'application/json' } })
     } catch (error) {
       console.error('Error while handling the upload:', error)
       return new Response(JSON.stringify({ error: error.message }))
@@ -275,8 +282,8 @@ export async function BlobServer(req) {
     } else if (TASK === 'Delete') {
       try {
         const { del: Delete } = await import('@vercel/blob')
-        const URL = new URL(req.url).searchParams.get('URL')
-        await Delete(URL)
+        const Link = new URL(req.url).searchParams.get('URL')
+        await Delete(Link)
         return new Response(JSON.stringify({ message: 'Blob deleted.' }))
       } catch (error) {
         console.error(error)
@@ -345,7 +352,7 @@ export async function ServeStaticFile(FilePath) {
   let File
   const Environment = Deno.env.get('NRP_DEPLOYMENT_ENVIRONMENT')
 
-  if (Environment == 'Vercel') { // For Vercel bundling compatibility of static files.
+  if (Environment == 'vVercel') { // For Vercel bundling compatibility of static files.
     const files = await import('./StaticFiles.js')
     const exportName = FilePath.split('/').pop().split('.').shift()
     File = files[exportName]
@@ -441,7 +448,7 @@ export async function ProtectedRoute(Handler, req) {
 export async function TeraboxCloudflare(request) {
   const { URL: shortURL, CacheOption, AccessToken: Token } = Object.fromEntries(new URL(request.url).searchParams)
   const Cache = CacheOption === 'Yes' // Convert Cache to boolean.
-
+ 
   if (Token !== 'cloudF-code-0088') {
     return new Response('Wrong Access Token Code. Request Is Unauthorized', { status: 401 })
   }
@@ -670,8 +677,7 @@ async function SaveLink(req) {
 
 async function TgChannels() {
   try {
-    const response = await UPSTASH.LRANGE('TG_Channels')
-    const resp = new Response(response.body)
+    const resp = await UPSTASH.LRANGE('TG_Channels')
     resp.headers.set('Cache-Control', 'public, max-age=600, stale-while-revalidate=604800') // Cache for 10 minutes (600 seconds). Revalidate after 1 week (6,04,800 seconds).
     return resp
   } catch (error) {
@@ -682,7 +688,8 @@ async function TgChannels() {
 
 async function GetM3U8(request) {
   const link = new URL(request.url)
-  const { URL: shortURL, CacheOption: Cache, AccessToken: Token } = Object.fromEntries(link.searchParams)
+  const { URL: shortURL, CacheOption, AccessToken: Token } = Object.fromEntries(link.searchParams)
+  const Cache = CacheOption == 'Yes' // Convert Cache to boolean.
 
   if (Token !== 't9EmqwvV1OO4AiMq1bIxv8F9I3sxx7lgONdyPfZmOBMktgAmR2pNNfHmBoVjeQIc7') {
     return new Response('Wrong Access Token Code. Request Is Unauthorized', { status: 401 })
@@ -712,7 +719,7 @@ async function GetM3U8(request) {
 
     // Fetch short URL info.
     const apiUrl = `https://www.terabox.app/api/shorturlinfo?shorturl=${shortURL}&root=1`
-    const options = Cache = 'Yes'
+    const options = Cache
       ? { headers: tbHeaders, cf: { cacheTtl: 31536000, cacheEverything: true } }
       : { headers: tbHeaders }
     const infoResponse = await fetch(apiUrl, options)
