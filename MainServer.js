@@ -20,6 +20,14 @@ import {
 } from './Functions.js'
 
 // Node.js Compatibility.
+if ( process && process.env.NRP_DEPLOYMENT_ENVIRONMENT == 'Vercel' ) { // Deno might be having 'process' var defined for Node.js compatibility. So check for other parameters.
+  const { Deno, fetch } = await import('./NodeCompatibility.js')
+  globalThis.Deno = Deno
+  globalThis.fetch = fetch
+  console.log("Running On Vercel. Imported Custom Deno Object.")
+}
+
+// Node.js Compatibility.
 if (!Deno.version && typeof process !== 'undefined' && process.versions?.node) { // Deno might be having 'process' var defined for Node.js compatibility. So check for Deno.version absense.
   const { Deno, fetch } = await import('./NodeCompatibility.js')
   globalThis.Deno = Deno
