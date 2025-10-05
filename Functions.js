@@ -1,12 +1,12 @@
 // Node.js Compatibility.
-if ( typeof Deno == 'undefined' && typeof process != 'undefined' && process.versions?.node ) { // Deno might be having 'process' var defined for Node.js compatibility. So check for Deno.version absense.
+if ( typeof Deno == 'undefined' && typeof process != 'undefined' && process.versions?.node ) { // Deno might be having 'process' var defined for Node.js compatibility. So check for Deno object absence.
   const { Deno, fetch } = await import('./NodeCompatibility.js')
   globalThis.Deno = Deno
   globalThis.fetch = fetch
 }
 
 export async function SendJson(res) { // 'res' is a Response object.
-  const response = new Response( await res.blob(), { status: res.status } )
+  const response = new Response( await res.text(), { status: res.status } ) // Upstash returns a JSON response.
   response.headers.set('Content-Type', 'application/json')
   return response
 }
