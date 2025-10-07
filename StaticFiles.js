@@ -84,6 +84,19 @@ var t=`<!DOCTYPE html>
     #form-container button:hover {
       background-color: #4caf5099;
     }
+    #logoutButton {
+      position: fixed;
+      top: 100px;
+      right: 100px;
+      background-color: #e63509;
+      color: #fff;
+      border: 2px solid #504949;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    #logoutButton:hover {
+      background-color: #d16a0999;
+    }
 
     @keyframes Alert {
       from {
@@ -116,6 +129,7 @@ var t=`<!DOCTYPE html>
         <button type="submit">SUBMIT</button>
       </form>
     </div>
+    <button id="logoutButton" onclick="Logout()" style="display: none">Sign Out</button>
 
     <script>
       // Show Alerts depending upon the response received.
@@ -143,7 +157,7 @@ var t=`<!DOCTYPE html>
           body: JSON.stringify({ username, password }),
         })
         if (response.ok) {
-          showAlert('#4CAF50', 'Login Successful')
+          showAlert('#4CAF50', '\u2714 Login Successful')
           setTimeout(() => {
             globalThis.location.href = '/'
           }, 1000)
@@ -153,18 +167,31 @@ var t=`<!DOCTYPE html>
           console.log('Error: ', errorMessage)
         }
       })
+
+      async function Logout() {
+        const permission = confirm('Are You Sure You Want To Logout ?')
+        if (!permission) return
+
+        const response = await fetch('/logout')
+
+        if (response.status === 200) {
+          showAlert('#4CAF50', '\u2716 Logged Out')
+        } else if (response.status === 401) {
+          showAlert('#f44336', '\u26A0 Login First')
+        } else {
+          showAlert('#f44336', 'Something Went Wrong')
+        }
+      }
     <\/script>
   </body>
 </html>
-`;var r=`
-<!DOCTYPE html>
+`;var n=`<!DOCTYPE html>
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" sizes="192x192" href="https://1nrp.github.io/1/Images/N-Logo1.png">
   <meta charset="utf-8">
   <title>Websites</title>
-</head>
 <style>
   body {
     color: #fff;
@@ -192,13 +219,18 @@ var t=`<!DOCTYPE html>
       font-family: fantasy, arial, sans-serif;
     }
 </style>
+</head>
 
+<body>
+  
 <center>
     
     <h2>WEBPAGE LINKS</h2>
 
+    <p><a href="/JS_Notebook" target="_self">JS Notebook</a></p>
+    <p><a href="/Login" target="_self">Sign In / Out</a></p>
     <p><a href="/Notes" target="_self">Cloud Notes</a>
-    <p><a href="/Login" target="_self">Sign In</a>
+    <p><a href="/Video" target="_self">Video</a></p>
     <p><a href="/Blob">Blob</a></p>
     
 </center>
@@ -1008,7 +1040,1807 @@ function downloadFile(Link) {
     <\/script>
   </body>
 </html>
-`;var d=`;(() => {
+`;var d=`<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <meta name="theme-color" content="#02121b">
+    <!--  <link rel="manifest" href="PWA/manifest.json">  -->
+    <link rel="icon" sizes="192x192" href="https://1nrp.github.io/1/Images/N-Logo1.png">
+    <script src="https://1nrp.github.io/vid/custom-long-press.js"><\/script>
+    <!--  <link rel="stylesheet" href="CSS-JS/style.css">  -->
+    <title>Video Player (CORS)</title>
+    <style>
+      body {
+        background-color: #0d2136;
+        color: #fff;
+      }
+      input:focus, /* Remove Focused element's border outline. */
+      select:focus,
+      textarea:focus {
+        outline: 0;
+      }
+      #post-container {
+        width: 99%;
+        height: 360px;
+        border-radius: 8px;
+        position: relative;
+        border: 2px solid #333;
+        overflow-y: scroll;
+        background-color: #02121b;
+        margin: 205px 0px 4px 0px;
+      }
+      .post-details {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+      }
+      .poster-image {
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+      }
+      .size {
+        color: #b4b4b4;
+        font-family: Arial, Helvetica, Cursive, Palatino, Courier, sans-serif;
+        font-size: 15px;
+        font-weight: 600;
+        margin: 0px 40px 1px 0px;
+      }
+      .duration {
+        color: #b4b4b4;
+        font-family: Arial, Helvetica, Cursive, Palatino, Courier, sans-serif;
+        font-size: 15px;
+        font-weight: 600;
+        margin: 0px 20px 1px 35vw;
+      }
+      /*  #embedVideo {
+          position: fixed;
+          top: 0vh;
+          left: 0vw;
+          border: 2px solid #333;
+          border-radius: 6px;
+          background-color: #02121b;
+          width: 98.9dvw;
+          display: block;
+          height: 30vh;
+        } */
+      #player {
+        position: fixed;
+        top: 0vh;
+        left: 0vw;
+        border: 2px solid #333;
+        border-radius: 6px;
+        background-color: #02121b;
+        max-width: 98.9dvw; /* dvw = dynamic viewport width */
+        max-height: 85dvh; /* dvh = dynamic viewport height */
+        margin: 0px 0px 0px 0px; /* Top, Right, Bottom, Left */
+      }
+      #saveDeleteBtn {
+        background-color: #000;
+        padding: 6px;
+        margin-left: 2px;
+        border: 2px dashed #555;
+        color: #fff;
+        cursor: pointer;
+      }
+      input::placeholder {
+        color: #929292;
+      }
+      #vid {
+        width: 57%;
+        max-width: 300px;
+        padding: 6px 2px;
+        display: block;
+        background-color: #000;
+        color: #a2a2a2;
+        font-weight: 600;
+        border: 2px dashed #555;
+      }
+      #button-play {
+        background-color: #000;
+        width: 17%;
+        color: #a2a2a2;
+        font-weight: 1000;
+        max-width: 100px;
+        padding: 6px;
+        border: 2px dashed #555;
+      }
+      #clearBtn {
+        background-color: #000;
+        color: #fff;
+        position: relative;
+        max-width: 50px;
+        padding: 6px;
+        z-index: 10;
+        border: 2px dashed #555;
+      }
+      #boxContainer {
+        width: 97%;
+        height: 300px;
+        overflow-y: scroll;
+        border: 2px solid #333;
+        padding: 2px;
+        position: relative;
+        background-color: #02121b;
+        border-radius: 8px;
+        margin: 2px;
+        display: none;
+      }
+      .TG-post-container {
+        display: inline-block;
+        border: none;
+        background: transparent;
+        width: auto;
+        height: auto;
+        margin: -4px 0px 0px 0px;
+        overflow: hidden;
+      }
+      .TG-Play {
+        background-color: #405580;
+        border: none;
+        border-radius: 50px;
+        font-size: 15px;
+        font-weight: 1000;
+        padding: 4px 145px;
+        margin: 0px 0px 4px 4px;
+      }
+      .TG-Play:hover {
+        background-color: #444;
+      }
+      #hamburgerMenu {
+        padding: 5px 8.5px 5.5px 9px;
+        font-weight: 1000;
+        margin-left: 2px;
+        transition: transform 0.4s ease;
+      }
+      .menuButtons {
+        background-color: #000;
+        padding: 8px;
+        border: 2px solid #888;
+        color: #fff;
+        border-radius: 10px;
+        margin: 2px 4px;
+      }
+      #menuBox {
+        position: fixed;
+        top: 60dvh;
+        left: 40vw;
+        display: none;
+        padding: 4px;
+        z-index: 40;
+        background-color: #031522;
+        border: 2px solid #444;
+        border-radius: 20px;
+        animation-name: menu;
+        animation-duration: 0.5s;
+      }
+      #channelName {
+        width: 80px;
+        padding: 5px 2px 5px 4px;
+      }
+      #messageID {
+        width: 60px;
+        padding: 6px 0px 6px 15.5px;
+      }
+      #go-btn {
+        padding: 6px 7.4px;
+      }
+      #btn-next {
+        padding: 6px 10.2px;
+      }
+      #reload {
+        padding: 6.5px 6px;
+      }
+      .secondRow {
+        display: none;
+        font-weight: 600;
+        color: #b4b4b4;
+        border: 2px dotted #555;
+        border-radius: 10px;
+        background-color: #02121b;
+      }
+      #textBox {
+        width: 99%;
+        height: 150px;
+        color: #b4b4b4;
+        resize: none;
+        position: relative;
+        background-color: #02121b;
+        border: 2px solid #333;
+        border-radius: 8px;
+        overflow-y: scroll;
+        margin: 2px 0px;
+      }
+      .txtDiv {
+        color: #b4b4b4;
+        overflow-x: hidden;
+        padding: 2px;
+        margin: 4px 2px;
+        text-wrap: no-wrap;
+        white-space: pre;
+        font-size: 12px;
+        border-radius: 4px;
+        font-weight: 500;
+      }
+      #thumbnailContainer {
+        position: fixed;
+        top: 2dvh;
+        left: 5dvw;
+        display: none;
+        z-index: 40;
+        width: 88%;
+        height: 350px;
+        border-radius: 5px;
+        padding: 2px;
+        border: 2px solid #358585;
+        background-color: #000;
+        align-items: center;
+      }
+      .thumbnail {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      .linkNumber {
+        background-color: #572067;
+        color: #b4b4b4;
+        padding: 5px;
+        font-weight: 800;
+        font-size: 12px;
+        border: none;
+        border-radius: 20px;
+      }
+      #brightnessSlider {
+        width: 80%;
+        margin: 0% 10%;
+        display: none;
+      }
+      .menuButtons:hover,
+      .secondRow:hover {
+        background-color: #405580;
+      }
+      #button-play:hover,
+      #clearBtn:hover {
+        background-color: #405580;
+      }
+      .Alerts {
+        position: fixed;
+        /* top: 5dvh; */
+        left: 20dvw;
+        z-index: 50;
+        background-color: #fff;
+        font-weight: 1000;
+        padding: 5px;
+        border: none;
+        border-radius: 5px;
+        animation-name: Alert;
+        animation-duration: 1s;
+      }
+      /* Animations */
+      @keyframes Alert {
+        from {
+          font-size: 5px;
+          top: 0dvh;
+        } /* transform: rotate(30deg)} */
+        to {
+          font-size: 20px;
+          top: 10dvh;
+        } /* transform: rotate(0deg)} */
+      }
+      @keyframes menu {
+        from {
+          opacity: 0;
+          top: 10dvh;
+        }
+        to {
+          opacity: 1;
+          top: 60dvh;
+        }
+      }
+      /* Code for Night-Mode toggle. */
+      .nightMode {
+        body {
+          background-color: #000;
+          color: #b4b4b4;
+        }
+        #thumbnailContainer,
+        #embedVideo,
+        #player,
+        #menuBox,
+        #Default-Position-Elements {
+          filter: brightness(70%);
+        }
+        #copyLink,
+        #saveDeleteBtn,
+        #reload,
+        .menuButtons {
+          color: #b4b4b4b4;
+        }
+        #vid,
+        #textBox,
+        #button-play,
+        .secondRow,
+        .size,
+        .duration {
+          color: #999;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="Default-Position-Elements">
+      <!-- Separation between Fixed position and Non-Fixed position elements is for brightness adjustment purpose. The 'brightnessSlider' distorts the positioning of Fixed elements. -->
+      <div id="post-container" data-long-press-delay="1000" ondblclick="document.getElementById('vid').value=''"></div>
+      <center style="display: flex; gap: 4px">
+        <button id="saveDeleteBtn" onclick="handleButtonClick()" ondblclick="checkLinkExistence()">\u{1F310}</button>
+        <input
+          type="text"
+          placeholder="Enter Download Link..."
+          id="vid"
+          name="vid"
+          autocomplete="off"
+          maxlength="10000"
+        >
+        <button id="button-play" onclick="CloudFlare_Play()" data-long-press-delay="500">PLAY</button>
+        <button
+          id="clearBtn"
+          onclick="document.getElementById('vid').value='';"
+          ;
+          ondblclick="document.getElementById('player').src='';"
+        >
+          \u2716\uFE0F
+        </button>
+      </center>
+      <div style="height: 2px"></div>
+      <!--  To create gap between 1st and 2nd row of buttons (saveDeleteBtn, hamburgerMenu etc) .  -->
+      <div id="boxContainer"></div>
+      <button
+        id="hamburgerMenu"
+        class="secondRow"
+        onclick="menuBox(); style.transform = (style.transform === 'rotate(180deg)' ? 'rotate(0deg)' : 'rotate(180deg)');"
+      >
+        \u2630
+      </button>
+      <select id="channelName" class="secondRow" ondblclick="fetchOptions()"></select>
+      <input id="messageID" class="secondRow">
+      <button
+        id="go-btn"
+        class="secondRow"
+        onclick="fetchSinglePost(); document.getElementById('boxContainer').style.display='block'"
+      >
+        GO
+      </button>
+      <button id="btn-next" class="secondRow" onclick="loadNextPosts()">NEXT</button>
+      <button id="reload" class="secondRow" onclick="fetchPosts()">\u267B\uFE0F</button>
+      <div>
+        <div id="textBox" readonly data-long-press-delay="2000"></div>
+        <!--b<div id="textBoxHighlighter"></div> -->
+      </div>
+      <input id="brightnessSlider" type="range" value="100" min="50" max="150" class="slider">
+    </div>
+    <!--  Keyboard Shortcuts: Play: "ArrowRight + ArrowDown", Fetch Posts: "ArrowRight + ArrowLeft", Clear Button(click): "ArrowRight + End", Save Link: "ArrowRight + ArowUp"  -->
+    <!--  Fixed Position Elements. 
+<iframe id="embedVideo" referrerPolicy="no-referrer" name="videoFrame"></iframe>
+<iframe id="dummyIframe" referrerpolicy="no-referrer" style="display: none"></iframe> -->
+    <video
+      id="player"
+      controls
+      controlsList="nofullscreen"
+      poster="img/my_name_logo_1.2.1.jpg"
+      data-long-press-delay="400"
+      tabindex="0"
+      loop="loop"
+      src=""
+      width="100%"
+      muted
+      autoplay
+    >
+    </video>
+    <div id="thumbnailContainer"></div>
+    <div id="menuBox">
+      <button class="menuButtons" onclick="nightModeFunction()">\u{1F317}</button>
+      <button class="menuButtons" onclick="getLink()">\u{1F517}</button>
+      <button
+        class="menuButtons"
+        onclick="document.getElementById('player').removeAttribute('controlsList', 'nofullscreen')"
+      >
+        \u{1F533}
+      </button>
+      <button
+        class="menuButtons"
+        onclick="document.getElementById('brightnessSlider').style.display = (document.getElementById('brightnessSlider').style.display === 'flex' ? 'none' : 'flex')"
+      >
+        \u2194\uFE0F
+      </button>
+      <div style="height: 4px"></div>
+      <!--  Gap between 1st and 2nd row of 'Menu' buttons.  -->
+      <button class="menuButtons" onclick="copyVideoSrc()">\u{1F4E1}</button>
+      <button class="menuButtons" onclick="getOtherLinks()">\u{1F4E5}</button>
+      <button class="menuButtons" onclick="changePlayFunction()">\u25B6\uFE0F</button>
+      <button class="menuButtons" onclick="vConsole()">\u{1F6E0}\uFE0F</button>
+    </div>
+    <!--  <script src="CSS-JS/script.js"><\/script>  -->
+    <script>
+      ;(async () => {
+        const route = '/LoginStatus'
+        const response = await fetch(route)
+        if (response.status === 401) {
+        setTimeout( () => {
+          showAlert({ BgColor: '#e8af05', Text: '\u26A0 Not Logged In' })
+        }, 2000)
+        }
+      })()
+
+      // Check browser color theme and adapt colors accordingly.
+      function darkTheme() {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+          document.body.color = '#000'
+        }
+      }
+      darkTheme()
+      // Get external Links from other sources.
+      async function getOtherLinks() {
+        try {
+          const response = await fetch(\`\${document.getElementById('vid').value}\`)
+          const data = await response.json()
+          const box = document.getElementById('textBox')
+          box.innerHTML = ''
+          for (const [index, object] of data.result.entries()) {
+            const tera = object.id
+            let teraId
+            if (tera.startsWith('1')) teraId = tera
+            else teraId = 1 + tera
+            const div = document.createElement('div')
+            div.className = 'txtDiv'
+            div.innerText = \`\${index + 1} \u25CF https://teraboxapp.com/s/\${teraId}\`
+            box.appendChild(div)
+          }
+        } catch (error) {
+          alert('Error fetching or parsing MdiskPlay json data.')
+        }
+      }
+
+      // Cycle through the different "PLAY" functions.
+      const PlayFunctions = [CloudFlare_Play, Vercel_Play, Mdisk_Play]
+      let currentIndex = 0
+      function changePlayFunction() {
+        // Update the index to the next "PLAY" function.
+        currentIndex = (currentIndex + 1) % PlayFunctions.length // The modulo operator (%) ensures that if the index exceeds the length of the array (which is 3), it wraps around to 0. This allows for cycling through the functions in the array.
+        document.getElementById('button-play').onclick = PlayFunctions[currentIndex]
+        showAlert({ BgColor: '#2894c7', Text: \`\${PlayFunctions[currentIndex].name} \u2714 Activated\` })
+      }
+
+      // Long Press Events.
+      var el = document.getElementById('textBox')
+      el.addEventListener('long-press', function (e) {
+        e.preventDefault()
+        getLink()
+      })
+
+      var el = document.getElementById('button-play')
+      el.addEventListener('long-press', function (e) {
+        e.preventDefault()
+        Vercel_Play()
+      })
+
+      var el = document.getElementById('saveDeleteBtn')
+      el.addEventListener('long-press', function (e) {
+        e.preventDefault()
+        checkLinkExistence()
+      })
+
+      var el = document.getElementById('clearBtn')
+      el.addEventListener('long-press', function (e) {
+        e.preventDefault()
+        var elements = document.getElementsByClassName('secondRow')
+        for (var i = 0; i < elements.length; i++) {
+          elements[i].style.display = (elements[i].style.display === 'none' || elements[i].style.display === '')
+            ? 'inline'
+            : 'none'
+        }
+      })
+
+      var el = document.getElementById('player')
+      el.addEventListener('long-press', function (e) {
+        e.preventDefault()
+        document.getElementById('player').style.maxHeight = '195px'
+      })
+
+      var el = document.getElementById('post-container')
+      el.addEventListener('long-press', function (e) {
+        e.preventDefault()
+        var elements = document.getElementsByClassName('secondRow')
+        for (var i = 0; i < elements.length; i++) {
+          elements[i].style.display = (elements[i].style.display === 'none' || elements[i].style.display === '')
+            ? 'inline'
+            : 'none'
+        }
+        //fetchPosts();
+      })
+
+      // Copy the source of the currently playing video.
+      function copyVideoSrc() {
+        /* if (document.getElementById('embedVideo').style.display === 'block') {
+    navigator.clipboard.writeText(document.getElementById('embedVideo').src);
+  } else { */
+        navigator.clipboard.writeText(document.getElementById('player').src)
+        // }
+      }
+
+      /*
+// Increase Z-Index of "post-container", "boxContainer" and "textBox" on hovering to be shown above "embedVideo" iFrame.
+const element1 = document.getElementById('post-container');
+const element2 = document.getElementById('boxContainer');
+const element3 = document.getElementById('textBox');
+let touchTimeout;
+let activeElement;
+document.addEventListener('touchstart', zIndexUp);
+document.addEventListener('mouseover', zIndexUp);
+function zIndexUp(event) {
+    if (document.getElementById('embedVideo').src == "" && ((element1.contains(event.target) && element1.innerHTML !== '') || element2.contains(event.target) || event.target === element3)) {
+        event.preventDefault();
+        activeElement = event.target.closest('#post-container');
+	activeElement.style.zIndex = 100;
+    console.log('mover & ',activeElement);
+        clearTimeout(touchTimeout); // Clear any previous timeout to avoid resetting prematurely.
+    }
+}
+document.addEventListener('touchend', zIndexDown);
+document.addEventListener('mouseout', zIndexDown);
+function zIndexDown(event) {
+    touchTimeout = setTimeout(function() {
+    if (activeElement) {
+        activeElement.style.zIndex = 0; // Reset z-index after 500ms.
+        console.log('mout & ', activeElement,'Out');
+	activeElement = null;
+      }
+   }, 500);
+}
+      */
+      const element1 = document.getElementById('post-container')
+      const element2 = document.getElementById('boxContainer')
+      const element3 = document.getElementById('textBox')
+      let touchTimeout
+      let activeElement
+
+      // Add event listeners directly to the three elements
+      element1.addEventListener('touchstart', handleZIndexUp)
+      element1.addEventListener('mouseover', handleZIndexUp)
+      element2.addEventListener('touchstart', handleZIndexUp)
+      element2.addEventListener('mouseover', handleZIndexUp)
+      element3.addEventListener('touchstart', handleZIndexUp)
+      element3.addEventListener('mouseover', handleZIndexUp)
+
+      function handleZIndexUp(event) {
+        if (document.getElementById('player').src) {
+          if ((this === element1 && element1.innerHTML !== '') || this === element2 || this === element3) {
+            activeElement = this
+            activeElement.style.zIndex = 100
+            clearTimeout(touchTimeout) // Clear any previous timeout to avoid resetting prematurely.
+          }
+        }
+      }
+      element1.addEventListener('touchend', handleZIndexDown)
+      element1.addEventListener('mouseout', handleZIndexDown)
+      element2.addEventListener('touchend', handleZIndexDown)
+      element2.addEventListener('mouseout', handleZIndexDown)
+      element3.addEventListener('touchend', handleZIndexDown)
+      element3.addEventListener('mouseout', handleZIndexDown)
+
+      function handleZIndexDown(event) {
+        touchTimeout = setTimeout(() => {
+          if (activeElement) {
+            activeElement.style.zIndex = 0 // Reset z-index after 500ms.
+            activeElement = null
+          }
+        }, 500)
+      }
+
+      // Function to load the vConsole debug tool.
+      function vConsole() {
+        const script = document.createElement('script')
+        script.src = 'vConsole-3.15.1.js'
+        script.onload = () => {
+          if (window.VConsole) {
+            new VConsole({ theme: 'dark' })
+          } else {
+            alert('Failed To Load V-Console Library.')
+            console.error('Error Loading vConsole library.')
+          }
+        }
+        script.onerror = () => {
+          console.error('Failed to load VConsole.')
+        }
+        document.head.appendChild(script)
+      }
+
+      // Brightness Control Functionality.
+      const brSlider = document.getElementById('brightnessSlider')
+      brSlider.addEventListener('input', function () {
+        const brightnessValue = this.value
+        document.getElementById('Default-Position-Elements').style.filter = \`brightness(\${brightnessValue}%)\`
+        document.getElementById('player').style.filter = \`brightness(\${brightnessValue}%)\`
+        document.getElementById('embedVideo').style.filter = \`brightness(\${brightnessValue}%)\`
+        document.getElementById('menuBox').style.filter = \`brightness(\${brightnessValue}%)\`
+        document.getElementById('thumbnailContainer').style.filter = \`brightness(\${brightnessValue}%)\`
+      })
+
+      // Fetch the TG Channels from database and populate the <select> element with the channels.
+      let channelKeywords = [] // Global array to store all the TG channel names.
+      async function fetchOptions() {
+        const response = await fetch('/tgChannels')
+        const data = await response.json()
+        const selectElement = document.getElementById('channelName')
+        selectElement.innerHTML = ''
+        // Create a default "Select" option.
+        const defaultOption = document.createElement('option')
+        defaultOption.value = ''
+        defaultOption.textContent = 'SELECT'
+        selectElement.appendChild(defaultOption)
+        // Clear the "channelKeywords" array before populating it with the channel names.
+        channelKeywords = []
+        // Populate the <select> element with the fetched options.
+        let index = 1
+        for (const rawChannel of data.result) {
+          const channelID = rawChannel.split('/').slice(-1)[0]
+          const fullChannel = 'https://t.me/' + channelID + '/'
+          // Add the channels to the global Telegram Channel Keywords array.
+          channelKeywords.push(fullChannel)
+          // Create a new option element for each channel.
+          const option = document.createElement('option')
+          option.value = channelID
+          option.textContent = \`\${index} \u25CF \${channelID}\`
+          selectElement.appendChild(option)
+          index += 1
+        }
+      }
+      // window.onload = fetchOptions;
+
+      // Show Alerts depending upon the response received.
+      function showAlert({ BgColor = '#fff', Text = 'Alert' } = {}) {
+        var alertBox = document.createElement('div')
+        alertBox.className = 'Alerts'
+        alertBox.style.backgroundColor = BgColor
+        alertBox.textContent = Text
+        document.body.appendChild(alertBox)
+        setTimeout(() => {
+          alertBox.remove()
+        }, 1000)
+      }
+
+      // Save the Link in KV Cloud storage.
+      async function saveLink() {
+        const textarea = document.getElementById('vid')
+        const textValue = textarea.value.trim()
+        if (textValue) {
+          try {
+            const response = await fetch('/saveLink', {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain' },
+              body: textValue,
+            })
+            if (response.ok) {
+              const data = await response.json() // Wait for the JSON response.
+              const listCount = data.result
+              // Show "Link Saved" alert when "OK" response (200) is received from the server.
+              showAlert({ BgColor: '#1bd13d', Text: \`\${listCount} \u2714 Link Saved\` })
+            } else {
+              const errorData = await response.json()
+              console.error('Error from server:', errorData.error)
+            }
+          } catch (error) {
+            console.error('Error sending link to Vercel KV:', error)
+          }
+        }
+      }
+
+      // Delete the Link in KV Cloud storage.
+      async function deleteLink() {
+        const deletearea = document.getElementById('vid')
+        const deleteValue = deletearea.value.trim()
+
+        if (deleteValue) {
+          try {
+            const response = await fetch('/deleteLink', {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain' },
+              body: deleteValue,
+            })
+            if (response.ok) {
+              const data = await response.json() // Wait for the JSON response
+              if (data.result == 0) {
+                console.log('This Link does not exist in Vercel KV.')
+                // Show "Link Doesn't Exist" alert if response result is zero {result: 0}.
+                showAlert({ BgColor: '#e8af05', Text: "\u26A0 Link Doesn't Exist" })
+              } else {
+                console.log('Link deleted in Vercel KV.')
+                // Show "Link(s) Deleted" alert if response result is more than zero {result: (list_count)}. 'list_count' is the number of deleted values.
+                const listCount = data.result
+                showAlert({ BgColor: '#f2074e', Text: \`\${listCount} \u2716 Link Deleted\` })
+              }
+            } else {
+              const errorData = await response.json() // Wait for the JSON error response
+              console.error('Error from server:', errorData.error)
+            }
+          } catch (error) {
+            console.error('Error deleting Link in Vercel KV:', error)
+          }
+        }
+      }
+
+      // Check if the same Link already exists in KV Cloud storage before saving a new one.
+      async function checkLinkExistence() {
+        const linkValue = document.getElementById('vid').value.trim()
+        if (linkValue) {
+          try {
+            const response = await fetch('/checkLinkExistence', {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain' },
+              body: linkValue,
+            })
+            if (response.ok) {
+              const data = await response.json() // Wait for the JSON response.
+              if (data.result == null) {
+                showAlert({ BgColor: '#f403fc', Text: "\u2716 Link Doesn't Exist" })
+              } else {
+                showAlert({ BgColor: '#03ecfc', Text: '\u2714 Link Already Exists' })
+              }
+            } else {
+              const errorData = await response.json() // Wait for the JSON error response
+              console.error('Error from server:', errorData.error)
+            }
+          } catch (error) {
+            console.error('Error deleting Link in Vercel KV:', error)
+          }
+        }
+      }
+
+      // Retrive the Links from KV Cloud storage.
+      let textBoxArray = [], textBoxJsonData = []
+      async function getLink() {
+        try {
+          const response = await fetch('/getLink')
+          const data = await response.json()
+          const box = document.getElementById('textBox')
+          box.innerHTML = ''
+          for (const [index, value] of data.result.entries()) {
+            let div = document.createElement('div')
+            div.className = 'txtDiv'
+            div.innerText = \`\${index + 1} \u25CF \${value}\`
+            box.appendChild(div)
+          }
+          // Fetch the already saved data json.
+          const blob = await fetch(
+            'https://srbo3gia676hprqy.public.blob.vercel-storage.com/Others/KV-Store-Saved-TB-Link-Thumbnails.json',
+          )
+          const blobdata = await blob.json()
+          textBoxJsonData = blobdata
+          for (let item of blobdata) {
+            const shortURL = item.url
+            textBoxArray.push(shortURL)
+          }
+        } catch (error) {
+          console.error('Error fetching or parsing data:', error)
+        }
+      }
+
+      // Night-Mode toggle function.
+      function nightModeFunction() {
+        let element = document.body
+        element.classList.toggle('nightMode')
+      }
+
+      // Keyboard Shortcuts for different Button clicks & Functions
+      let arrowRightPressed = false
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'ArrowRight') {
+          arrowRightPressed = true
+        }
+        if (arrowRightPressed) {
+          if (event.key === 'ArrowUp') {
+            saveLink()
+          } else if (event.key === 'ArrowDown') {
+            document.getElementById('button-play').click()
+          } else if (event.key === 'ArrowLeft') {
+            fetchPosts()
+          } else if (event.key === 'End') {
+            document.getElementById('clearBtn').click()
+          }
+        }
+      })
+      document.addEventListener('keyup', function (event) {
+        if (event.key === 'ArrowRight') {
+          arrowRightPressed = false
+        }
+      })
+
+      // Try to read clipboard on clicking 'PLAY' button if no URL is given.
+      async function checkClipboard() {
+        var query = document.getElementById('vid').value.trim() // Trim whitespaces
+        if (query === '') {
+          // Check if the clipboard API is supported
+          if (!navigator.clipboard) {
+            console.error('Clipboard API not supported')
+            return
+          }
+          // Try to read text from clipboard
+          try {
+            const text = await navigator.clipboard.readText()
+            if (text.trim() === '') {
+              alert('Please Enter URL First')
+              return
+            }
+            document.getElementById('vid').value = text.trim() // Update the input field
+            query = text.trim()
+            return query
+          } catch (err) {
+            console.error('Failed to read clipboard contents:', err)
+            if (err.name === 'NotAllowedError') {
+              console.error('Permission to read clipboard denied')
+            }
+            return
+          }
+        } else {
+          return query
+        }
+      }
+
+      /*
+// Iframe Play Method.
+async function IFrame_Play() {
+    const query = await checkClipboard();
+    // Check if the URL contains 'Terabox'.
+    if (/(teraboxapp|terasharelink|teraboxlink|terafileshare|1024terabox|teraboxshare|freeterabox)/.test(query.toLowerCase())) {
+        const shortURL = query.split('/').slice(-1)[0];
+        const jsonData = await getTboxAPI(shortURL);
+            const { shareid, uk } = jsonData;
+            const { fs_id } = jsonData.list[0];
+            const playUrl = \`https://www.terabox1024.com/share/extstreaming.m3u8?uk=\${uk}&shareid=\${shareid}&type=M3U8_AUTO_360&fid=\${fs_id}&sign=1&timestamp=1&clienttype=1&channel=1\`;
+            // window.open(playUrl, 'videoFrame', 'noopener,noreferrer');
+	    document.getElementById('embedVideo').src = playUrl;
+	    adjustIframeStyles();
+    } else {
+        // Not a terabox URL, play as usual
+        document.getElementById("player").src = query;
+        adjustStyles();
+    }
+}
+      */
+
+      async function CloudFlare_Play() {
+        const query = await checkClipboard()
+        if (query.toLowerCase().includes('.com/s/1')) {
+          const shortURL = query.split('/').slice(-1)[0]
+          if (!localStorage.getItem('Cloudflare-Access-Token')) {
+            const cfToken = prompt("Enter The 'Cloudflare-Access-Token' :")
+            localStorage.setItem('Cloudflare-Access-Token', cfToken)
+          }
+          const cfToken = localStorage.getItem('Cloudflare-Access-Token')
+          document.getElementById('player').src = 'https://tbox.1nrp.workers.dev?URL=' + shortURL +
+            '&CacheOption=No&AccessToken=' + cfToken
+          document.getElementById('player').style.maxHeight = '85dvh'
+          //adjustStyles();
+        } else {
+          // Not a terabox URL, play as usual.
+          document.getElementById('player').src = query
+          //adjustStyles();
+        }
+      }
+
+      // MdiskPlay method.
+      async function Mdisk_Play() {
+        const query = await checkClipboard()
+        if (
+          /(teraboxapp|terasharelink|teraboxlink|terafileshare|1024terabox|teraboxshare|freeterabox)/.test(
+            query.toLowerCase(),
+          )
+        ) {
+          var videoId = query.split('/').slice(-1)[0]
+          // Remove the first character, assuming it's always same(1).
+          videoId = videoId.substring(1)
+          //var requestUrl = "https://mdiskplay.com/terabox/" + videoId + "?nid=m6rjtuvntneaqnlhir";
+          //document.getElementById('dummyIframe').src = requestUrl;
+          var requestUrl = 'https://core.mdiskplay.com/box/terabox/' + videoId + '?aka=baka'
+          var response = await fetch(requestUrl)
+          document.getElementById('player').style.maxHeight = '85dvh'
+          document.getElementById('player').src = 'https://video.mdiskplay.com/' + videoId + '.m3u8'
+          //adjustStyles();
+        } else {
+          // Not a terabox URL, play as usual.
+          document.getElementById('player').src = query
+          //adjustStyles();
+        }
+      }
+
+      // (Vercel Serverless Function Method) PLAY Video Function.
+      async function Vercel_Play() {
+        const query = await checkClipboard()
+        // Check if the URL contains 'Terabox'
+        if (
+          /(teraboxapp|terasharelink|teraboxlink|terafileshare|1024terabox|teraboxshare|freeterabox)/.test(
+            query.toLowerCase(),
+          )
+        ) {
+          // Extract the video ID from the URL
+          var videoId = query.split('/').slice(-1)[0]
+          if (!localStorage.getItem('Vercel-Access-Token')) {
+            const token = prompt("Enter The 'Vercel-Access-Token' :")
+            localStorage.setItem('Vercel-Access-Token', token)
+          }
+          const token = localStorage.getItem('Vercel-Access-Token')
+          const playUrl = \`/getM3U8?URL=\${videoId}&AccessToken=\${token}\`
+          document.getElementById('player').style.maxHeight = '85dvh'
+          document.getElementById('player').src = playUrl
+          //adjustStyles();
+          console.error('Error fetching or processing:', error)
+          alert('Failed to fetch M3U8 File. Please try again later.')
+        } else {
+          // Not a terabox URL, play as usual
+          document.getElementById('player').src = query
+          //adjustStyles();
+        }
+      }
+
+      // Repetitive code for height and display adjustment in 'PLAY' functions.
+      function adjustIframeStyles() {
+        document.getElementById('player').src = ''
+        document.getElementById('player').style.display = 'none'
+        document.getElementById('embedVideo').style.height = '85dvh'
+        document.getElementById('embedVideo').style.display = 'block'
+      }
+      function adjustStyles() {
+        document.getElementById('embedVideo').src = ''
+        document.getElementById('embedVideo').style.display = 'none'
+        document.getElementById('player').style.display = 'block'
+        document.getElementById('player').style.maxHeight = '85dvh'
+        document.getElementById('player').play()
+      }
+
+      // Function for fetching Terabox API with another retry if initial request fails.
+      async function getTboxAPI(shortURL) {
+        const maxAttempts = 2 // Max retries.
+        let attempts = 0
+        let params
+        while (attempts < maxAttempts) {
+          const controller = new AbortController()
+          const timeoutId = setTimeout(() => controller.abort(), 3000) // Abort after 3 seconds if response is not yet received.
+          try {
+            // **Without CORS Bypass (Tampermonkey). Using server-side proxy.
+            // **const response = await fetch(\`/CORS-Proxy?URL=\${encodeURIComponent(\`https://www.terabox.app/api/shorturlinfo?shorturl=\${shortURL}&root=1\`)}\`, {
+            const response = await fetch(
+              \`https://www.terabox.app/api/shorturlinfo?&shorturl=\${shortURL}&root=1\`,
+              {
+                signal: controller.signal,
+              },
+            )
+            clearTimeout(timeoutId) // Clear the timeout if response is received.
+            if (!response.ok) {
+              throw new Error('Failed to fetch data from Terabox API.')
+            }
+            const jsonData = await response.json()
+            return jsonData // Exit the loop and return jsonData to the functions that passed the shortURL to this function, if fetch is successful.
+          } catch (error) {
+            clearTimeout(timeoutId) // Clear the timeout if there's an error
+            attempts++
+            if (attempts >= maxAttempts) {
+              alert('Failed to fetch data from Terabox API. Please try again later.')
+              return // Exit the function if retry attempts are exhausted
+            }
+          }
+        }
+      }
+
+      // Telegram Post fetching function.
+      function createTelegramPost(channelName, messageID, tgContainer) {
+        const script = document.createElement('script')
+        script.async = true
+        script.src = \`https://telegram.org/js/telegram-widget.js?22\`
+        script.dataset.telegramPost = \`\${channelName}/\${messageID}\`
+        script.dataset.width = \`100%\`
+        script.dataset.userpic = \`false\`
+        script.dataset.color = \`b4b4b4\`
+        script.dataset.dark = \`1\`
+        const postContainer = document.createElement('div')
+        postContainer.className = 'TG-post-container'
+        const button = document.createElement('button')
+        button.className = 'TG-Play'
+        button.textContent = 'PLAY'
+        button.onclick = () => getIframeLink(postContainer.querySelector('script'))
+        postContainer.appendChild(button)
+        postContainer.appendChild(script)
+        tgContainer.appendChild(postContainer)
+        // Trigger rendering of Telegram widget.
+        window.TelegramWidget && window.TelegramWidget.initWidget && window.TelegramWidget.initWidget(script)
+      }
+      function fetchSinglePost() {
+        const tgContainer = document.getElementById('boxContainer')
+        const channelName = document.getElementById('channelName').value
+        const messageID = document.getElementById('messageID').value
+        tgContainer.innerHTML = '' // Clear previous posts.
+        createTelegramPost(channelName, messageID, tgContainer) // Fetch single post.
+      }
+      function loadNextPosts() {
+        const tgContainer = document.getElementById('boxContainer')
+        const channelName = document.getElementById('channelName').value
+        const messageID = Number(document.getElementById('messageID').value) // 'Number' would make 'messageID' be treated as a number instead of a string at the time of adding "i" to it.
+        for (let i = 0; i < 5; i += 1) { // "i++", "i += 1" & "i = i + 1" are same. Load 4 posts.(max value of "i < 5" is 4).
+          const currentMessageID = messageID + i
+          createTelegramPost(channelName, currentMessageID, tgContainer) // Fetch each of the given number of posts.
+        }
+        // Update message ID input field with the last calculated message ID.
+        document.getElementById('messageID').value = messageID + 4
+      }
+
+      // Event listener to get the Last Message's ID of the selected Telegram Channel.
+      // The below code snippet is programmed to start showing from 100 posts before the last post in these Telegram Channels.
+      document.getElementById('channelName').addEventListener('change', async function () {
+        async function getMessageID() {
+          const channelName = document.getElementById('channelName').value
+          const TgChannel = 'https://t.me/s/' + channelName // Telegram Channel URL to fetch and parse.
+          try {
+            // **Without CORS Bypass (Tampermonkey). Using server-side proxy.
+            // **const response = await fetch('/CORS-Proxy?URL=' + encodeURIComponent(TgChannel));
+            const response = await fetch(TgChannel)
+            const htmlText = await response.text()
+            // Parse the HTML content
+            const parser = new DOMParser()
+            const doc = parser.parseFromString(htmlText, 'text/html')
+            // Extract all anchor/link tags
+            const anchors = doc.querySelectorAll('a')
+            let lastMessage = '' // Variable to store the last matching link.
+            // Iterate over anchor tags to find the last matching link
+            anchors.forEach((anchor) => {
+              const href = anchor.href
+              if (channelKeywords.some((channelKeyword) => href.includes(channelKeyword))) {
+                lastMessage = href // Update lastMessage with the latest match
+              }
+            })
+            // Extract the messageID which is after the last '/'
+            if (lastMessage) {
+              const numberAfterSlash = lastMessage.lastIndexOf('/')
+              const messageNumber = lastMessage.substring(numberAfterSlash + 1) - 110
+              document.getElementById('messageID').value = messageNumber
+            } else {
+              alert('No Link in the Message ID format was found.')
+            }
+          } catch (error) {
+            alert("Error fetching Telegram Channel's source code.")
+            console.error('Error fetching the source code of the selected Telegram Channel:', error)
+          }
+        }
+        await getMessageID()
+      })
+
+      // Extract the TB Link from the Telegram post.
+      async function getIframeLink(script) {
+        // Retrieve iframe source from script's data attribute.
+        const iframeSrc = script.dataset.telegramPost
+        const iframe = document.querySelector(\`iframe[src*="\${iframeSrc}"]\`)
+        if (!iframe) {
+          alert('Iframe not found.')
+          return
+        }
+        const src = iframe.src
+        try {
+          // **Without CORS Bypass (Tampermonkey). Using server-side proxy.
+          // **const response = await fetch('/corsproxy?URL=' + encodeURIComponent(src));
+          const response = await fetch(src)
+          const htmlText = await response.text()
+          // Parse the HTML and extract anchor tags.
+          const parser = new DOMParser()
+          const doc = parser.parseFromString(htmlText, 'text/html')
+          const anchors = doc.querySelectorAll('a')
+          // Filter anchor tags containing TB Links.
+          const keywords = [
+            'teraboxapp',
+            'teraboxshare',
+            'terafileshare',
+            'teraboxlink',
+            'terasharelink',
+            '1024terabox',
+            'freeterabox',
+          ]
+          let found = false
+          let TBoxLink = ''
+          anchors.forEach((anchor) => {
+            const href = anchor.href
+            if (keywords.some((keyword) => href.includes(keyword))) {
+              TBoxLink = href
+              found = true
+            }
+          })
+          if (found) {
+            document.getElementById('vid').value = TBoxLink
+            document.getElementById('button-play').click()
+          } else {
+            alert('No TB Link was found.')
+          }
+        } catch (error) {
+          alert('Error fetching the URL. Please make sure the URL is correct.')
+          console.error('Error fetching HTML:', error)
+        }
+      }
+
+      // Logic for toggling the mode between 'storing' and 'deleting' Link.
+      const textBox = document.getElementById('textBox')
+      const placeholder = document.getElementById('vid')
+      let clickCount = 0
+      let clickTimer
+      let deleteMode = false
+      // Set initial mode to "Save"
+      document.getElementById('saveDeleteBtn').innerText = '\u{1F310}'
+      // Handle "saveDeleteBtn" button click
+      function handleButtonClick() {
+        clickCount++
+        clearTimeout(clickTimer)
+        clickTimer = setTimeout(() => {
+          if (clickCount >= 3) {
+            toggleMode()
+          } else {
+            if (deleteMode) {
+              deleteLink()
+            } else {
+              saveLink()
+            }
+          }
+          clickCount = 0
+        }, 600) // 3 clicks in 0.6 second or 600 milliseconds.
+      }
+
+      // Function to toggle between paste and copy modes
+      function toggleMode() {
+        deleteMode = !deleteMode
+        document.getElementById('saveDeleteBtn').innerText = deleteMode ? '\u{1F5D1}\uFE0F' : '\u{1F310}'
+      }
+      document.getElementById('saveDeleteBtn').addEventListener('click', handleButtonClick)
+
+      // Function to show Thumbnail and Paste LineText in link input field.
+      function getLineText(event) {
+        var numText = event.target.innerText
+        var lineText = numText.split('\u25CF').slice(1)[0].trim()
+        var linkNumber = numText.split('\u25CF').slice(0)[0]
+        return { lineText, linkNumber }
+      }
+      // Show thumbnail function with 3 attempts to fetch the TB API if failed in the 1st or 2nd attempts.
+      async function showThumbnail(lineText, linkNumber) {
+        const shortURL = lineText.substring(lineText.lastIndexOf('/') + 1)
+        const thumbnailContainer = document.getElementById('thumbnailContainer')
+        document.getElementById('vid').value = lineText
+        const index = textBoxArray.indexOf(shortURL)
+        const img = index !== -1 ? textBoxJsonData[index].img : (await getTboxAPI(shortURL)).list[0].thumbs.url2
+        thumbnailContainer.innerHTML =
+          \`<img src="\${img}" class="thumbnail" onclick="textBoxLink('\${lineText}')" alt="Thumbnail Image"><span class="linkNumber">\${linkNumber}</span>\`
+        thumbnailContainer.style.display = 'block'
+        // Hide the Thumbnail container when clicking outside of it.
+        document.addEventListener('click', function handleClickOutside(event) {
+          if (!thumbnailContainer.contains(event.target)) {
+            document.getElementById('thumbnailContainer').style.display = 'none'
+            document.removeEventListener('click', handleClickOutside)
+          }
+        })
+      }
+
+      let clickTimeout // ,highlightedDiv;
+      const clickDelay = 0
+      document.getElementById('textBox').addEventListener('click', function (event) {
+        const targetDiv = event.target.closest('.txtDiv')
+        //if (highlightedDiv) { highlightedDiv.style.backgroundColor = null };
+        targetDiv.style.backgroundColor = '#405580'
+        targetDiv.style.color = '#aaa'
+        //highlightedDiv = targetDiv;
+        if (clickTimeout) {
+          clearTimeout(clickTimeout)
+          clickTimeout = null
+          var { lineText } = getLineText(event)
+          textBoxLink(lineText)
+        } else {
+          clickTimeout = setTimeout(function () {
+            clickTimeout = null
+            const { lineText, linkNumber } = getLineText(event)
+            showThumbnail(lineText, linkNumber)
+          }, clickDelay)
+        }
+      })
+      // Function to handle clicking on the Thumbnail.
+      function textBoxLink(lineText) {
+        const linkID = lineText.split('/').slice(-1)[0]
+        if (!localStorage.getItem('Cloudflare-Access-Token')) {
+          const cfToken = prompt("Enter The 'Cloudflare-Access-Token' :")
+          localStorage.setItem('Cloudflare-Access-Token', cfToken)
+        }
+        const cfToken = localStorage.getItem('Cloudflare-Access-Token')
+        document.getElementById('vid').value = lineText
+        document.getElementById('player').style.maxHeight = '85dvh'
+        document.getElementById('player').src = 'https://tbox.1nrp.workers.dev?URL=' + linkID +
+          '&CacheOption=Yes&AccessToken=' + cfToken
+        document.getElementById('thumbnailContainer').style.display = 'none'
+      }
+
+      // Function to load posts from the 9000 JSON items with 3rd party "Imagekit" thumbnail service.
+      async function returnRandomPosts() {
+        const localStorageKey = 'jsonTBLinks'
+        const url = 'https://1nrp.github.io/vid/9000_Links_Min.json'
+        const count = 2 // Number of items to fetch at once.
+        let jsonData = localStorage.getItem(localStorageKey)
+        if (jsonData) {
+          data = JSON.parse(jsonData)
+        } else {
+          try {
+            const response = await fetch(url)
+            if (!response.ok) {
+              throw new Error('Network response was not ok')
+            }
+            data = await response.json()
+            // Store the fetched data in local storage to avoid frequent fetching of the json file.
+            localStorage.setItem(localStorageKey, JSON.stringify(data))
+          } catch (error) {
+            console.error('Failed to fetch data:', error)
+            return null
+          }
+        }
+        // Randomly pick unique items.
+        const randomItems = []
+        const indices = new Set()
+        while (randomItems.length < count && randomItems.length < data.items.length) {
+          const randomIndex = Math.floor(Math.random() * data.items.length)
+          if (!indices.has(randomIndex)) {
+            indices.add(randomIndex)
+            randomItems.push(data.items[randomIndex])
+          }
+        }
+        return randomItems
+      }
+      async function fetchPosts() {
+        const postsContainer = document.getElementById('post-container')
+        postsContainer.innerHTML = '' // Clear previous posts.
+        const items = await returnRandomPosts()
+        if (!items) return
+        for (const item of items) {
+          const key = item.key
+          const link = item.link
+          const durationInMinutes = Math.round(item.duration / 60)
+          const sizeInMB = (item.size / (1024 * 1024 * 3)).toFixed(0) // Divide by 1024 twice for MB and divide by 3 because 360p streaming consumes 3 times less data.
+          const postElement = document.createElement('div')
+          postElement.classList.add('post')
+          postElement.innerHTML = \`
+        <div>
+            <img src="https://ik.imagekit.io/media91/image/\${key}.jpg" alt="Poster" class="poster-image" onclick="handlePosterClick('\${link}')">
+            <div class="post-details">
+            <p class="duration">\${durationInMinutes}<span style="color: #666;">&nbspMin</span></p>          
+            <p class="size">\${sizeInMB}<span style="color: #666;">&nbspMB</span></p>
+        </div>
+        </div>
+        \`
+          postsContainer.appendChild(postElement)
+        }
+      }
+
+      /*
+// Function to load posts from the 9000 JSON items with my own "Imagekit" thumbnail service.
+ async function returnRandomPosts() {
+    const localStorageKey = 'tbJsonLinks';
+    const url = 'https://1nrp.github.io/vid/TB_JSON_Min.json';
+    const count = 2; // Number of items to fetch at once.
+    let jsonData = localStorage.getItem(localStorageKey);
+    if (jsonData) {
+        data = JSON.parse(jsonData);
+    } else {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            data = await response.json();
+            // Store the fetched data in local storage to avoid frequent fetching of the json file.
+            localStorage.setItem(localStorageKey, JSON.stringify(data));
+        } catch (error) {
+            console.error('Failed to fetch data:', error);
+            return null;
+        }
+    }
+    // Randomly pick unique items.
+    const randomItems = [];
+    const indices = new Set();
+    while (randomItems.length < count && randomItems.length < data.items.length) {
+        const randomIndex = Math.floor(Math.random() * data.items.length);
+        if (!indices.has(randomIndex)) {
+            indices.add(randomIndex);
+            randomItems.push(data.items[randomIndex]);
+        }
+    }
+    return randomItems;   //*** return { items: randomItems }; // Return the items in an object with key "items" in json format.
+}
+function fetchPosts() {
+  const postsContainer = document.getElementById('post-container');
+  postsContainer.innerHTML = ''; // Clear previous posts.
+    returnRandomPosts()
+        .then(items => {  //*** .then(result) => { if (!result) return; const items = result.items; items.forEach(item => {......
+            if (!items) return;
+            items.forEach(item => {
+                    const link = item.link;
+                    const durationInMinutes = item.time;
+                    const sizeInMB = (item.size / 3).toFixed(0); // Divide by 3 because 360p streaming consumes 3 times less data.
+                    const postElement = document.createElement('div');
+                    postElement.classList.add('post');
+                    postElement.innerHTML = \`
+                        <div>
+                          <img src="https://ik.imagekit.io/TBoxLinks/TB-Links/\${link}.jpg" alt="Poster" class="poster-image" onclick="handlePosterClick('\${link}')">
+                            <div class="post-details">
+                            <p class="duration">\${durationInMinutes}<span style="color: #666;">&nbspMin</span></p>
+                            <p class="size">\${sizeInMB}<span style="color: #666;">&nbspMB</span></p>
+                          </div>
+                        </div>
+                         \`;
+                       postsContainer.appendChild(postElement);
+                    });8
+          });
+}
+      */
+
+      // Function to handle clicking on the Poster.
+      function handlePosterClick(link) {
+        document.getElementById('vid').value = 'https://teraboxapp.com/s/' + link
+        //document.getElementById('vid').value = link;
+        document.getElementById('button-play').click()
+      }
+
+      // Show or Hide Hamburger menu box.
+      function menuBox() {
+        const alertBox = document.getElementById('menuBox')
+        if (alertBox.style.display === 'block') {
+          alertBox.style.display = 'none'
+        } else {
+          alertBox.style.display = 'block'
+        }
+      }
+      // Hide menuBox when clicked on it.
+      document.addEventListener('click', function (event) {
+        const menuBox = document.getElementById('menuBox')
+        const menu = document.getElementById('hamburgerMenu')
+        if (menuBox && menuBox.style.display === 'block' && !menu.contains(event.target)) {
+          setTimeout(() => {
+            menuBox.style.display = 'none'
+          }, 300)
+        }
+      })
+
+      /*
+// Progressive Web App Service Worker Registration.
+window.addEventListener('load', () => {
+  registerSW();
+});
+async function registerSW() {
+  if ('serviceWorker' in navigator) {
+    try {
+      const registration = await navigator.serviceWorker.register('PWA/serviceWorker.js');
+      console.log('Service Worker registration successful with scope: ', registration.scope);
+    } catch (e) {
+      console.log('Service Worker registration failed:', e);
+    }
+  }
+}
+      */
+    <\/script>
+  </body>
+</html>
+`;var u=`<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" sizes="192x192" href="https://1nrp.github.io/1/Images/N-Logo1.png">
+    <title>Nihar's JS Notebook</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background-color: #0d203040;
+        padding: 0;
+      }
+      input:focus, /* Remove Focused element's border outline. */
+      select:focus,
+      textarea:focus {
+        outline: 0;
+      }
+      .toolbar {
+        padding: 4px;
+        background-color: #00200020;
+        border-bottom: 2px solid #34a054;
+      }
+      .toolbar input {
+        font-size: 16px;
+        border: 2px solid #34a054;
+        background-color: #00400040;
+        border-radius: 5px;
+        padding: 5px;
+      }
+      .toolbar button {
+        padding: 2px 6px;
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 5px;
+        background-color: #00400040;
+        border: 2px solid #34a054;
+      }
+      .toolbar button:hover {
+        background-color: #23974060;
+      }
+      .cell {
+        border: none;
+        margin: 2px;
+        width: 97%;
+        height: auto;
+        border-radius: 4px;
+      }
+      .code-editor {
+        height: 100%;
+        width: 99%;
+        border-radius: 4px;
+        resize: none;
+        color: #eee;
+        direction: ltr;
+        text-wrap: wrap;
+        overflow-y: hidden;
+        background-color: #1759d840;
+        border: none;
+        min-height: 40px;
+      }
+      .code-cell, .text-cell {
+        position: relative;
+        border: 2px solid #2e633540;
+        border-radius: 4px;
+        overflow-y: visible;
+        min-height: 40px;
+      }
+      .cell-buttons {
+        position: absolute;
+        top: 2px;
+        right: 4px;
+        display: flex;
+        gap: 25px;
+        z-index: 20;
+        margin-top: 6px;
+        background-color: #4c8fb680;
+        border: 2px solid #157c23;
+        padding: 6px;
+        opacity: 0.2;
+        border-radius: 4px;
+      }
+      .cell-buttons:hover {
+        background-color: #444;
+        opacity: 1;
+      }
+      .output {
+        overflow-y: visible;
+        width: 98%;
+      }
+      .logDiv {
+        font-family: 'Times New Roman', Times, sans-serif;
+        border-top: 1px solid #33558880;
+        padding: 4px;
+        width: 100%;
+        font-size: 14px;
+        text-wrap: wrap;
+        margin: 4px 0px;
+        background-color: #02103020;
+      }
+      .errorDiv {
+        color: #ddd;
+        border: 1px solid #d00;
+        padding: 4px;
+        margin: 4px 0px;
+        background-color: #40000040;
+      }
+      .minimized {
+        max-height: 40px;
+      }
+      .markdown-render {
+        padding: 10px;
+        background: #fff;
+        border: 1px dashed #ccc;
+        border-radius: 5px;
+      }
+      .Alerts {
+        position: fixed;
+        /* top: 5dvh; */
+        left: 20dvw;
+        z-index: 50;
+        background-color: #fff;
+        color: #000;
+        font-weight: 1000;
+        padding: 5px;
+        border: none;
+        border-radius: 5px;
+        animation-name: Alert;
+        animation-duration: 1s;
+      }
+      /* Animations */
+      @keyframes Alert {
+        from {
+          font-size: 5px;
+          top: 0dvh;
+        } /* transform: rotate(30deg)} */
+        to {
+          font-size: 20px;
+          top: 10dvh;
+        } /* transform: rotate(0deg)} */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="toolbar">
+      <input
+        style="display: none; margin: 0px 0px 4px 0px"
+        id="notebook-title"
+        placeholder="Untitled Notebook"
+        value="Untitled Notebook"
+      >
+      <div>
+        <button onclick="createCodeCell()" style="padding: 3px 6px">+ CODE</button>
+        <button
+          id="show-title"
+          style="padding: 3px 6px"
+          onclick="showNotebookList(); document.getElementById('notebook-title').style.display = (document.getElementById('notebook-title').style.display == 'none') ? 'block' : 'none';"
+        >
+          TOGGLE
+        </button>
+        <button onclick="setLocal()" style="margin-left: 6px">\u25BC SET</button>
+        <button onclick="getLocal()" style="margin-left: 6px">\u25B2 GET</button>
+        <button style="margin: 0px 0px 0px 10px" onclick="saveNotebook()">\u25B2</button>
+        <button onclick="getNotebook()">\u25BC</button>
+      </div>
+    </div>
+    <div id="notebook"></div>
+
+    <script>
+      document.addEventListener('input', (event) => {
+        if (event.target.classList.contains('code-editor')) {
+          adjustTextareaHeight(event.target)
+        }
+      })
+      function adjustTextareaHeight(textarea) {
+        textarea.style.height = 'auto' // Reset the height.
+        textarea.style.height = \`\${textarea.scrollHeight}px\` // Set height based on content.
+      }
+      // Show Alert Function.
+      function showAlert({ BgColor = '#fff', Text = 'Alert' } = {}) {
+        var alertBox = document.createElement('div')
+        alertBox.className = 'Alerts'
+        alertBox.style.backgroundColor = BgColor
+        alertBox.textContent = Text
+        document.body.appendChild(alertBox)
+        setTimeout(() => {
+          alertBox.remove()
+        }, 1000)
+      }
+
+      // Editor settings.
+      let cellCounter = 0
+      let textCounter = 0
+      const notebook = document.getElementById('notebook')
+      function createCodeCell() {
+        const cellId = \`cell-\${++cellCounter}\`
+        const textId = \`text-\${++textCounter}\`
+        const cell = document.createElement('div')
+        cell.classList.add('cell', 'code-cell')
+        cell.id = cellId
+        cell.innerHTML = \`
+        <button class="cell-buttons" style="margin:0px 120px 0px 0px" onclick="runCode('\${cellId}')">\u2699\uFE0F</button>
+        <button class="cell-buttons" style="margin:0px 60px 0px 0px" onclick="minimizeCell('\${cellId}', '\${textId}')">\u25B6\uFE0F</button>
+        <button class="cell-buttons" onclick="deleteCell('\${cellId}')">\u274C</button>
+
+        <textarea id="\${textId}" class="code-editor" spellcheck=false></textarea>
+        <div class="output"></div>
+      \`
+        notebook.appendChild(cell)
+        const editor = cell.querySelector('.code-editor')
+        cell.editor = editor
+      }
+
+      async function runCode(cellId) {
+        const cell = document.getElementById(cellId)
+        const output = cell.querySelector('.output')
+        output.innerHTML = ''
+
+        const cleanup = redirectConsole(output)
+        try {
+          const code = cell.editor.value
+          await new Function(\`return (async () => { \${code} })()\`)()
+        } catch (err) {
+          console.error(err.message)
+        }
+        cleanup()
+      }
+
+      function redirectConsole(output) {
+        const originalLog = console.log
+        const originalError = console.error
+
+        // Override console.log().
+        console.log = (...args) => {
+          const msg = document.createElement('div')
+          msg.className = 'logDiv'
+          msg.textContent = args.join('')
+          output.appendChild(msg)
+          // originalLog.apply(console, args); // Also log to real console.
+        }
+
+        // Override console.error
+        console.error = (...args) => {
+          const msg = document.createElement('div')
+          msg.className = 'errorDiv'
+          msg.textContent = '\xBB ' + args.join('')
+          output.appendChild(msg)
+          // originalError.apply(console, args); // Also log to real console.
+        }
+
+        // Create global log() and error() functions.
+        window.log = (...args) => console.log(...args)
+        window.n = (...args) => console.log(...args) // Even shorter and quicker log function than the above "log()".
+        window.error = (...args) => console.error(...args)
+
+        // Returns a function that can be called to restore the original console.log and console.error.
+        return () => {
+          console.log = originalLog
+          console.error = originalError
+          // delete window.n;
+          // delete window.log;
+          // delete window.error;
+        }
+      }
+
+      function minimizeCell(cellId, textId) {
+        const cell = document.getElementById(cellId)
+        const text = document.getElementById(textId)
+        text.classList.toggle('minimized')
+        cell.classList.toggle('minimized')
+      }
+
+      function deleteCell(cellId) {
+        const cell = document.getElementById(cellId)
+        cell.remove()
+      }
+
+      function setLocal() {
+        if (!confirm('Do You Want To Set The Current Notebook With The Given Title To Local Storage ?')) return
+
+        const title = document.getElementById('notebook-title').value.trim()
+        if (!title || title == 'Untitled Notebook') {
+          alert('Please give a Title to the Notebook.')
+          return
+        }
+        const content = { title, cells: [] }
+        notebook.querySelectorAll('.cell').forEach((cell) => {
+          if (cell.classList.contains('code-cell')) {
+            content.cells.push({ type: 'code', content: cell.editor?.value || '' })
+          } else if (cell.classList.contains('text-cell')) {
+            const markdown = cell.querySelector('.markdown-editor')?.value || ''
+            content.cells.push({ type: 'text', content: markdown })
+          }
+        })
+        try {
+          localStorage.setItem(\`JSNB-\${title}\`, JSON.stringify(content))
+          showAlert({ BgColor: '#3705eb', Text: '\u2714 Saved Locally' })
+        } catch (error) {
+          showAlert({ BgColor: '#f2074e', Text: '\u2716 Saving Failed' })
+        }
+      }
+
+      function showNotebookList() {
+        createCodeCell()
+        const showListsCode = \`// List All Notebooks.
+for (let i = 0; i < localStorage.length; i++) {
+   let key = localStorage.key(i);
+   if (key.startsWith('JSNB')) {
+      console.log(key);
+   }
+}
+
+const outputDiv = document.getElementsByClassName('output')[0];
+outputDiv.addEventListener('click', function(event) { 
+    let ID = event.target.closest('.logDiv').textContent; 
+    finalID = ID.replaceAll('JSNB-', ''); 
+    document.getElementById('notebook-title').value = finalID;
+}) \`
+        notebook.lastChild.editor.value = showListsCode
+      }
+
+      function getLocal() {
+        const notebookName = document.getElementById('notebook-title').value.trim()
+        if (!notebookName) {
+          alert('Please enter a notebook title.')
+          return
+        }
+        const localNote = localStorage.getItem(\`JSNB-\${notebookName}\`)
+        if (localNote) {
+          const content = JSON.parse(localNote) // Parse the local storage string into JSON
+          document.getElementById('notebook-title').value = content.title
+          notebook.innerHTML = '' // Clear the notebook content.
+          content.cells.forEach((cell) => {
+            if (cell.type === 'code') {
+              createCodeCell()
+              if (notebook.lastChild && notebook.lastChild.editor) {
+                notebook.lastChild.editor.value = cell.content // Set the content of the code cell
+              }
+            }
+          })
+        } else {
+          alert('Notebook not found in Local Storage.')
+        }
+      }
+
+      // Upload Notebook to KV.
+      async function saveNotebook() {
+        const check = confirm('Is This The Browser Where All Notebooks Are Saved In Local Storage ?')
+        if (!check) return
+
+        notebook.innerHTML = '' // "notebook" is defined at the start of the script.
+        for (let i = 0; i < localStorage.length; i++) {
+          let key = localStorage.key(i)
+          if (key.startsWith('JSNB')) {
+            const json = JSON.parse(localStorage.getItem(key))
+            json.cells.forEach((cell) => {
+              if (cell.type === 'code') {
+                createCodeCell()
+                notebook.lastChild.editor.value = '// ' + key + '\\n' + cell.content
+              }
+            })
+          }
+        }
+
+        const content = { title: 'ALL-NOTEBOOKS', cells: [] }
+        notebook.querySelectorAll('.cell').forEach((cell) => {
+          if (cell.classList.contains('code-cell')) {
+            content.cells.push({ type: 'code', content: cell.editor.value })
+          }
+        })
+
+        try {
+          const response = await fetch('/jsnb', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(content, null, 2),
+          })
+          if (response.status === 401) {
+            showAlert({ BgColor: '#f403fc', Text: '\u2716 Login First' })
+            return
+          } else if (response.ok) {
+            showAlert({ BgColor: '#1bd13d', Text: \`\u2714 Notebook Saved\` })
+          } else {
+            alert('Error from server:', await response.text())
+          }
+        } catch (error) {
+          console.error('Error sending Notebook to Vercel KV:', error)
+        }
+      }
+
+      // Fetch Notebook from Vercel KV.
+      async function getNotebook() {
+        const response = await fetch('/jsnb')
+        if (response.status === 401) {
+          showAlert({ BgColor: '#f403fc', Text: '\u2716 Login First' })
+          return
+        }
+
+        const data = await response.json()
+        const content = JSON.parse(data.result)
+        document.getElementById('notebook-title').value = content.title
+        notebook.innerHTML = ''
+        console.log('JSON File: ', content)
+        content.cells.forEach((cell) => {
+          if (cell.type === 'code') {
+            createCodeCell()
+            notebook.lastChild.editor.value = cell.content
+          }
+        })
+      }
+    <\/script>
+  </body>
+</html>
+`;var m=`;(() => {
   var De = Object.create
   var te = Object.defineProperty
   var Xe = Object.getOwnPropertyDescriptor
@@ -2110,4 +3942,4 @@ is-buffer/index.js:
    * MIT Licensed
    *)
 */
-`;export{a as Blob,r as Index,t as Login,s as Notes,d as VercelUpload};
+`;export{a as Blob,n as Index,u as JS_Notebook,t as Login,s as Notes,m as VercelUpload,d as Video};

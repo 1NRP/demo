@@ -6,7 +6,7 @@ if ( typeof Deno == 'undefined' && typeof process != 'undefined' && process.vers
 }
 
 export async function SendJson(res) { // 'res' is a Response object.
-  const response = new Response( await res.text(), { status: res.status } ) // Upstash returns a JSON response.
+  const response = new Response(await res.blob(), { status: res.status })
   response.headers.set('Content-Type', 'application/json')
   return response
 }
@@ -14,7 +14,7 @@ export async function SendJson(res) { // 'res' is a Response object.
 const UPSTASH = {
   url: Deno.env.get('UPSTASH_REDIS_REST_URL'),
   token: Deno.env.get('UPSTASH_REDIS_REST_TOKEN'),
-  
+
   GET: async (key) => {
     const res = await fetch(`${UPSTASH.url}/GET/${key}`, {
       headers: {
@@ -145,10 +145,10 @@ function pemToArrayBuffer(pem) {
 
 // Hash Passwords using Web Crypto API.
 export async function CreatePasswordHash(password) {
-  const salt = Deno.env.get('USERNAME_PASSWORD_SALT') ?? "" // crypto.getRandomValues(new Uint8Array(16)) 
+  const salt = Deno.env.get('USERNAME_PASSWORD_SALT') ?? '' // crypto.getRandomValues(new Uint8Array(16))
   const encoder = new TextEncoder()
   const dataBytes = encoder.encode(password + salt)
-  const hash = await crypto.subtle.digest( 'SHA-256', dataBytes )
+  const hash = await crypto.subtle.digest('SHA-256', dataBytes)
   const hashArray = Array.from(new Uint8Array(hash))
   const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
   return hashHex
@@ -259,7 +259,10 @@ export async function BlobServer(req) {
           return tokenPayload
         },
       })
-      return new Response(JSON.stringify(jsonResponse), { status: 200, headers: { 'Content-Type': 'application/json' } })
+      return new Response(JSON.stringify(jsonResponse), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
     } catch (error) {
       console.error('Error while handling the upload:', error)
       return new Response(JSON.stringify({ error: error.message }))
@@ -352,11 +355,10 @@ export async function ServeStaticFile(FilePath) {
   let File
   const Environment = Deno.env.get('NRP_DEPLOYMENT_ENVIRONMENT')
 
-  if (Environment == 'Vercel') { // For Vercel bundling compatibility of static files.
+  if (Environment == 'vVercel') { // For Vercel bundling compatibility of static files.
     const files = await import('./StaticFiles.js')
     const exportName = FilePath.split('/').pop().split('.').shift()
     File = files[exportName]
-  
   } else {
     File = await Deno.readFile(FilePath)
   }
@@ -398,6 +400,16 @@ export async function LoginHandler(req) {
       headers: { 'Content-Type': 'application/json' },
     })
   }
+}
+
+export async function Logout() {
+  return new Response(JSON.stringify({ success: true, message: 'Logout Successful' }), {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json',
+      'Set-Cookie': 'caption=loggedOut; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0',
+    },
+  })
 }
 
 export async function LoginStatus() {
@@ -448,7 +460,7 @@ export async function ProtectedRoute(Handler, req) {
 export async function TeraboxCloudflare(request) {
   const { URL: shortURL, CacheOption, AccessToken: Token } = Object.fromEntries(new URL(request.url).searchParams)
   const Cache = CacheOption === 'Yes' // Convert Cache to boolean.
- 
+
   if (Token !== 'cloudF-code-0088') {
     return new Response('Wrong Access Token Code. Request Is Unauthorized', { status: 401 })
   }
@@ -497,8 +509,8 @@ export async function CorsProxy(req) {
   try {
     const Link = new URL(req.url).searchParams.get('URL')
     const response = await fetch(Link)
-    
-    const resp = new Response(response.body)
+
+    const resp = new Response(await response.blob())
     resp.headers.set('Cache-Control', 'public, max-age=3600')
     resp.headers.set('Access-Control-Allow-Origin', 'https://1nrp.github.io')
     return resp
@@ -638,8 +650,7 @@ export { CheckIfExists, DeleteLink, GetLink, GetM3U8, SaveLink, TgChannels }
 
 async function GetLink() {
   try {
-    const response = await UPSTASH.LRANGE('TB_Links')
-    const resp = new Response(response.body)
+    const resp = await UPSTASH.LRANGE('TB_Links')
     resp.headers.set('Cache-Control', 'public, max-age=10, stale-while-revalidate=172800')
     return resp
   } catch (error) {

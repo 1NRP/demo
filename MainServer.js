@@ -12,6 +12,7 @@ import {
   JSNotebook,
   LoginHandler,
   LoginStatus,
+  Logout,
   ProtectedRoute,
   SaveLink,
   SaveNote,
@@ -30,7 +31,25 @@ if ( typeof Deno == 'undefined' && typeof process != 'undefined' && process.vers
 }
 
 const CORS_ALLOWED_ORIGINS = ['https://1nrp.github.io'] // Allowed origins for CORS.
-const ProtectedRoutes = ['/blob', '/fyerstoken', '/getnote', '/jsnb', '/savenote', '/loginstatus', '/deletenote', '/blobserver'] // Protected Routes. Require Authentication.
+
+const ProtectedRoutes = [
+  '/blob',
+  '/fyerstoken',
+  '/getnote',
+  '/jsnb',
+  '/logout',
+  '/savenote',
+  '/loginstatus',
+  '/deletenote',
+  '/blobserver',
+  '/deletelink',
+  '/getm3u8',
+  '/savelink',
+  '/getlink',
+  '/tgchannels',
+  '/corsproxy',
+] // Protected Routes. Require Authentication.
+
 const PORT = 3000
 
 // deno task run  ( For Local Development ).
@@ -45,10 +64,12 @@ Route('GET', '/', () => ServeStaticFile('./Index.html'))
 Route('GET', '/login', () => ServeStaticFile('./Login.html'))
 Route('GET', '/blob', () => ServeStaticFile('./Blob.html'))
 Route('GET', '/notes', () => ServeStaticFile('./Notes.html'))
+Route('GET', '/video', () => ServeStaticFile('./Video.html'))
+Route('GET', '/js_notebook', () => ServeStaticFile('./JS_Notebook.html'))
 Route('GET', '/upload.js', () => ServeStaticFile('./VercelUpload.js'))
-Route('GET', '/vue', () => ServeStaticFile('./Vue.html'))
 
 Route('GET', '/loginstatus', LoginStatus)
+Route('GET', '/logout', Logout) // Logout route.
 Route('POST', '/login', LoginHandler) // Login route.
 Route('POST', '/deletelink', DeleteLink)
 Route('GET', '/getm3u8', GetM3U8)
@@ -94,7 +115,7 @@ async function MainHandler(req) {
 
   if (Handler) {
     // console.log(`HTTP Request Received: \n Method: ${method}, \n Path: ${path}`)
-    if ( ProtectedRoutes.includes(path.toLowerCase()) ) {
+    if (ProtectedRoutes.includes(path.toLowerCase())) {
       response = await ProtectedRoute(Handler, req)
     } else {
       response = await Handler(req)
