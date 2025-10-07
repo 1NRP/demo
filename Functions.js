@@ -355,7 +355,7 @@ export async function ServeStaticFile(FilePath) {
   let File
   const Environment = Deno.env.get('NRP_DEPLOYMENT_ENVIRONMENT')
 
-  if (Environment == 'vVercel') { // For Vercel bundling compatibility of static files.
+  if (Environment == 'Vercel') { // For Vercel bundling compatibility of static files.
     const files = await import('./StaticFiles.js')
     const exportName = FilePath.split('/').pop().split('.').shift()
     File = files[exportName]
