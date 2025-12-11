@@ -6,14 +6,9 @@
       "use": "@vercel/node"
     }
   ],
-  "crons": [
-    {
-      "path": "/KV-And-Blob-Database-Deletion-Prevention-CRON-Job",
-      "schedule": "0 6 1/10 * *"
-    }
-  ],
   "routes": [
     { "src": "/Example", "dest": "/Example.js" },
     { "src": "/(.*)", "dest": "/MainServer.js" }
   ]
+
 }
